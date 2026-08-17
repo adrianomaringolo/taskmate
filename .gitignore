@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+data/
+tools/shots/
+*.db
+*.db-shm
+*.db-wal
+.impeccable/
+.DS_Store
+*.log

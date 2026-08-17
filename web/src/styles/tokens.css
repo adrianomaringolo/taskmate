@@ -1,0 +1,183 @@
+/*
+ * Design tokens. Every colour pair here is verified by `npm run test:tokens`
+ * (tools/contrast.mjs) — 47 contrast and sRGB-gamut checks. Change a value
+ * there too, or the check stops meaning anything.
+ *
+ * Theme has three states: no attribute = follow the OS; [data-theme="light"]
+ * and [data-theme="dark"] = explicit override that wins in both directions.
+ */
+
+:root {
+  /* --- light: the default ------------------------------------------------
+     Body is literal white at chroma 0. The brand carries the warmth; putting
+     it in the surface too is the cliché. */
+  --bg: oklch(1 0 0);
+  --surface: oklch(0.976 0.004 255);
+  --surface-2: oklch(0.955 0.005 255);
+  --surface-3: oklch(0.93 0.006 255);
+  --line: oklch(0.905 0.006 255);
+  --line-strong: oklch(0.845 0.008 255);
+
+  --ink: oklch(0.215 0.012 255);
+  --ink-2: oklch(0.44 0.014 255);
+  --ink-3: oklch(0.545 0.014 255);
+
+  --brand: oklch(0.66 0.135 62);
+  --brand-hover: oklch(0.615 0.14 62);
+  --brand-ink: oklch(0.485 0.112 58);
+  --brand-wash: oklch(0.66 0.135 62 / 0.1);
+  --on-brand: oklch(0.24 0.03 62);
+
+  --danger: oklch(0.53 0.2 25);
+  --danger-wash: oklch(0.53 0.2 25 / 0.09);
+  --success: oklch(0.53 0.12 152);
+
+  /* Empty-state marks: a Lucide icon (single stroke, currentColor) on a neutral
+     plate. Two tokens are enough now that the artwork is one colour — the plate
+     restores the visual mass a bare outline loses. No brand hue: a mark is not
+     state. */
+  --illo-line: oklch(0.545 0.014 255);
+  --illo-plate: oklch(0.93 0.006 255);
+
+  --focus: var(--brand-ink);
+  --shadow-popover: 0 1px 2px oklch(0.215 0.012 255 / 0.06), 0 8px 24px -6px oklch(0.215 0.012 255 / 0.18);
+  --shadow-drawer: 0 0 0 100vmax oklch(0.215 0.012 255 / 0.32);
+
+  /* Eight group accents: one L, one C, eight hues. C is capped at the weakest
+     hue's sRGB limit (teal) so nothing gamut-clips and breaks the family. */
+  --g-honey: oklch(0.6 0.1 62);
+  --g-rust: oklch(0.6 0.1 30);
+  --g-rose: oklch(0.6 0.1 355);
+  --g-violet: oklch(0.6 0.1 305);
+  --g-indigo: oklch(0.6 0.1 268);
+  --g-blue: oklch(0.6 0.1 232);
+  --g-teal: oklch(0.6 0.1 195);
+  --g-green: oklch(0.6 0.1 150);
+
+  /* --- type: fixed rem scale, ratio ~1.16. No clamp() in product UI. --- */
+  --t-xs: 0.75rem;
+  --t-sm: 0.8125rem;
+  --t-base: 0.9375rem;
+  --t-md: 1.0625rem;
+  --t-lg: 1.375rem;
+
+  --font: 'Inter var', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* --- space: 4px scale ------------------------------------------------- */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 12px;
+
+  /* --- z: semantic, never arbitrary ------------------------------------ */
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-drawer: 20;
+  --z-overlay: 30;
+  --z-popover: 40;
+  --z-toast: 50;
+
+  /* --- motion: ease-out-quint, 150-220ms ------------------------------- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 150ms;
+  --dur: 180ms;
+  --dur-slow: 220ms;
+
+  --sidebar-w: 264px;
+
+  color-scheme: light;
+}
+
+/* Follow the OS when the user has expressed no preference. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: oklch(0.165 0.008 255);
+    --surface: oklch(0.205 0.009 255);
+    --surface-2: oklch(0.245 0.01 255);
+    --surface-3: oklch(0.285 0.011 255);
+    --line: oklch(0.315 0.011 255);
+    --line-strong: oklch(0.4 0.012 255);
+
+    --ink: oklch(0.955 0.004 255);
+    --ink-2: oklch(0.755 0.011 255);
+    --ink-3: oklch(0.655 0.013 255);
+
+    /* Inverted: the plate sits above the page instead of below the stroke. */
+    --illo-line: oklch(0.655 0.013 255);
+    --illo-plate: oklch(0.285 0.011 255);
+
+    --brand: oklch(0.755 0.135 64);
+    --brand-hover: oklch(0.8 0.13 64);
+    --brand-ink: oklch(0.8 0.13 64);
+    --brand-wash: oklch(0.755 0.135 64 / 0.14);
+    --on-brand: oklch(0.2 0.03 62);
+
+    --danger: oklch(0.68 0.18 25);
+    --danger-wash: oklch(0.68 0.18 25 / 0.14);
+    --success: oklch(0.72 0.13 152);
+
+    --shadow-popover: 0 1px 2px oklch(0 0 0 / 0.4), 0 8px 24px -6px oklch(0 0 0 / 0.55);
+    --shadow-drawer: 0 0 0 100vmax oklch(0 0 0 / 0.55);
+
+    --g-honey: oklch(0.74 0.125 62);
+    --g-rust: oklch(0.74 0.125 30);
+    --g-rose: oklch(0.74 0.125 355);
+    --g-violet: oklch(0.74 0.125 305);
+    --g-indigo: oklch(0.74 0.125 268);
+    --g-blue: oklch(0.74 0.125 232);
+    --g-teal: oklch(0.74 0.125 195);
+    --g-green: oklch(0.74 0.125 150);
+
+    color-scheme: dark;
+  }
+}
+
+/* Explicit choice wins over the OS, in both directions. */
+:root[data-theme='dark'] {
+  --bg: oklch(0.165 0.008 255);
+  --surface: oklch(0.205 0.009 255);
+  --surface-2: oklch(0.245 0.01 255);
+  --surface-3: oklch(0.285 0.011 255);
+  --line: oklch(0.315 0.011 255);
+  --line-strong: oklch(0.4 0.012 255);
+
+  --ink: oklch(0.955 0.004 255);
+  --ink-2: oklch(0.755 0.011 255);
+  --ink-3: oklch(0.655 0.013 255);
+
+  /* Inverted: the plate sits above the page instead of below the stroke. */
+  --illo-line: oklch(0.655 0.013 255);
+  --illo-plate: oklch(0.285 0.011 255);
+
+  --brand: oklch(0.755 0.135 64);
+  --brand-hover: oklch(0.8 0.13 64);
+  --brand-ink: oklch(0.8 0.13 64);
+  --brand-wash: oklch(0.755 0.135 64 / 0.14);
+  --on-brand: oklch(0.2 0.03 62);
+
+  --danger: oklch(0.68 0.18 25);
+  --danger-wash: oklch(0.68 0.18 25 / 0.14);
+  --success: oklch(0.72 0.13 152);
+
+  --shadow-popover: 0 1px 2px oklch(0 0 0 / 0.4), 0 8px 24px -6px oklch(0 0 0 / 0.55);
+  --shadow-drawer: 0 0 0 100vmax oklch(0 0 0 / 0.55);
+
+  --g-honey: oklch(0.74 0.125 62);
+  --g-rust: oklch(0.74 0.125 30);
+  --g-rose: oklch(0.74 0.125 355);
+  --g-violet: oklch(0.74 0.125 305);
+  --g-indigo: oklch(0.74 0.125 268);
+  --g-blue: oklch(0.74 0.125 232);
+  --g-teal: oklch(0.74 0.125 195);
+  --g-green: oklch(0.74 0.125 150);
+
+  color-scheme: dark;
+}
