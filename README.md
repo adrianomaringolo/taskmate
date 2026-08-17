@@ -205,11 +205,17 @@ do resto do JS. É um ativo com hash imutável, então é baixado uma vez por ve
 e depois vem do cache — mas o primeiro acesso sente, e o service worker precisa
 baixá-lo inteiro para o app funcionar offline. É o preço do merge correto.
 
-**Renovação silenciosa de token pode falhar no Safari.** O fluxo de navegador dá
-access token de ~1 h e não refresh token (guardar um exigiria backend). A
-renovação é invisível depois do primeiro consentimento, mas as restrições de
-cookie de terceiros do Safari podem quebrá-la e forçar reconexão manual. Não
-testado em dispositivo Apple.
+**Renovação silenciosa abre e fecha um popup sozinho, a cada carregamento.** O
+fluxo de navegador dá access token de ~1 h e não refresh token (guardar um
+exigiria backend) — e o token não é persistido, então toda vez que a página
+carrega o app pede um novo ao Google. O Identity Services não tem como fazer
+isso sem abrir uma janela real: mesmo em modo silencioso (`prompt: ''`), ele
+abre um popup, confirma a sessão já ativa e o consentimento já dado, e fecha
+sozinho — geralmente em menos de um segundo, sem exigir nenhum clique. É
+perceptível (um flash de carregamento) mas não é erro; a sincronização segue
+normal depois. As restrições de cookie de terceiros do Safari podem quebrar
+esse mecanismo de vez e forçar reconexão manual — não testado em dispositivo
+Apple.
 
 **Dois uploads quase simultâneos custam um round trip.** O Drive não tem escrita
 condicional, então o segundo sobrescreve o primeiro. Nenhum dado é perdido — o

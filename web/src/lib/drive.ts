@@ -8,9 +8,10 @@
  * copy, and back it up without going through us.
  *
  * There is no client secret and no backend, which means no refresh token: the
- * browser flow issues access tokens valid for about an hour. Renewal is silent
- * after the first consent, so in practice it is invisible — but see
- * `requestToken` for the case where it is not.
+ * browser flow issues access tokens valid for about an hour, and the token
+ * itself is never persisted — every page load has to ask Google for a new one.
+ * That renewal is silent in the sense that it needs no click, but not
+ * invisible: see `requestToken` for what actually happens on screen.
  */
 
 const SCOPE = 'https://www.googleapis.com/auth/drive.file';
@@ -179,10 +180,13 @@ function authMessage(code?: string): string {
 
 /**
  * `interactive: false` attempts a silent renewal, which works once consent has
- * been granted and the Google session is alive. It can still fail — Safari's
- * tracking prevention blocks the third-party context silent renewal relies on —
- * so callers must treat an `auth` failure as "ask the user to reconnect" rather
- * than as a fatal error.
+ * been granted and the Google session is alive — no click required. It is not
+ * invisible, though: GIS still opens a real popup to confirm the session and
+ * closes it itself a moment later, which is the brief loading flash a user
+ * sees on every reload. It can also fail outright — Safari's tracking
+ * prevention blocks the third-party context this relies on — so callers must
+ * treat an `auth` failure as "ask the user to reconnect" rather than as a
+ * fatal error.
  */
 export async function requestToken({ interactive }: { interactive: boolean }): Promise<string> {
   if (!isConfigured()) throw new DriveError('Sincronização não configurada.', 'auth');
