@@ -38,6 +38,9 @@ export function SyncPanel() {
         <>
           <p className="menu__label">Sincronização</p>
           <p className="sync-sheet__status">{summary}</p>
+          {sync.connected && sync.accountEmail && (
+            <p className="sync-sheet__account">{sync.accountEmail}</p>
+          )}
 
           {!sync.configured && (
             <p className="sync-sheet__body">
