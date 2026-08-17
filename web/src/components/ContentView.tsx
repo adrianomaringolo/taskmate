@@ -2,6 +2,7 @@ import { useCallback, useState, type CSSProperties, type RefObject } from 'react
 import { addDays, describeDue, describeDueFull, fromKey, today } from '../lib/date';
 import { useStore } from '../lib/store';
 import type { List, Task, View } from '../lib/types';
+import { CalendarView } from './CalendarView';
 import { EmptyState } from './EmptyState';
 import { Icon } from './Icon';
 import { InlineText } from './InlineText';
@@ -63,6 +64,10 @@ function ReadyState({ view, onSelect, quickAddRef }: Props) {
     const list = listById.get(view.listId);
     if (!list) return <MissingList onSelect={onSelect} />;
     return <ListView list={list} quickAddRef={quickAddRef} />;
+  }
+
+  if (view.kind === 'calendar') {
+    return <CalendarView view={view} onSelect={onSelect} quickAddRef={quickAddRef} labelFor={labelFor} />;
   }
 
   const inbox = data.lists.find((l) => l.isInbox);
@@ -351,7 +356,7 @@ function ListView({ list, quickAddRef }: { list: List; quickAddRef: RefObject<HT
   );
 }
 
-function DoneSection({ tasks, label }: { tasks: Task[]; label: string }) {
+export function DoneSection({ tasks, label }: { tasks: Task[]; label: string }) {
   const [open, setOpen] = useState(false);
 
   return (

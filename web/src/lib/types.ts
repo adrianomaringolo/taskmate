@@ -111,9 +111,12 @@ export interface AppState {
   tasks: Task[];
 }
 
+export type CalendarMode = 'month' | 'week' | 'day';
+
 /** What the content column is showing. */
 export type View =
   | { kind: 'list'; listId: string }
   | { kind: 'today' }
   | { kind: 'upcoming' }
+  | { kind: 'calendar'; mode: CalendarMode; date: string }
   | { kind: 'search'; query: string };

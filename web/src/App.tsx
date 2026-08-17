@@ -5,6 +5,7 @@ import { Menu } from './components/Menu';
 import { Sidebar } from './components/Sidebar';
 import { SyncPanel } from './components/SyncPanel';
 import { Toasts } from './components/Toasts';
+import { today } from './lib/date';
 import { readPref, writePref } from './lib/prefs';
 import { initPwa } from './lib/pwa';
 import { StoreProvider, useStore } from './lib/store';
@@ -20,10 +21,14 @@ function readView(): View {
     const raw = readPref(VIEW_KEY);
     if (!raw) return TODAY;
 
-    const parsed = JSON.parse(raw) as { kind?: unknown; listId?: unknown };
+    const parsed = JSON.parse(raw) as { kind?: unknown; listId?: unknown; mode?: unknown };
     if (parsed.kind === 'today' || parsed.kind === 'upcoming') return { kind: parsed.kind };
     if (parsed.kind === 'list' && typeof parsed.listId === 'string')
       return { kind: 'list', listId: parsed.listId };
+    // Restore the mode (month/week/day) but never a stale date — a calendar
+    // reopened days later should land on today, not wherever it was left.
+    if (parsed.kind === 'calendar' && (parsed.mode === 'month' || parsed.mode === 'week' || parsed.mode === 'day'))
+      return { kind: 'calendar', mode: parsed.mode, date: today() };
   } catch {
     /* corrupt or unavailable storage: start at Today */
   }
@@ -131,7 +136,7 @@ function Shell() {
 
       <main className="main" ref={mainRef} onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 4)}>
         <div className="topbar" data-scrolled={scrolled}>
-        <div className="topbar__inner">
+        <div className={`topbar__inner${view.kind === 'calendar' ? ' topbar__inner--wide' : ''}`}>
           <button
             type="button"
             className="btn btn--icon topbar__menu"
