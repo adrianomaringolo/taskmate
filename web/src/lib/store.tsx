@@ -10,7 +10,7 @@ import {
 } from 'react';
 import * as D from './doc';
 import type { Doc } from './doc';
-import { driveTransport, isConfigured, requestToken, signOut, DriveError } from './drive';
+import { driveTransport, isConfigured, preload as preloadDrive, requestToken, signOut, DriveError } from './drive';
 import { readPref, writePref } from './prefs';
 import {
   EMPTY_SYNC_META,
@@ -172,6 +172,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const timers = toastTimers.current;
     return () => timers.forEach(clearTimeout);
+  }, []);
+
+  // Fetches and initializes the Google token client while the app is idle, so
+  // the "Conectar" tap itself never has to await it — see drive.ts's `preload`
+  // for why that gap is what closes the popup on mobile Chrome.
+  useEffect(() => {
+    preloadDrive();
   }, []);
 
   // --- persistence ----------------------------------------------------

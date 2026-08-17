@@ -153,6 +153,23 @@ async function ensureClient(): Promise<TokenClient> {
   return client;
 }
 
+/**
+ * Warms the token client before the user ever taps "Conectar". The popup that
+ * `requestAccessToken` opens is only trusted as user-initiated while it happens
+ * inside the click's own call stack — if that click has to `await` the Google
+ * script loading over the network first, the delay is often enough for mobile
+ * Chrome to stop treating the eventual `window.open` as user-initiated, and it
+ * closes the popup immediately, before the user can finish authorizing. Loading
+ * the script and initializing the client ahead of time, while the app is idle,
+ * keeps the real click free of any await before the popup opens.
+ */
+export function preload(): void {
+  if (!isConfigured()) return;
+  void ensureClient().catch(() => {
+    // Best-effort: a real failure surfaces properly on the next requestToken call.
+  });
+}
+
 function authMessage(code?: string): string {
   if (code === 'popup_closed' || code === 'popup_failed_to_open')
     return 'A janela do Google fechou antes de concluir. Tente conectar de novo.';
