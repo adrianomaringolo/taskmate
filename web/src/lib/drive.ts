@@ -50,6 +50,9 @@ const CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?
 /** Sync is opt-in infrastructure; without a client id the app is local-only. */
 export const isConfigured = (): boolean => CLIENT_ID.length > 0;
 
+/** The connected account's email, once `captureHint` has learned it. */
+export const accountHint = (): string | null => readPref(HINT_PREF);
+
 export type { RemoteFile } from './sync';
 import { readPref, removePref, writePref } from './prefs';
 import type { RemoteFile, Transport } from './sync';

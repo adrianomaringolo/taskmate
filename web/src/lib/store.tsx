@@ -10,7 +10,15 @@ import {
 } from 'react';
 import * as D from './doc';
 import type { Doc } from './doc';
-import { driveTransport, isConfigured, preload as preloadDrive, requestToken, signOut, DriveError } from './drive';
+import {
+  accountHint,
+  driveTransport,
+  isConfigured,
+  preload as preloadDrive,
+  requestToken,
+  signOut,
+  DriveError,
+} from './drive';
 import { readPref, writePref } from './prefs';
 import {
   EMPTY_SYNC_META,
@@ -81,6 +89,8 @@ interface Store {
   sync: {
     configured: boolean;
     connected: boolean;
+    /** The Google account email, once known — see drive.ts's `captureHint`. */
+    accountEmail: string | null;
     state: SyncState;
     connect: () => Promise<void>;
     disconnect: () => Promise<void>;
@@ -126,6 +136,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [meta, setMetaState] = useState<SyncMeta>(EMPTY_SYNC_META);
   const [syncState, setSyncState] = useState<SyncState>(
     isConfigured() ? { kind: 'off' } : { kind: 'unconfigured' }
+  );
+  // Re-read after every sync completes rather than pushed reactively from
+  // `captureHint`: that fetch races the sync it rides in on, so "eventually
+  // consistent, refreshed on the next state change" is simpler than plumbing
+  // a callback through for a settings-panel display.
+  const [accountEmail, setAccountEmail] = useState<string | null>(() =>
+    isConfigured() ? accountHint() : null
   );
   const [collapsed, setCollapsed] = useState<Set<string>>(readCollapsed);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -262,6 +279,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setDoc(D.merge(docRef.current ?? outcome.doc, outcome.doc));
         putMeta(outcome.meta);
         setSyncState({ kind: 'idle', lastSyncAt: outcome.meta.lastSyncAt });
+        setAccountEmail(accountHint());
       } catch (err) {
         const isDrive = err instanceof DriveError;
         setSyncState({
@@ -560,6 +578,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     await signOut();
     putMeta({ ...EMPTY_SYNC_META });
     setSyncState({ kind: 'off' });
+    setAccountEmail(null);
     notify('Desconectado do Drive. Seus dados continuam neste dispositivo.');
   }, [notify, putMeta]);
 
@@ -599,6 +618,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     sync: {
       configured: isConfigured(),
       connected: meta.fileId !== null,
+      accountEmail,
       state: syncState,
       connect,
       disconnect,
