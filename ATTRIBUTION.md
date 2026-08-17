@@ -41,9 +41,25 @@ Lucide é desenhado para 16–24px. Ampliado para 58px, um traço de 2 renderiza
 
 ## Ícones da interface
 
-O conjunto em `web/src/components/Icon.tsx` é desenhado à mão neste projeto,
-numa grade de 16 unidades com traço 1.5 — mesmo idioma do Lucide. Não há
-dependência de runtime para ícones.
+O conjunto em `web/src/components/Icon.tsx` vive numa grade de 16 unidades com
+traço 1.5. A maioria dos paths é geometria do [Lucide](https://lucide.dev)
+(ISC), escalada de 24 para 16 unidades por `tools/lucide-scale.mjs` — não
+retraçada à mão. O aviso de copyright fica no comentário no topo do próprio
+`Icon.tsx`, já que os ícones não têm um arquivo por SVG como os estados
+vazios. Não há dependência de runtime: o script roda uma vez, o resultado é
+colado como código estático, igual aos ícones sempre foram.
+
+```
+Copyright (c) 2026 Lucide Icons and Contributors
+ISC License — texto completo em assets/lucide-LICENSE.txt
+```
+
+Ficam desenhados à mão, sem equivalente no Lucide ou deliberadamente
+simplificados: `mark` (a marca da Taskmate), `today`/`upcoming`/`calendar`
+(composições de grade de pontos específicas do produto), `list` (linhas de
+texto lê melhor que lista com marcadores para indicar notas), e
+`moon`/`search`/`sun`/`keyboard`/`monitor`/`menu` (sem risco de arco a
+eliminar, ou simplificados de propósito para legibilidade em 16px).
 
 ## Ícones do app (PWA)
 

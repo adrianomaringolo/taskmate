@@ -1575,6 +1575,14 @@ button {
   font-weight: 550;
 }
 
+.sync-sheet__account {
+  padding: 0 var(--s-2) var(--s-3);
+  margin-top: -6px;
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
 .sync-sheet__body {
   padding: 0 var(--s-2) var(--s-3);
   font-size: var(--t-sm);
