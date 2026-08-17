@@ -1,25 +1,41 @@
 export const GROUP_COLORS = [
-  'honey',
+  'red',
   'rust',
-  'rose',
-  'violet',
-  'indigo',
-  'blue',
-  'teal',
+  'amber',
+  'honey',
+  'lime',
   'green',
+  'jade',
+  'teal',
+  'cyan',
+  'blue',
+  'cobalt',
+  'indigo',
+  'purple',
+  'violet',
+  'magenta',
+  'rose',
 ] as const;
 
 export type GroupColor = (typeof GROUP_COLORS)[number];
 
 export const GROUP_COLOR_LABELS: Record<GroupColor, string> = {
-  honey: 'Mel',
+  red: 'Vermelho',
   rust: 'Ferrugem',
-  rose: 'Rosa',
-  violet: 'Violeta',
-  indigo: 'Índigo',
-  blue: 'Azul',
-  teal: 'Turquesa',
+  amber: 'Âmbar',
+  honey: 'Mel',
+  lime: 'Lima',
   green: 'Verde',
+  jade: 'Jade',
+  teal: 'Turquesa',
+  cyan: 'Ciano',
+  blue: 'Azul',
+  cobalt: 'Cobalto',
+  indigo: 'Índigo',
+  purple: 'Roxo',
+  violet: 'Violeta',
+  magenta: 'Magenta',
+  rose: 'Rosa',
 };
 
 export type Priority = 0 | 1 | 2 | 3;

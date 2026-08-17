@@ -43,16 +43,24 @@
   --shadow-popover: 0 1px 2px oklch(0.215 0.012 255 / 0.06), 0 8px 24px -6px oklch(0.215 0.012 255 / 0.18);
   --shadow-drawer: 0 0 0 100vmax oklch(0.215 0.012 255 / 0.32);
 
-  /* Eight group accents: one L, one C, eight hues. C is capped at the weakest
-     hue's sRGB limit (teal) so nothing gamut-clips and breaks the family. */
-  --g-honey: oklch(0.6 0.1 62);
+  /* Sixteen group accents: one L, one C, sixteen hues. C is capped at the
+     weakest hue's sRGB limit (teal) so nothing gamut-clips and breaks the family. */
+  --g-red: oklch(0.6 0.1 12);
   --g-rust: oklch(0.6 0.1 30);
-  --g-rose: oklch(0.6 0.1 355);
-  --g-violet: oklch(0.6 0.1 305);
-  --g-indigo: oklch(0.6 0.1 268);
-  --g-blue: oklch(0.6 0.1 232);
-  --g-teal: oklch(0.6 0.1 195);
+  --g-amber: oklch(0.6 0.1 46);
+  --g-honey: oklch(0.6 0.1 62);
+  --g-lime: oklch(0.6 0.1 106);
   --g-green: oklch(0.6 0.1 150);
+  --g-jade: oklch(0.6 0.1 172);
+  --g-teal: oklch(0.6 0.1 195);
+  --g-cyan: oklch(0.6 0.1 213);
+  --g-blue: oklch(0.6 0.1 232);
+  --g-cobalt: oklch(0.6 0.1 250);
+  --g-indigo: oklch(0.6 0.1 268);
+  --g-purple: oklch(0.6 0.1 286);
+  --g-violet: oklch(0.6 0.1 305);
+  --g-magenta: oklch(0.6 0.1 330);
+  --g-rose: oklch(0.6 0.1 355);
 
   /* --- type: fixed rem scale, ratio ~1.16. No clamp() in product UI. --- */
   --t-xs: 0.75rem;
@@ -127,14 +135,22 @@
     --shadow-popover: 0 1px 2px oklch(0 0 0 / 0.4), 0 8px 24px -6px oklch(0 0 0 / 0.55);
     --shadow-drawer: 0 0 0 100vmax oklch(0 0 0 / 0.55);
 
-    --g-honey: oklch(0.74 0.125 62);
+    --g-red: oklch(0.74 0.125 12);
     --g-rust: oklch(0.74 0.125 30);
-    --g-rose: oklch(0.74 0.125 355);
-    --g-violet: oklch(0.74 0.125 305);
-    --g-indigo: oklch(0.74 0.125 268);
-    --g-blue: oklch(0.74 0.125 232);
-    --g-teal: oklch(0.74 0.125 195);
+    --g-amber: oklch(0.74 0.125 46);
+    --g-honey: oklch(0.74 0.125 62);
+    --g-lime: oklch(0.74 0.125 106);
     --g-green: oklch(0.74 0.125 150);
+    --g-jade: oklch(0.74 0.125 172);
+    --g-teal: oklch(0.74 0.125 195);
+    --g-cyan: oklch(0.74 0.125 213);
+    --g-blue: oklch(0.74 0.125 232);
+    --g-cobalt: oklch(0.74 0.125 250);
+    --g-indigo: oklch(0.74 0.125 268);
+    --g-purple: oklch(0.74 0.125 286);
+    --g-violet: oklch(0.74 0.125 305);
+    --g-magenta: oklch(0.74 0.125 330);
+    --g-rose: oklch(0.74 0.125 355);
 
     color-scheme: dark;
   }
@@ -170,14 +186,22 @@
   --shadow-popover: 0 1px 2px oklch(0 0 0 / 0.4), 0 8px 24px -6px oklch(0 0 0 / 0.55);
   --shadow-drawer: 0 0 0 100vmax oklch(0 0 0 / 0.55);
 
-  --g-honey: oklch(0.74 0.125 62);
+  --g-red: oklch(0.74 0.125 12);
   --g-rust: oklch(0.74 0.125 30);
-  --g-rose: oklch(0.74 0.125 355);
-  --g-violet: oklch(0.74 0.125 305);
-  --g-indigo: oklch(0.74 0.125 268);
-  --g-blue: oklch(0.74 0.125 232);
-  --g-teal: oklch(0.74 0.125 195);
+  --g-amber: oklch(0.74 0.125 46);
+  --g-honey: oklch(0.74 0.125 62);
+  --g-lime: oklch(0.74 0.125 106);
   --g-green: oklch(0.74 0.125 150);
+  --g-jade: oklch(0.74 0.125 172);
+  --g-teal: oklch(0.74 0.125 195);
+  --g-cyan: oklch(0.74 0.125 213);
+  --g-blue: oklch(0.74 0.125 232);
+  --g-cobalt: oklch(0.74 0.125 250);
+  --g-indigo: oklch(0.74 0.125 268);
+  --g-purple: oklch(0.74 0.125 286);
+  --g-violet: oklch(0.74 0.125 305);
+  --g-magenta: oklch(0.74 0.125 330);
+  --g-rose: oklch(0.74 0.125 355);
 
   color-scheme: dark;
 }
