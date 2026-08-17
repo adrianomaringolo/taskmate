@@ -98,6 +98,7 @@ tools
   gen-seed.mjs     regenera a semente constante do documento
   illustrations.mjs gera as marcas de estado vazio a partir do Lucide
   icons.ts         gera os ícones do app a partir da marca
+  lucide-scale.mjs escala paths do Lucide de 24 para o grid de 16 do Icon.tsx
 ```
 
 `PRODUCT.md` (quem usa, por quê, princípios) e `DESIGN.md` (paleta, tipografia,

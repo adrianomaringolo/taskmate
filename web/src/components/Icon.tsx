@@ -3,39 +3,65 @@ import type { ReactNode } from 'react';
 /**
  * One icon set, one stroke weight, one grid. Product UI lives or dies on the
  * icons matching each other; mixing sources is the fastest way to look off.
+ *
+ * Most paths below are Lucide's own geometry, scaled 24→16 with
+ * `tools/lucide-scale.mjs` rather than retraced by hand: hand-typed arc
+ * parameters are exactly what produced the malformed `cloudCheck` this
+ * replaces (see git history) — real, tested path data removes that failure
+ * mode entirely. A few icons stay custom on purpose: `mark` (the brand),
+ * `today`/`upcoming`/`calendar` (bespoke dot-grid compositions), `list`
+ * (lines-of-text reads better than Lucide's bulleted-list for a notes
+ * indicator), and `moon`/`search`/`sun`/`keyboard`/`monitor`/`menu` (simple
+ * enough to carry no arc risk, or deliberately simplified for legibility at
+ * 16px).
+ *
+ * Copyright (c) 2026 Lucide Icons and Contributors — ISC License, full text
+ * in assets/lucide-LICENSE.txt. See ATTRIBUTION.md.
  */
 const PATHS = {
-  chevron: <path d="M6.5 3.5 11 8l-4.5 4.5" />,
-  plus: <path d="M8 3.5v9M3.5 8h9" />,
-  check: <path d="M3.5 8.5l3 3 6-6.5" />,
-  x: <path d="M4 4l8 8M12 4l-8 8" />,
+  chevron: <path d="m6 12 4-4-4-4" />,
+  plus: (
+    <>
+      <path d="M3.3 8h9.3" />
+      <path d="M8 3.3v9.3" />
+    </>
+  ),
+  check: <path d="M13.3 4 6 11.3l-3.3-3.3" />,
+  x: (
+    <>
+      <path d="M12 4 4 12" />
+      <path d="m4 4 8 8" />
+    </>
+  ),
   trash: (
     <>
-      <path d="M2.5 4.5h11M6 4.5V3h4v1.5M4.5 4.5l.6 8.2a1 1 0 0 0 1 .8h3.8a1 1 0 0 0 1-.8l.6-8.2" />
-      <path d="M6.8 7v4M9.2 7v4" />
+      <path d="M6.7 7.3v4M9.3 7.3v4" />
+      <path d="M12.7 4v9.3a1.3 1.3 0 0 1-1.3 1.3H4.7a1.3 1.3 0 0 1-1.3-1.3V4" />
+      <path d="M2 4h12" />
+      <path d="M5.3 4V2.7a1.3 1.3 0 0 1 1.3-1.3h2.7a1.3 1.3 0 0 1 1.3 1.3v1.3" />
     </>
   ),
   more: (
     <>
-      <circle cx="3.5" cy="8" r="1.15" fill="currentColor" stroke="none" />
-      <circle cx="8" cy="8" r="1.15" fill="currentColor" stroke="none" />
-      <circle cx="12.5" cy="8" r="1.15" fill="currentColor" stroke="none" />
+      <circle cx="8" cy="8" r=".7" fill="currentColor" stroke="none" />
+      <circle cx="12.7" cy="8" r=".7" fill="currentColor" stroke="none" />
+      <circle cx="3.3" cy="8" r=".7" fill="currentColor" stroke="none" />
     </>
   ),
   grip: (
     <>
-      <circle cx="6" cy="4" r="1" fill="currentColor" stroke="none" />
-      <circle cx="10" cy="4" r="1" fill="currentColor" stroke="none" />
-      <circle cx="6" cy="8" r="1" fill="currentColor" stroke="none" />
-      <circle cx="10" cy="8" r="1" fill="currentColor" stroke="none" />
-      <circle cx="6" cy="12" r="1" fill="currentColor" stroke="none" />
-      <circle cx="10" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="6" cy="8" r=".7" fill="currentColor" stroke="none" />
+      <circle cx="6" cy="3.3" r=".7" fill="currentColor" stroke="none" />
+      <circle cx="6" cy="12.7" r=".7" fill="currentColor" stroke="none" />
+      <circle cx="10" cy="8" r=".7" fill="currentColor" stroke="none" />
+      <circle cx="10" cy="3.3" r=".7" fill="currentColor" stroke="none" />
+      <circle cx="10" cy="12.7" r=".7" fill="currentColor" stroke="none" />
     </>
   ),
   inbox: (
     <>
-      <path d="M2 9.5 3.6 3.7A1 1 0 0 1 4.6 3h6.8a1 1 0 0 1 1 .7L14 9.5v2.8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9.5Z" />
-      <path d="M2 9.5h3.2l.8 1.6h4l.8-1.6H14" />
+      <polyline points="14.7 8 10.7 8 9.3 10 6.7 10 5.3 8 1.3 8" />
+      <path d="M3.6 3.4 1.3 8v4a1.3 1.3 0 0 0 1.3 1.3h10.7a1.3 1.3 0 0 0 1.3-1.3v-4l-2.3-4.6A1.3 1.3 0 0 0 11.2 2.7H4.8a1.3 1.3 0 0 0-1.2.7z" />
     </>
   ),
   today: (
@@ -87,8 +113,8 @@ const PATHS = {
   ),
   alert: (
     <>
-      <path d="M8 2.8 14 12.5a.8.8 0 0 1-.7 1.2H2.7a.8.8 0 0 1-.7-1.2L8 2.8Z" />
-      <path d="M8 6.5v3M8 11.5h.01" />
+      <path d="m14.5 12-5.3-9.3a1.3 1.3 0 0 0-2.3 0l-5.3 9.3A1.3 1.3 0 0 0 2.7 14h10.7a1.3 1.3 0 0 0 1.2-2" />
+      <path d="M8 6v2.7M8 11.3h.1" />
     </>
   ),
   list: <path d="M3 4.5h10M3 8h10M3 11.5h6" />,
@@ -100,18 +126,31 @@ const PATHS = {
       <path d="M5 8.2l2.2 2.2L11.2 5.8" />
     </>
   ),
-  folder: <path d="M2.5 4.5A1 1 0 0 1 3.5 3.5h2.2a1 1 0 0 1 .8.4l.8 1.1h5.2a1 1 0 0 1 1 1v5.5a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-7Z" />,
-  undo: <path d="M3 7h6.5a3.2 3.2 0 1 1 0 6.4H6M3 7l2.8-2.8M3 7l2.8 2.8" />,
-  cloud: <path d="M4.6 12.5h6.6a2.6 2.6 0 0 0 .3-5.2 3.9 3.9 0 0 0-7.5-.7 2.9 2.9 0 0 0 .6 5.9Z" />,
-  cloudOff: (
+  folder: (
+    <path d="M13.3 13.3a1.3 1.3 0 0 0 1.3-1.3V5.3a1.3 1.3 0 0 0-1.3-1.3h-5.3a1.3 1.3 0 0 1-1.1-.6L6.4 2.6A1.3 1.3 0 0 0 5.3 2H2.7a1.3 1.3 0 0 0-1.3 1.3v8.7a1.3 1.3 0 0 0 1.3 1.3Z" />
+  ),
+  undo: (
     <>
-      <path d="M4.6 12.5h6.6a2.6 2.6 0 0 0 1.9-.85M5.1 6a3.9 3.9 0 0 1 6.4.6M4 6.9a2.9 2.9 0 0 0 .6 5.6" />
-      <path d="M2.2 2.2l11.6 11.6" />
+      <path d="M6 9.3 2.7 6l3.3-3.3" />
+      <path d="M2.7 6h7a3.7 3.7 0 0 1 3.7 3.7a3.7 3.7 0 0 1-3.7 3.7H7.3" />
     </>
   ),
+  cloud: <path d="M11.7 12.7H6a4.7 4.7 0 1 1 4.5-6h1.2a3 3 0 1 1 0 6Z" />,
+  cloudOff: (
+    <>
+      <path d="M7.3 3.5A4.7 4.7 0 0 1 10.5 6.7h1.2a3 3 0 0 1 2.8 4" />
+      <path d="M12.5 12.5A3 3 0 0 1 11.7 12.7H6A4.7 4.7 0 0 1 3.9 3.9" />
+      <path d="m1.3 1.3 13.3 13.3" />
+    </>
+  ),
+  /* Same cloud outline as `cloud`, deliberately — a family of three sync
+     states should share one silhouette, not three independently-hand-typed
+     near-copies of it. The tick is custom: nothing in Lucide's own
+     cloud-check nests a checkmark inside this outline, so it is fitted and
+     verified at render size rather than pretending it's a straight port. */
   cloudCheck: (
     <>
-      <path d="M4.6 12.5h6.6a2.6 2.6 0 0 0 .3-5.2 3.9 3.9 0 0 0-7.5-.7 2.9 2.9 0 0 0 .6 5.9Z" />
+      <path d="M11.7 12.7H6a4.7 4.7 0 1 1 4.5-6h1.2a3 3 0 1 1 0 6Z" />
       <path d="M5.7 9.4l1.7 1.7 3.2-3.4" />
     </>
   ),
