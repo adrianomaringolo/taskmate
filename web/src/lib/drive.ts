@@ -7,6 +7,9 @@
  * is a normal, visible file rather than hidden app data, so the user can find,
  * copy, and back it up without going through us.
  *
+ * `userinfo.email` rides along — also non-sensitive — purely so the app can
+ * remember *which* Google account it talked to. See `captureHint` for why.
+ *
  * There is no client secret and no backend, which means no refresh token: the
  * browser flow issues access tokens valid for about an hour, and the token
  * itself is never persisted — every page load has to ask Google for a new one.
@@ -14,7 +17,17 @@
  * invisible: see `requestToken` for what actually happens on screen.
  */
 
-const SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const SCOPE = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email';
+const USERINFO = 'https://www.googleapis.com/oauth2/v3/userinfo';
+/**
+ * The account email, remembered so renewal can pin it with `hint`. Without
+ * this, anyone signed into more than one Google account in the same browser
+ * gets the account picker on *every* renewal — GIS has no way to know which
+ * session should win, silent or not, so it asks. It is not a secret — it is
+ * exactly the address the user already sees on Google's own picker — so
+ * `localStorage` is a fine home for it.
+ */
+const HINT_PREF = 'driveAccountHint';
 const FILE_NAME = 'taskmate.automerge';
 /**
  * The pre-rename filename. `findFile` looks for it when the current name is
@@ -38,6 +51,7 @@ const CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?
 export const isConfigured = (): boolean => CLIENT_ID.length > 0;
 
 export type { RemoteFile } from './sync';
+import { readPref, removePref, writePref } from './prefs';
 import type { RemoteFile, Transport } from './sync';
 
 /** Distinguishes "the user must act" from "the network hiccuped". */
@@ -59,7 +73,7 @@ interface TokenResponse {
 }
 
 interface TokenClient {
-  requestAccessToken: (overrides?: { prompt?: string }) => void;
+  requestAccessToken: (overrides?: { prompt?: string; hint?: string }) => void;
 }
 
 interface Gis {
@@ -141,6 +155,7 @@ async function ensureClient(): Promise<TokenClient> {
         // Expire a minute early so a request never starts on a dying token.
         tokenExpiry = Date.now() + ((response.expires_in ?? 3600) - 60) * 1000;
         waiting.resolve(response.access_token);
+        captureHint(response.access_token);
       } else {
         waiting.reject(new DriveError(authMessage(response.error), 'auth'));
       }
@@ -171,6 +186,25 @@ export function preload(): void {
   });
 }
 
+/**
+ * Learns the account email once, the first time a token comes back, so later
+ * calls can pass it as `hint` and pin the same account. Skipped once a hint is
+ * already stored — this is a one-time lookup per connection, not a check on
+ * every renewal. Failure is silent: worst case, renewal falls back to
+ * whatever Google would have done without a hint anyway.
+ */
+function captureHint(accessToken: string): void {
+  if (readPref(HINT_PREF)) return;
+  void fetch(USERINFO, { headers: { authorization: `Bearer ${accessToken}` } })
+    .then((res) => (res.ok ? (res.json() as Promise<{ email?: string }>) : null))
+    .then((body) => {
+      if (body?.email) writePref(HINT_PREF, body.email);
+    })
+    .catch(() => {
+      // Best-effort: see the doc comment above.
+    });
+}
+
 function authMessage(code?: string): string {
   if (code === 'popup_closed' || code === 'popup_failed_to_open')
     return 'A janela do Google fechou antes de concluir. Tente conectar de novo.';
@@ -187,6 +221,12 @@ function authMessage(code?: string): string {
  * prevention blocks the third-party context this relies on — so callers must
  * treat an `auth` failure as "ask the user to reconnect" rather than as a
  * fatal error.
+ *
+ * Every call passes `hint` once one is known (see `captureHint`), which pins
+ * the request to the account that was authorized before. Without it, anyone
+ * signed into more than one Google account in the browser gets Google's
+ * account picker on every single renewal — `hint` is what lets that happen
+ * once, at most.
  */
 export async function requestToken({ interactive }: { interactive: boolean }): Promise<string> {
   if (!isConfigured()) throw new DriveError('Sincronização não configurada.', 'auth');
@@ -195,10 +235,12 @@ export async function requestToken({ interactive }: { interactive: boolean }): P
   const tokenClient = await ensureClient();
   if (pending) throw new DriveError('Já existe uma autorização em andamento.', 'auth');
 
+  const hint = readPref(HINT_PREF) ?? undefined;
+
   return new Promise<string>((resolve, reject) => {
     pending = { resolve, reject };
     try {
-      tokenClient.requestAccessToken(interactive ? {} : { prompt: '' });
+      tokenClient.requestAccessToken(interactive ? { hint } : { prompt: '', hint });
     } catch (err) {
       pending = null;
       reject(new DriveError(err instanceof Error ? err.message : 'Falha ao pedir autorização.', 'auth'));
@@ -211,9 +253,17 @@ export function forgetToken(): void {
   tokenExpiry = 0;
 }
 
+/**
+ * The account hint is only cleared here, on an explicit disconnect — never on
+ * the routine `forgetToken()` an expired token triggers, or the next silent
+ * renewal would lose the very pin it exists to provide. Clearing it lets a
+ * future reconnect choose a different account instead of being stuck pinned
+ * to one that was deliberately signed out of.
+ */
 export async function signOut(): Promise<void> {
   const current = token;
   forgetToken();
+  removePref(HINT_PREF);
   if (!current) return;
   try {
     const gis = await loadGis();

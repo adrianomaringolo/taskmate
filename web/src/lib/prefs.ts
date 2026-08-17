@@ -34,3 +34,12 @@ export function writePref(name: string, value: string): void {
     // The session still works; the preference just will not persist.
   }
 }
+
+export function removePref(name: string): void {
+  try {
+    localStorage.removeItem(`${NS}:${name}`);
+    localStorage.removeItem(`${LEGACY_NS}:${name}`);
+  } catch {
+    // Nothing to clean up if storage is unavailable in the first place.
+  }
+}

@@ -29,9 +29,13 @@ Copie `.env.example` para `web/.env.local` e preencha `VITE_GOOGLE_CLIENT_ID` �
 o passo a passo do console do Google está dentro do arquivo. Sem essa variável o
 painel de sincronização diz "Não configurada" e o resto do app funciona igual.
 
-Escopo usado: `drive.file`. O app só acessa arquivos que ele mesmo criou; não
-consegue ler o resto do seu Drive nem se o código tentasse. É um escopo **não
-sensível**, então não passa por revisão do Google.
+Escopos usados: `drive.file` e `userinfo.email`. O primeiro só dá acesso a
+arquivos que o próprio app criou — não consegue ler o resto do seu Drive nem
+se o código tentasse. O segundo só serve para lembrar qual conta foi
+autorizada, e assim evitar que o Google peça para escolher a conta de novo a
+cada renovação de token quando há mais de uma sessão Google ativa no
+navegador. Os dois são escopos **não sensíveis**, então não passam por
+revisão do Google.
 
 O arquivo é um `taskmate.automerge` normal e visível na raiz do Drive. Você pode
 copiar, versionar e fazer backup dele sem depender do app.
