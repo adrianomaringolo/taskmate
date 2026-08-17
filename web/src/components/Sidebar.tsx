@@ -82,6 +82,18 @@ export function Sidebar({ view, onSelect, open, onClose }: Props) {
             {counts.upcoming > 0 && <span className="row__count">{counts.upcoming}</span>}
           </button>
 
+          <button
+            type="button"
+            className="row"
+            aria-current={view.kind === 'calendar'}
+            onClick={() => onSelect({ kind: 'calendar', mode: 'month', date: today() })}
+          >
+            <span className="row__icon">
+              <Icon name="calendar" />
+            </span>
+            <span className="row__label">Calendário</span>
+          </button>
+
           {inbox && (
             <button
               type="button"

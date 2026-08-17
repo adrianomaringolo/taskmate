@@ -52,6 +52,13 @@ const PATHS = {
       <path d="M5 9.5h2M9 9.5h2M5 11.5h2M9 11.5h2" />
     </>
   ),
+  calendar: (
+    <>
+      <rect x="2.5" y="3.5" width="11" height="10" rx="1.5" />
+      <path d="M2.5 6.5h11M5.5 2.5v2M10.5 2.5v2" />
+      <path d="M5 9h.01M8 9h.01M11 9h.01M5 11.5h.01M8 11.5h.01M11 11.5h.01" />
+    </>
+  ),
   search: (
     <>
       <circle cx="7" cy="7" r="4" />

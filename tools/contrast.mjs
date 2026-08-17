@@ -81,10 +81,27 @@ const T = {
   'd/illo-plate': [0.285, 0.011, 255],
 };
 
-// Group accents: one L/C, eight hues, so they read as one family rather than
-// eight unrelated colors. Both themes must clear 3:1 against their surface —
-// these are 8px dots and 2px rails, i.e. non-text UI.
-const GROUP_HUES = { honey: 62, rust: 30, rose: 355, violet: 305, indigo: 268, blue: 232, teal: 195, green: 150 };
+// Group accents: one L/C, sixteen hues, so they read as one family rather
+// than sixteen unrelated colors. Both themes must clear 3:1 against their
+// surface — these are 8px dots and 2px rails, i.e. non-text UI.
+const GROUP_HUES = {
+  red: 12,
+  rust: 30,
+  amber: 46,
+  honey: 62,
+  lime: 106,
+  green: 150,
+  jade: 172,
+  teal: 195,
+  cyan: 213,
+  blue: 232,
+  cobalt: 250,
+  indigo: 268,
+  purple: 286,
+  violet: 305,
+  magenta: 330,
+  rose: 355,
+};
 for (const [name, h] of Object.entries(GROUP_HUES)) {
   // C is capped at the weakest hue's sRGB limit (teal, 0.102 @ L .60) so no
   // swatch silently gamut-clips and breaks the family's uniform intensity.
