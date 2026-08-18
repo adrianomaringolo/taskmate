@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import { addDays, describeStamp, today } from '../lib/date';
 import { useStore } from '../lib/store';
-import { PRIORITY_LABELS, RECURRENCE_LABELS, type Priority, type RecurrenceUnit, type Task } from '../lib/types';
+import { PRIORITY_LABELS, RECURRENCE_LABELS, type RecurrenceUnit, type Task } from '../lib/types';
 import { Icon } from './Icon';
 
 interface Props {
@@ -150,22 +150,32 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
           </select>
         </div>
 
-        <div className="field">
-          <label className="field__label" htmlFor={`${ids}-prio`}>
+        <div className="field field--prio">
+          <label className="field__label" id={`${ids}-prio`}>
             Prioridade
           </label>
-          <select
-            id={`${ids}-prio`}
-            className="select"
-            value={task.priority}
-            onChange={(e) => void patchTask(task.id, { priority: Number(e.target.value) as Priority })}
-          >
+          <div className="seg" role="group" aria-labelledby={`${ids}-prio`}>
             {([0, 1, 2, 3] as const).map((p) => (
-              <option key={p} value={p}>
+              <button
+                key={p}
+                type="button"
+                className="seg__btn"
+                aria-pressed={task.priority === p}
+                onClick={() => void patchTask(task.id, { priority: p })}
+              >
+                <span className={`prio__bars${p > 0 ? ` prio--${p}` : ''}`} aria-hidden="true">
+                  {[1, 2, 3].map((step) => (
+                    <span
+                      key={step}
+                      className="prio__bar"
+                      style={{ height: `${step * 3 + 1}px`, opacity: step <= p ? 1 : 0.25 }}
+                    />
+                  ))}
+                </span>
                 {PRIORITY_LABELS[p]}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
         </div>
 
         <div className="field">

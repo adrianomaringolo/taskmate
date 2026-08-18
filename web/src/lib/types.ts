@@ -40,8 +40,13 @@ export const GROUP_COLOR_LABELS: Record<GroupColor, string> = {
 
 export type Priority = 0 | 1 | 2 | 3;
 
+/**
+ * `0` only ever appears as one of four always-visible toggle segments (see
+ * TaskDetail) — never as a chip, which only renders `priority > 0`. Short on
+ * purpose so it doesn't wrap inside that segment the way "Sem prioridade" did.
+ */
 export const PRIORITY_LABELS: Record<Priority, string> = {
-  0: 'Sem prioridade',
+  0: 'Nenhuma',
   1: 'Baixa',
   2: 'Média',
   3: 'Alta',
