@@ -88,6 +88,18 @@ export interface List {
   deletedAt: Tombstone;
 }
 
+export type RecurrenceUnit = 'day' | 'week' | 'month';
+
+export const RECURRENCE_LABELS: Record<RecurrenceUnit, string> = {
+  day: 'Todo dia',
+  week: 'Toda semana',
+  month: 'Todo mês',
+};
+
+export interface Recurrence {
+  unit: RecurrenceUnit;
+}
+
 export interface Task {
   id: string;
   listId: string;
@@ -98,6 +110,11 @@ export interface Task {
   /** `YYYY-MM-DD` — a calendar day, never an instant. */
   dueDate: string | null;
   priority: Priority;
+  /**
+   * Anchored to `dueDate`, which is why it is inert without one — see
+   * `advanceDue` in date.ts and the completion branch in `patchTask`.
+   */
+  recurrence: Recurrence | null;
   order: Order;
   createdAt: string;
   updatedAt: string;

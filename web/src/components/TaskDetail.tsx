@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import { addDays, describeStamp, today } from '../lib/date';
 import { useStore } from '../lib/store';
-import { PRIORITY_LABELS, type Priority, type Task } from '../lib/types';
+import { PRIORITY_LABELS, RECURRENCE_LABELS, type Priority, type RecurrenceUnit, type Task } from '../lib/types';
 import { Icon } from './Icon';
 
 interface Props {
@@ -125,6 +125,32 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
         </div>
 
         <div className="field">
+          <label className="field__label" htmlFor={`${ids}-recur`}>
+            Repetir
+          </label>
+          <select
+            id={`${ids}-recur`}
+            className="select"
+            value={task.recurrence?.unit ?? ''}
+            onChange={(e) => {
+              const unit = e.target.value as RecurrenceUnit | '';
+              void patchTask(task.id, {
+                recurrence: unit === '' ? null : { unit },
+                // A rule needs an anchor date to advance from.
+                ...(unit !== '' && !task.dueDate ? { dueDate: today() } : {}),
+              });
+            }}
+          >
+            <option value="">Não repete</option>
+            {(['day', 'week', 'month'] as const).map((u) => (
+              <option key={u} value={u}>
+                {RECURRENCE_LABELS[u]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="field">
           <label className="field__label" htmlFor={`${ids}-prio`}>
             Prioridade
           </label>
@@ -193,7 +219,7 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
               aria-label="Mover para cima na lista"
               title="Mover para cima"
             >
-              ↑
+              <Icon name="arrowUp" />
             </button>
             <button
               type="button"
@@ -203,7 +229,7 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
               aria-label="Mover para baixo na lista"
               title="Mover para baixo"
             >
-              ↓
+              <Icon name="arrowDown" />
             </button>
           </span>
         )}

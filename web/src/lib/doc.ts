@@ -1,5 +1,6 @@
 import * as A from '@automerge/automerge';
 import { generateKeyBetween } from 'fractional-indexing';
+import { advanceDue } from './date';
 import type {
   AppState,
   Group,
@@ -7,6 +8,7 @@ import type {
   List,
   Order,
   Priority,
+  Recurrence,
   Task,
 } from './types';
 
@@ -144,6 +146,8 @@ const plainTask = (t: Task): Task => ({
   doneAt: t.doneAt,
   dueDate: t.dueDate,
   priority: t.priority,
+  // `?? null`: documents written before recurrence existed have no such key.
+  recurrence: t.recurrence ?? null,
   order: t.order,
   createdAt: t.createdAt,
   updatedAt: t.updatedAt,
@@ -387,6 +391,7 @@ export function addTask(
       doneAt: null,
       dueDate: input.dueDate ?? null,
       priority: input.priority ?? 0,
+      recurrence: null,
       order,
       createdAt: ts,
       updatedAt: ts,
@@ -402,6 +407,7 @@ export interface TaskPatch {
   done?: boolean;
   dueDate?: string | null;
   priority?: Priority;
+  recurrence?: Recurrence | null;
 }
 
 /**
@@ -410,6 +416,12 @@ export interface TaskPatch {
  * makes it a candidate to overwrite another device's value. Writing all six
  * fields on every edit would turn "I changed the title" into "I also assert the
  * due date you set on your phone is wrong".
+ *
+ * Completing a recurring task does not go through the normal done/doneAt path:
+ * it never actually becomes done, it just steps `dueDate` to its next
+ * occurrence and stays open. That keeps the model free of one row per past
+ * occurrence, and — see `advanceDue` — makes the step safe to compute
+ * independently on two offline devices.
  */
 export function patchTask(doc: Doc, id: string, patch: TaskPatch): Doc {
   return A.change(doc, 'patch task', (d) => {
@@ -419,9 +431,14 @@ export function patchTask(doc: Doc, id: string, patch: TaskPatch): Doc {
     if (patch.notes !== undefined) t.notes = patch.notes;
     if (patch.dueDate !== undefined) t.dueDate = patch.dueDate;
     if (patch.priority !== undefined) t.priority = patch.priority;
+    if (patch.recurrence !== undefined) t.recurrence = patch.recurrence;
     if (patch.done !== undefined && patch.done !== t.done) {
-      t.done = patch.done;
-      t.doneAt = patch.done ? now() : null;
+      if (patch.done && t.recurrence && t.dueDate) {
+        t.dueDate = advanceDue(t.dueDate, t.recurrence.unit);
+      } else {
+        t.done = patch.done;
+        t.doneAt = patch.done ? now() : null;
+      }
     }
     t.updatedAt = now();
   });

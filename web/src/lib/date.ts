@@ -66,6 +66,15 @@ export function isToday(key: string): boolean {
   return daysFromToday(key) === 0;
 }
 
+/** Next occurrence of a recurring due date. Pure in `key`, so two devices that
+ *  each complete the same task offline — from the same prior due date —
+ *  compute the identical next date independently; the merge needs no
+ *  reconciliation because both writes already agree. */
+export function advanceDue(key: string, unit: 'day' | 'week' | 'month'): string {
+  if (unit === 'month') return addMonths(key, 1);
+  return addDays(key, unit === 'week' ? 7 : 1);
+}
+
 export function addMonths(key: string, months: number): string {
   const d = fromKey(key);
   // Pin to day 1 first: Jan 31 + 1 month would otherwise overflow into March.
