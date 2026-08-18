@@ -1195,6 +1195,9 @@ button {
 
 .sheet {
   min-width: 260px;
+  /* Without a ceiling, a `sheet__body` paragraph with no natural break just
+     stretches the popover to fit its longest line instead of wrapping. */
+  max-width: 320px;
 }
 
 .sheet__list {
@@ -1580,18 +1583,22 @@ button {
   }
 }
 
+/* Slightly wider floor than the base .sheet — the account email line wraps
+   uncomfortably narrow otherwise. The ceiling now comes from .sheet itself. */
 .sync-sheet {
   min-width: 280px;
-  max-width: 320px;
 }
 
-.sync-sheet__status {
+/* Generic sheet content: a status line, an optional muted line under it, a
+   body paragraph, a full-width action button. Shared by any settings panel
+   built on <Menu menuClassName="sheet ...">, not just sync's. */
+.sheet__status {
   padding: 0 var(--s-2) var(--s-2);
   font-size: var(--t-sm);
   font-weight: 550;
 }
 
-.sync-sheet__account {
+.sheet__account {
   padding: 0 var(--s-2) var(--s-3);
   margin-top: -6px;
   font-size: var(--t-xs);
@@ -1599,14 +1606,14 @@ button {
   overflow-wrap: anywhere;
 }
 
-.sync-sheet__body {
+.sheet__body {
   padding: 0 var(--s-2) var(--s-3);
   font-size: var(--t-sm);
   color: var(--ink-2);
   text-wrap: pretty;
 }
 
-.sync-sheet__body code {
+.sheet__body code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.9em;
   padding: 1px 4px;
@@ -1614,7 +1621,7 @@ button {
   background: var(--surface-2);
 }
 
-.sync-sheet__action {
+.sheet__action {
   width: calc(100% - var(--s-2) * 2);
   margin: 0 var(--s-2) var(--s-2);
 }

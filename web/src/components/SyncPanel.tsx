@@ -37,13 +37,13 @@ export function SyncPanel() {
       {(close) => (
         <>
           <p className="menu__label">Sincronização</p>
-          <p className="sync-sheet__status">{summary}</p>
+          <p className="sheet__status">{summary}</p>
           {sync.connected && sync.accountEmail && (
-            <p className="sync-sheet__account">{sync.accountEmail}</p>
+            <p className="sheet__account">{sync.accountEmail}</p>
           )}
 
           {!sync.configured && (
-            <p className="sync-sheet__body">
+            <p className="sheet__body">
               Este build não tem um ID de cliente do Google. Defina{' '}
               <code>VITE_GOOGLE_CLIENT_ID</code> e recompile — o passo a passo está no README. Sem
               isso o app funciona normalmente, só neste dispositivo.
@@ -52,13 +52,13 @@ export function SyncPanel() {
 
           {sync.configured && !sync.connected && (
             <>
-              <p className="sync-sheet__body">
+              <p className="sheet__body">
                 Guarda um arquivo <code>taskmate.automerge</code> no seu Drive e mantém os
                 dispositivos em dia. O app só vê arquivos que ele mesmo criou.
               </p>
               <button
                 type="button"
-                className="btn btn--primary sync-sheet__action"
+                className="btn btn--primary sheet__action"
                 onClick={() => {
                   void sync.connect();
                   close();
@@ -75,7 +75,7 @@ export function SyncPanel() {
               {state.kind === 'error' && state.needsAuth && (
                 <button
                   type="button"
-                  className="btn btn--primary sync-sheet__action"
+                  className="btn btn--primary sheet__action"
                   onClick={() => {
                     void sync.connect();
                     close();

@@ -2,10 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ContentView } from './components/ContentView';
 import { Icon } from './components/Icon';
 import { Menu } from './components/Menu';
+import { NotificationsPanel } from './components/NotificationsPanel';
 import { Sidebar } from './components/Sidebar';
 import { SyncPanel } from './components/SyncPanel';
 import { Toasts } from './components/Toasts';
 import { today } from './lib/date';
+import * as Reminder from './lib/notify';
 import { readPref, writePref } from './lib/prefs';
 import { initPwa } from './lib/pwa';
 import { StoreProvider, useStore } from './lib/store';
@@ -44,7 +46,7 @@ export default function App() {
 }
 
 function Shell() {
-  const { undoLast, notify } = useStore();
+  const { data, undoLast, notify } = useStore();
   const { choice, setChoice } = useTheme();
 
   const [view, setView] = useState<View>(readView);
@@ -77,6 +79,24 @@ function Shell() {
       onReady: () => notify('Pronto para funcionar sem internet.'),
     });
   }, [notify]);
+
+  // Checked on mount, whenever the task list changes, and every minute while
+  // the tab stays open — the closest this can get to "at 8h" without a
+  // server to wake it up while closed. See lib/notify.ts.
+  useEffect(() => {
+    const checkReminder = () => {
+      if (!Reminder.enabled() || Reminder.permission() !== 'granted') return;
+      if (!Reminder.shouldRemindNow()) return;
+      const { dueToday, dueTomorrow } = Reminder.dueSoon(data.tasks);
+      const text = Reminder.reminderText(dueToday, dueTomorrow);
+      if (!text) return;
+      Reminder.showReminder(text.title, text.body);
+      Reminder.markShownToday();
+    };
+    checkReminder();
+    const timer = window.setInterval(checkReminder, 60_000);
+    return () => window.clearInterval(timer);
+  }, [data.tasks]);
 
   const select = useCallback((next: View) => {
     setView(next);
@@ -181,6 +201,8 @@ function Shell() {
           <span className="topbar__spacer" />
 
           <SyncPanel />
+
+          <NotificationsPanel />
 
           <Menu
             label="Tema"
