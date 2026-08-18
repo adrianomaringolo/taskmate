@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import { addDays, describeStamp, today } from '../lib/date';
 import { useStore } from '../lib/store';
-import { PRIORITY_LABELS, type Priority, type Task } from '../lib/types';
+import { PRIORITY_LABELS, RECURRENCE_LABELS, type RecurrenceUnit, type Task } from '../lib/types';
 import { Icon } from './Icon';
 
 interface Props {
@@ -125,21 +125,57 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
         </div>
 
         <div className="field">
-          <label className="field__label" htmlFor={`${ids}-prio`}>
-            Prioridade
+          <label className="field__label" htmlFor={`${ids}-recur`}>
+            Repetir
           </label>
           <select
-            id={`${ids}-prio`}
+            id={`${ids}-recur`}
             className="select"
-            value={task.priority}
-            onChange={(e) => void patchTask(task.id, { priority: Number(e.target.value) as Priority })}
+            value={task.recurrence?.unit ?? ''}
+            onChange={(e) => {
+              const unit = e.target.value as RecurrenceUnit | '';
+              void patchTask(task.id, {
+                recurrence: unit === '' ? null : { unit },
+                // A rule needs an anchor date to advance from.
+                ...(unit !== '' && !task.dueDate ? { dueDate: today() } : {}),
+              });
+            }}
           >
-            {([0, 1, 2, 3] as const).map((p) => (
-              <option key={p} value={p}>
-                {PRIORITY_LABELS[p]}
+            <option value="">Não repete</option>
+            {(['day', 'week', 'month'] as const).map((u) => (
+              <option key={u} value={u}>
+                {RECURRENCE_LABELS[u]}
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="field field--prio">
+          <label className="field__label" id={`${ids}-prio`}>
+            Prioridade
+          </label>
+          <div className="seg" role="group" aria-labelledby={`${ids}-prio`}>
+            {([0, 1, 2, 3] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                className="seg__btn"
+                aria-pressed={task.priority === p}
+                onClick={() => void patchTask(task.id, { priority: p })}
+              >
+                <span className={`prio__bars${p > 0 ? ` prio--${p}` : ''}`} aria-hidden="true">
+                  {[1, 2, 3].map((step) => (
+                    <span
+                      key={step}
+                      className="prio__bar"
+                      style={{ height: `${step * 3 + 1}px`, opacity: step <= p ? 1 : 0.25 }}
+                    />
+                  ))}
+                </span>
+                {PRIORITY_LABELS[p]}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="field">
@@ -193,7 +229,7 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
               aria-label="Mover para cima na lista"
               title="Mover para cima"
             >
-              ↑
+              <Icon name="arrowUp" />
             </button>
             <button
               type="button"
@@ -203,7 +239,7 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
               aria-label="Mover para baixo na lista"
               title="Mover para baixo"
             >
-              ↓
+              <Icon name="arrowDown" />
             </button>
           </span>
         )}

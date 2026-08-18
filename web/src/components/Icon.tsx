@@ -20,6 +20,18 @@ import type { ReactNode } from 'react';
  */
 const PATHS = {
   chevron: <path d="m6 12 4-4-4-4" />,
+  arrowUp: (
+    <>
+      <path d="m3.3 8 4.7-4.7 4.7 4.7" />
+      <path d="M8 12.7V3.3" />
+    </>
+  ),
+  arrowDown: (
+    <>
+      <path d="M8 3.3v9.3" />
+      <path d="m12.7 8-4.7 4.7-4.7-4.7" />
+    </>
+  ),
   plus: (
     <>
       <path d="M3.3 8h9.3" />
@@ -27,6 +39,14 @@ const PATHS = {
     </>
   ),
   check: <path d="M13.3 4 6 11.3l-3.3-3.3" />,
+  repeat: (
+    <>
+      <path d="m11.3 1.3 2.7 2.7-2.7 2.7" />
+      <path d="M2 7.3v-.7a2.7 2.7 0 0 1 2.7-2.7h9.3" />
+      <path d="m4.7 14.7-2.7-2.7 2.7-2.7" />
+      <path d="M14 8.7v.7a2.7 2.7 0 0 1-2.7 2.7H2" />
+    </>
+  ),
   x: (
     <>
       <path d="M12 4 4 12" />

@@ -236,6 +236,35 @@ await test('edição concorrente no mesmo campo converge para o mesmo valor', as
   );
 });
 
+await test('tarefa recorrente concluída offline nos dois dispositivos avança uma vez só', async () => {
+  const store = new FakeStore();
+  const a = new Device('A', store);
+  const [withTask, taskId] = doc.addTask(a.doc, {
+    listId: listOf(a),
+    title: 'regar as plantas',
+    dueDate: '2026-08-17',
+  });
+  a.doc = doc.patchTask(withTask, taskId, { recurrence: { unit: 'week' } });
+  await a.sync();
+  const b = new Device('B', store);
+  await b.sync();
+
+  // Neither device has seen the other complete it — both compute the next
+  // date from the same 2026-08-17, so both writes should agree.
+  a.edit((d) => doc.patchTask(d, taskId, { done: true }));
+  b.edit((d) => doc.patchTask(d, taskId, { done: true }));
+
+  await a.sync();
+  await b.sync();
+  await a.sync();
+
+  const ta = a.state().tasks.find((t) => t.id === taskId)!;
+  const tb = b.state().tasks.find((t) => t.id === taskId)!;
+  assert(!ta.done, 'uma tarefa recorrente não deveria ficar marcada como concluída');
+  assertSame(ta.dueDate, '2026-08-24', 'o prazo não avançou uma semana');
+  assertSame(ta, tb, 'os dois dispositivos divergiram sobre a tarefa');
+});
+
 await test('excluir num dispositivo e editar no outro não ressuscita a tarefa', async () => {
   const store = new FakeStore();
   const a = new Device('A', store);

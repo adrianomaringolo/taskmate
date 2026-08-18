@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { describeDue, describeDueFull, isOverdue, isToday } from '../lib/date';
 import { useStore } from '../lib/store';
-import { PRIORITY_LABELS, type Task } from '../lib/types';
+import { PRIORITY_LABELS, RECURRENCE_LABELS, type Task } from '../lib/types';
 import { Icon } from './Icon';
 import { InlineText } from './InlineText';
 import { TaskDetail } from './TaskDetail';
@@ -117,7 +117,7 @@ export function TaskRow({
             onCommit={(title) => void patchTask(task.id, { title })}
           />
 
-          {(task.dueDate || task.priority > 0 || listTag || task.notes) && (
+          {(task.dueDate || task.priority > 0 || listTag || task.notes || task.recurrence) && (
             <div className="task__meta">
               {task.dueDate && (
                 <span
@@ -132,6 +132,13 @@ export function TaskRow({
                 >
                   <Icon name={isOverdue(task.dueDate) && !task.done ? 'alert' : 'today'} size={13} />
                   {describeDue(task.dueDate)}
+                </span>
+              )}
+
+              {task.recurrence && (
+                <span className="chip" title={RECURRENCE_LABELS[task.recurrence.unit]}>
+                  <Icon name="repeat" size={13} />
+                  {RECURRENCE_LABELS[task.recurrence.unit]}
                 </span>
               )}
 
