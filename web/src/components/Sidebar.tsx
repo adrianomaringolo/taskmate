@@ -5,16 +5,18 @@ import { GROUP_COLORS, type View } from '../lib/types';
 import { GroupNode } from './GroupNode';
 import { Icon } from './Icon';
 import { InlineCreate } from './InlineCreate';
+import { Menu } from './Menu';
 
 interface Props {
   view: View;
   onSelect: (view: View) => void;
   open: boolean;
   onClose: () => void;
-  onOpenHelp: () => void;
+  onOpenWelcome: () => void;
+  onOpenAbout: () => void;
 }
 
-export function Sidebar({ view, onSelect, open, onClose, onOpenHelp }: Props) {
+export function Sidebar({ view, onSelect, open, onClose, onOpenWelcome, onOpenAbout }: Props) {
   const { data, tasksByList, addGroup } = useStore();
 
   const counts = useMemo(() => {
@@ -149,19 +151,49 @@ export function Sidebar({ view, onSelect, open, onClose, onOpenHelp }: Props) {
       </div>
 
       <div className="sidebar__foot">
-        <button
-          type="button"
-          className="row"
-          onClick={() => {
-            onClose();
-            onOpenHelp();
-          }}
+        <Menu
+          label="Ajuda"
+          align="start"
+          triggerClassName="row"
+          triggerContent={
+            <>
+              <span className="row__icon">
+                <Icon name="help" />
+              </span>
+              <span className="row__label">Ajuda</span>
+            </>
+          }
         >
-          <span className="row__icon">
-            <Icon name="help" />
-          </span>
-          <span className="row__label">Ajuda</span>
-        </button>
+          {(close) => (
+            <>
+              <p className="menu__label">Ajuda</p>
+              <button
+                type="button"
+                className="menu__item"
+                onClick={() => {
+                  close();
+                  onClose();
+                  onOpenWelcome();
+                }}
+              >
+                <Icon name="mark" />
+                Como usar o Taskmate
+              </button>
+              <button
+                type="button"
+                className="menu__item"
+                onClick={() => {
+                  close();
+                  onClose();
+                  onOpenAbout();
+                }}
+              >
+                <Icon name="help" />
+                Sobre
+              </button>
+            </>
+          )}
+        </Menu>
       </div>
     </aside>
   );

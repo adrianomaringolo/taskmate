@@ -77,21 +77,21 @@ export function Welcome({ open, onClose }: Props) {
   return (
     <dialog
       ref={ref}
-      className="welcome"
+      className="dialog welcome"
       onClose={onClose}
       onClick={(e) => {
         if (e.target === ref.current) close();
       }}
     >
-      <button type="button" className="btn btn--icon welcome__close" aria-label="Fechar" onClick={close}>
+      <button type="button" className="btn btn--icon dialog__close" aria-label="Fechar" onClick={close}>
         <Icon name="x" />
       </button>
 
       <div className="welcome__icon">
         <Icon name={current.icon} size={26} />
       </div>
-      <h2 className="welcome__title">{current.title}</h2>
-      <p className="welcome__body">{current.body}</p>
+      <h2 className="dialog__title">{current.title}</h2>
+      <p className="dialog__body">{current.body}</p>
 
       <div className="welcome__dots" role="tablist" aria-label="Etapas">
         {STEPS.map((_, i) => (

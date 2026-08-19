@@ -1776,12 +1776,15 @@ button {
   }
 }
 
-/* ---------- welcome wizard ---------- */
+/* ---------- dialogs (native <dialog>) ---------- */
 
 /* A native <dialog>, not a hand-rolled overlay div — the same reasoning as
    Menu.tsx's use of the Popover API: focus trap, Escape-to-close and the top
-   layer come for free instead of being reimplemented. */
-.welcome {
+   layer come for free instead of being reimplemented. Shared base for the
+   welcome wizard and the About panel; each sets its own width and padding
+   below since one carries an icon plate and step controls, the other a
+   plain info list. */
+.dialog {
   /* The UA stylesheet centers dialog:modal with `margin: auto`, but this
      file's own `* { margin: 0 }` reset — an author rule — outranks it
      regardless of specificity, since author always beats user-agent origin.
@@ -1789,10 +1792,8 @@ button {
   position: fixed;
   inset: 0;
   margin: auto;
-  width: min(420px, calc(100vw - var(--s-4) * 2));
   max-height: calc(100vh - var(--s-4) * 2);
   overflow-y: auto;
-  padding: var(--s-6) var(--s-5) var(--s-5);
   border: none;
   border-radius: var(--r-lg);
   background: var(--bg);
@@ -1800,14 +1801,54 @@ button {
   box-shadow: var(--shadow-popover);
 }
 
-.welcome::backdrop {
+.dialog::backdrop {
   background: oklch(0.215 0.012 255 / 0.4);
 }
 
-.welcome__close {
+.dialog__close {
   position: absolute;
   top: var(--s-3);
   right: var(--s-3);
+}
+
+.dialog__title {
+  font-size: var(--t-lg);
+  font-weight: 650;
+  margin-bottom: var(--s-2);
+}
+
+.dialog__body {
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dialog {
+    transition:
+      display var(--dur-slow) allow-discrete,
+      overlay var(--dur-slow) allow-discrete,
+      opacity var(--dur-slow) var(--ease),
+      transform var(--dur-slow) var(--ease);
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+
+  .dialog[open] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @starting-style {
+    .dialog[open] {
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+    }
+  }
+}
+
+.welcome {
+  width: min(420px, calc(100vw - var(--s-4) * 2));
+  padding: var(--s-6) var(--s-5) var(--s-5);
 }
 
 /* Same quiet icon-in-a-plate treatment as an empty state's illustration —
@@ -1821,17 +1862,6 @@ button {
   border-radius: var(--r-md);
   background: var(--illo-plate);
   color: var(--illo-line);
-}
-
-.welcome__title {
-  font-size: var(--t-lg);
-  font-weight: 650;
-  margin-bottom: var(--s-2);
-}
-
-.welcome__body {
-  color: var(--ink-2);
-  text-wrap: pretty;
 }
 
 .welcome__dots {
@@ -1858,28 +1888,26 @@ button {
   gap: var(--s-3);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .welcome {
-    transition:
-      display var(--dur-slow) allow-discrete,
-      overlay var(--dur-slow) allow-discrete,
-      opacity var(--dur-slow) var(--ease),
-      transform var(--dur-slow) var(--ease);
-    opacity: 0;
-    transform: translateY(6px) scale(0.98);
-  }
+.about {
+  width: min(360px, calc(100vw - var(--s-4) * 2));
+  padding: var(--s-5);
+}
 
-  .welcome[open] {
-    opacity: 1;
-    transform: none;
-  }
+.about__list {
+  margin-top: var(--s-4);
+}
 
-  @starting-style {
-    .welcome[open] {
-      opacity: 0;
-      transform: translateY(6px) scale(0.98);
-    }
-  }
+.about__list a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  color: var(--brand-ink);
+}
+
+.about__note {
+  margin-top: var(--s-4);
+  font-size: var(--t-xs);
+  color: var(--ink-3);
 }
 
 /* ---------- low-vision mode ---------- */

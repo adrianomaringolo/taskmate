@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { About } from './components/About';
 import { ContentView } from './components/ContentView';
 import { Icon } from './components/Icon';
 import { Menu } from './components/Menu';
@@ -60,6 +61,7 @@ function Shell() {
   // Read lazily, once: a value computed at module load would be stale by the
   // time this component first renders on a slow connection.
   const [welcomeOpen, setWelcomeOpen] = useState(() => readPref(ONBOARDING_KEY) !== '1');
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   const quickAddRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -161,7 +163,8 @@ function Shell() {
         onSelect={select}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        onOpenHelp={() => setWelcomeOpen(true)}
+        onOpenWelcome={() => setWelcomeOpen(true)}
+        onOpenAbout={() => setAboutOpen(true)}
       />
 
       {/* Backdrop only exists while the drawer is open, so it can't swallow clicks. */}
@@ -329,6 +332,7 @@ function Shell() {
 
       <Toasts />
       <Welcome open={welcomeOpen} onClose={closeWelcome} />
+      <About open={aboutOpen} onClose={() => setAboutOpen(false)} />
     </div>
   );
 }
