@@ -10,8 +10,8 @@ interface Step {
 const STEPS: Step[] = [
   {
     icon: 'mark',
-    title: 'Taskmate',
-    body: 'Tarefas organizadas em três níveis: grupos separam contextos de vida, listas dividem cada contexto em frentes, e as tarefas são o trabalho em si. Nada disso é obrigatório para começar — dá pra usar só a Entrada.',
+    title: 'Boas-vindas ao Taskmate, seu companheiro de tarefas',
+    body: 'Organiza o que você precisa fazer em grupos, listas e tarefas — mas nada disso é obrigatório para começar, dá pra usar só a Entrada. Os próximos passos são um resumo rápido do que dá pra fazer.',
   },
   {
     icon: 'plus',

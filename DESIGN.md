@@ -107,6 +107,24 @@ Base de 15px no `:root`. Sem `clamp()` em nenhum lugar: DPI é consistente e um
 título fluido que encolhe dentro de um painel fica pior, não melhor. Corpo de
 notas limitado a 68ch.
 
+## Icons
+
+**Sempre Lucide, nunca desenhado à mão.** Todo ícone novo em `Icon.tsx` vem da
+geometria real do Lucide — escalada de 24 para o grid de 16 unidades por
+`tools/lucide-scale.mjs`, nunca digitada ou aproximada de memória. Parâmetro de
+arco SVG escrito à mão é fácil de errar e difícil de revisar sem renderizar; foi
+exatamente isso que produziu o ícone `cloudCheck` malformado que motivou essa
+regra (ver `ATTRIBUTION.md` e o histórico do repositório). Antes de desenhar um
+ícone novo, procure o equivalente em `node_modules/lucide-static/icons/` e passe
+pelo script — mesmo para variações simples (uma seta, um traço a mais).
+
+Só ficam desenhados à mão a marca (`mark`) e as composições sem equivalente no
+Lucide — os ícones de calendário com grade de pontos (`today`/`upcoming`/
+`calendar`) e simplificações deliberadas (`list`, por exemplo, lê melhor como
+linhas de texto do que a lista com marcadores do Lucide para indicar notas).
+Mesmo esses usam a mesma grade de 16 unidades e o mesmo traço 1.5 — nunca uma
+curva nova inventada por conta própria.
+
 ## Layout
 
 App shell de duas colunas: lateral de 264px (a árvore grupo › lista) + coluna de
