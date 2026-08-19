@@ -1776,6 +1776,112 @@ button {
   }
 }
 
+/* ---------- welcome wizard ---------- */
+
+/* A native <dialog>, not a hand-rolled overlay div — the same reasoning as
+   Menu.tsx's use of the Popover API: focus trap, Escape-to-close and the top
+   layer come for free instead of being reimplemented. */
+.welcome {
+  /* The UA stylesheet centers dialog:modal with `margin: auto`, but this
+     file's own `* { margin: 0 }` reset — an author rule — outranks it
+     regardless of specificity, since author always beats user-agent origin.
+     Restated here so centering survives that reset. */
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(420px, calc(100vw - var(--s-4) * 2));
+  max-height: calc(100vh - var(--s-4) * 2);
+  overflow-y: auto;
+  padding: var(--s-6) var(--s-5) var(--s-5);
+  border: none;
+  border-radius: var(--r-lg);
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow: var(--shadow-popover);
+}
+
+.welcome::backdrop {
+  background: oklch(0.215 0.012 255 / 0.4);
+}
+
+.welcome__close {
+  position: absolute;
+  top: var(--s-3);
+  right: var(--s-3);
+}
+
+/* Same quiet icon-in-a-plate treatment as an empty state's illustration —
+   this is an orientation moment, not a celebration, so it stays this small. */
+.welcome__icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--illo-plate);
+  color: var(--illo-line);
+}
+
+.welcome__title {
+  font-size: var(--t-lg);
+  font-weight: 650;
+  margin-bottom: var(--s-2);
+}
+
+.welcome__body {
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.welcome__dots {
+  display: flex;
+  gap: var(--s-2);
+  margin: var(--s-5) 0 var(--s-4);
+}
+
+.welcome__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.welcome__dot[data-active='true'] {
+  background: var(--brand);
+}
+
+.welcome__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .welcome {
+    transition:
+      display var(--dur-slow) allow-discrete,
+      overlay var(--dur-slow) allow-discrete,
+      opacity var(--dur-slow) var(--ease),
+      transform var(--dur-slow) var(--ease);
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+
+  .welcome[open] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @starting-style {
+    .welcome[open] {
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+    }
+  }
+}
+
 /* ---------- low-vision mode ---------- */
 
 /* --tap-*, --t-* and --focus-width already do most of the work from

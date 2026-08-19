@@ -6,6 +6,7 @@ import { NotificationsPanel } from './components/NotificationsPanel';
 import { Sidebar } from './components/Sidebar';
 import { SyncPanel } from './components/SyncPanel';
 import { Toasts } from './components/Toasts';
+import { Welcome } from './components/Welcome';
 import { today } from './lib/date';
 import * as Reminder from './lib/notify';
 import { readPref, writePref } from './lib/prefs';
@@ -16,6 +17,7 @@ import { useA11y, type VisionChoice } from './lib/useA11y';
 import { useTheme, type ThemeChoice } from './lib/useTheme';
 
 const VIEW_KEY = 'view';
+const ONBOARDING_KEY = 'onboardingSeen';
 
 const TODAY: View = { kind: 'today' };
 
@@ -55,6 +57,9 @@ function Shell() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
+  // Read lazily, once: a value computed at module load would be stale by the
+  // time this component first renders on a slow connection.
+  const [welcomeOpen, setWelcomeOpen] = useState(() => readPref(ONBOARDING_KEY) !== '1');
 
   const quickAddRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -107,6 +112,13 @@ function Shell() {
     mainRef.current?.scrollTo({ top: 0 });
   }, []);
 
+  // Marking "seen" on close, not on open, means reloading mid-tour on a
+  // first visit shows it again instead of losing it to a half-read state.
+  const closeWelcome = useCallback(() => {
+    setWelcomeOpen(false);
+    writePref(ONBOARDING_KEY, '1');
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -144,7 +156,13 @@ function Shell() {
 
   return (
     <div className="app">
-      <Sidebar view={view} onSelect={select} open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <Sidebar
+        view={view}
+        onSelect={select}
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onOpenHelp={() => setWelcomeOpen(true)}
+      />
 
       {/* Backdrop only exists while the drawer is open, so it can't swallow clicks. */}
       {drawerOpen && (
@@ -310,6 +328,7 @@ function Shell() {
       </main>
 
       <Toasts />
+      <Welcome open={welcomeOpen} onClose={closeWelcome} />
     </div>
   );
 }
