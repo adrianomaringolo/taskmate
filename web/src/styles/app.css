@@ -43,9 +43,10 @@ button {
   cursor: pointer;
 }
 
-/* One focus treatment for the entire surface. */
+/* One focus treatment for the entire surface. Width is a token so low-vision
+   mode can thicken it without a second rule. */
 :focus-visible {
-  outline: 2px solid var(--focus);
+  outline: var(--focus-width) solid var(--focus);
   outline-offset: 2px;
   border-radius: var(--r-sm);
 }
@@ -151,7 +152,7 @@ button {
   align-items: center;
   gap: var(--s-2);
   width: 100%;
-  min-height: 32px;
+  min-height: var(--tap-row);
   padding: 0 var(--s-2);
   border-radius: var(--r-md);
   color: var(--ink);
@@ -229,7 +230,7 @@ button {
   gap: var(--s-2);
   flex: 1;
   min-width: 0;
-  min-height: 32px;
+  min-height: var(--tap-row);
   padding-left: var(--s-2);
   border-radius: var(--r-md);
   font-size: var(--t-sm);
@@ -287,7 +288,7 @@ button {
 
 .group__lists .row {
   font-size: var(--t-sm);
-  min-height: 30px;
+  min-height: var(--tap-row-sm);
 }
 
 /* Rail tying a group's lists to its colour, at 2px — orientation, not decoration. */
@@ -314,7 +315,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: var(--s-2);
-  min-height: 36px;
+  min-height: var(--tap-btn);
   padding: 0 var(--s-3);
   border-radius: var(--r-md);
   font-size: var(--t-base);
@@ -327,7 +328,7 @@ button {
 }
 
 .btn--sm {
-  min-height: 32px;
+  min-height: var(--tap-btn-sm);
   padding: 0 var(--s-2);
   font-size: var(--t-sm);
 }
@@ -369,8 +370,8 @@ button {
 }
 
 .btn--icon {
-  min-height: 28px;
-  width: 28px;
+  min-height: var(--tap-icon);
+  width: var(--tap-icon);
   padding: 0;
   color: var(--ink-3);
   border-radius: var(--r-sm);
@@ -386,7 +387,7 @@ button {
   width: 100%;
   color: var(--ink-3);
   font-size: var(--t-sm);
-  min-height: 32px;
+  min-height: var(--tap-row);
 }
 
 .btn--add:hover {
@@ -417,7 +418,7 @@ button {
 .textarea,
 .select {
   width: 100%;
-  min-height: 36px;
+  min-height: var(--tap-input);
   padding: var(--s-2) var(--s-3);
   background: var(--bg);
   border: 1px solid var(--line-strong);
@@ -628,8 +629,8 @@ button {
   flex: none;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: var(--tap-icon);
+  height: var(--tap-icon);
   margin-left: var(--s-1);
   color: var(--ink-3);
 }
@@ -644,7 +645,7 @@ button {
   border: 0;
   background: none;
   padding: var(--s-2) 0;
-  min-height: 32px;
+  min-height: var(--tap-row);
 }
 
 .quick-add__input:focus-visible {
@@ -742,12 +743,13 @@ button {
   cursor: grabbing;
 }
 
-/* Checkbox: 18px, 1.5px border at 4.95:1 — a real edge, not a hint. */
+/* Checkbox: 18px by default, 1.5px border at 4.95:1 — a real edge, not a
+   hint. --tap-check grows it in low-vision mode. */
 .check {
   flex: none;
   position: relative;
-  width: 18px;
-  height: 18px;
+  width: var(--tap-check);
+  height: var(--tap-check);
   margin-top: 2px;
   border: 1.5px solid var(--ink-3);
   border-radius: var(--r-sm);
@@ -1108,7 +1110,7 @@ button {
   align-items: center;
   gap: var(--s-2);
   width: 100%;
-  min-height: 32px;
+  min-height: var(--tap-row);
   padding: 0 var(--s-2);
   border-radius: var(--r-sm);
   font-size: var(--t-sm);
@@ -1141,6 +1143,13 @@ button {
   color: var(--ink-3);
 }
 
+.menu__hint {
+  padding: var(--s-1) var(--s-2) var(--s-2);
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+
 .swatches {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1151,7 +1160,7 @@ button {
 .swatch {
   display: grid;
   place-items: center;
-  height: 30px;
+  height: var(--tap-row-sm);
   border-radius: var(--r-sm);
 }
 
@@ -1335,7 +1344,7 @@ button {
 .search__input {
   flex: 1;
   min-width: 0;
-  min-height: 32px;
+  min-height: var(--tap-row);
   border: 0;
   background: none;
   font-size: var(--t-sm);
@@ -1672,6 +1681,19 @@ button {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* Touch, not a cursor: every finger-operated control below (hamburger,
+     close, theme/shortcuts toggles, task actions, nav rows, group toggle,
+     menu items) grows past its desktop hover-friendly size. Plain `:root`
+     here loses to `:root[data-vision='low']` on specificity, so low-vision
+     mode's larger values still win when both apply. */
+  :root {
+    --tap-icon: 40px;
+    --tap-row: 44px;
+    --tap-row-sm: 40px;
+    --tap-btn-sm: 40px;
+    --tap-check: 22px;
+  }
+
   .sidebar {
     position: fixed;
     inset: 0 auto 0 0;
@@ -1751,6 +1773,33 @@ button {
 
   .task__grip {
     display: none;
+  }
+}
+
+/* ---------- low-vision mode ---------- */
+
+/* --tap-*, --t-* and --focus-width already do most of the work from
+   tokens.css; the two rules below are the ones that need a real selector
+   because they aren't sizes on a single element. */
+:root[data-vision='low'] body {
+  line-height: 1.65;
+}
+
+:root[data-vision='low'] .task__row {
+  padding-block: var(--s-4);
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --line: var(--line-strong);
+  }
+
+  .input,
+  .textarea,
+  .select,
+  .quick-add,
+  .check {
+    border-width: 2px;
   }
 }
 

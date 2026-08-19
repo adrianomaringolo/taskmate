@@ -12,6 +12,7 @@ import { readPref, writePref } from './lib/prefs';
 import { initPwa } from './lib/pwa';
 import { StoreProvider, useStore } from './lib/store';
 import type { View } from './lib/types';
+import { useA11y, type VisionChoice } from './lib/useA11y';
 import { useTheme, type ThemeChoice } from './lib/useTheme';
 
 const VIEW_KEY = 'view';
@@ -48,6 +49,7 @@ export default function App() {
 function Shell() {
   const { data, undoLast, notify } = useStore();
   const { choice, setChoice } = useTheme();
+  const { vision, setVision } = useA11y();
 
   const [view, setView] = useState<View>(readView);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -233,6 +235,41 @@ function Shell() {
                     {choice === value && <Icon name="check" className="menu__check" />}
                   </button>
                 ))}
+              </>
+            )}
+          </Menu>
+
+          <Menu
+            label="Acessibilidade"
+            triggerContent={<Icon name="eye" />}
+          >
+            {(close) => (
+              <>
+                <p className="menu__label">Acessibilidade</p>
+                {(
+                  [
+                    ['default', 'Padrão'],
+                    ['low-vision', 'Ampliado (baixa visão)'],
+                  ] as const
+                ).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    className="menu__item"
+                    aria-pressed={vision === (value as VisionChoice)}
+                    onClick={() => {
+                      setVision(value as VisionChoice);
+                      close();
+                    }}
+                  >
+                    {label}
+                    {vision === value && <Icon name="check" className="menu__check" />}
+                  </button>
+                ))}
+                <hr className="menu__sep" />
+                <p className="menu__hint">
+                  Aumenta o texto, os alvos de toque e o contorno de foco em todo o app.
+                </p>
               </>
             )}
           </Menu>
