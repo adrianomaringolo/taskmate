@@ -207,7 +207,7 @@ function Shell() {
           <NotificationsPanel />
 
           <Menu
-            label="Tema"
+            label="Tema e acessibilidade"
             triggerContent={<Icon name={choice === 'system' ? 'monitor' : choice === 'dark' ? 'moon' : 'sun'} />}
           >
             {(close) => (
@@ -235,23 +235,16 @@ function Shell() {
                     {choice === value && <Icon name="check" className="menu__check" />}
                   </button>
                 ))}
-              </>
-            )}
-          </Menu>
 
-          <Menu
-            label="Acessibilidade"
-            triggerContent={<Icon name="eye" />}
-          >
-            {(close) => (
-              <>
+                <hr className="menu__sep" />
+
                 <p className="menu__label">Acessibilidade</p>
                 {(
                   [
-                    ['default', 'Padrão'],
-                    ['low-vision', 'Ampliado (baixa visão)'],
+                    ['default', 'eye', 'Padrão'],
+                    ['low-vision', 'eye', 'Ampliado (baixa visão)'],
                   ] as const
-                ).map(([value, label]) => (
+                ).map(([value, icon, label]) => (
                   <button
                     key={value}
                     type="button"
@@ -262,11 +255,11 @@ function Shell() {
                       close();
                     }}
                   >
+                    <Icon name={icon} />
                     {label}
                     {vision === value && <Icon name="check" className="menu__check" />}
                   </button>
                 ))}
-                <hr className="menu__sep" />
                 <p className="menu__hint">
                   Aumenta o texto, os alvos de toque e o contorno de foco em todo o app.
                 </p>
