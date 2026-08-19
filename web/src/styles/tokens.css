@@ -101,6 +101,19 @@
 
   --sidebar-w: 264px;
 
+  /* --- touch targets: shared by every interactive control so the mobile
+     media query and the low-vision mode below can scale them from one
+     place instead of chasing hardcoded sizes through app.css. --- */
+  --tap-icon: 28px;
+  --tap-row: 32px;
+  --tap-row-sm: 30px;
+  --tap-btn: 36px;
+  --tap-btn-sm: 32px;
+  --tap-input: 36px;
+  --tap-check: 18px;
+
+  --focus-width: 2px;
+
   color-scheme: light;
 }
 
@@ -204,4 +217,30 @@
   --g-rose: oklch(0.74 0.125 355);
 
   color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------------
+   Low-vision mode: opt-in from the Acessibilidade menu, persisted like the
+   theme choice. `[data-vision]` is one attribute selector — its specificity
+   already beats the bare `:root` used by the mobile media query below and
+   by the two theme blocks above, so this wins on every breakpoint and in
+   both themes without needing extra combinators or !important. Colours are
+   untouched: only size and focus-visibility change, so `test:tokens`
+   (tools/contrast.mjs) still covers every pair that ships. */
+:root[data-vision='low'] {
+  --tap-icon: 44px;
+  --tap-row: 44px;
+  --tap-row-sm: 40px;
+  --tap-btn: 48px;
+  --tap-btn-sm: 44px;
+  --tap-input: 48px;
+  --tap-check: 24px;
+
+  --focus-width: 3px;
+
+  --t-xs: 0.8125rem;
+  --t-sm: 0.9375rem;
+  --t-base: 1.125rem;
+  --t-md: 1.25rem;
+  --t-lg: 1.625rem;
 }

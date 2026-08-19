@@ -139,6 +139,12 @@ const PATHS = {
     </>
   ),
   menu: <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" />,
+  eye: (
+    <>
+      <path d="M1.3 8S4 3.2 8 3.2 14.7 8 14.7 8 12 12.8 8 12.8 1.3 8 1.3 8Z" />
+      <circle cx="8" cy="8" r="2.1" />
+    </>
+  ),
   keyboard: (
     <>
       <rect x="1.5" y="4" width="13" height="8" rx="1.5" />
