@@ -1,9 +1,21 @@
-import { readdirSync, rmSync } from 'node:fs';
+import { readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import wasm from 'vite-plugin-wasm';
+
+/**
+ * Read once at config-eval time (Node), not at runtime (browser) — a static
+ * site has no server to ask "what version am I" when the About panel opens.
+ * `__BUILD_DATE__` is stamped the moment this config runs, i.e. `vite build`
+ * or `vite dev` starting; there is no separate "deploy" step in this repo to
+ * timestamp instead, and for a static build the two coincide close enough to
+ * show one value as "compilado em" rather than invent an unbacked deploy log.
+ */
+const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
+  version: string;
+};
 
 /**
  * Vite copies `public/` into `dist/` verbatim, including dot-directories that
@@ -81,6 +93,10 @@ export default defineConfig({
       devOptions: { enabled: false },
     }),
   ],
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
+  },
   server: { port: 5173 },
   preview: { port: 5173 },
   build: {

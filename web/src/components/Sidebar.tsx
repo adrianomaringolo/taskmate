@@ -5,15 +5,18 @@ import { GROUP_COLORS, type View } from '../lib/types';
 import { GroupNode } from './GroupNode';
 import { Icon } from './Icon';
 import { InlineCreate } from './InlineCreate';
+import { Menu } from './Menu';
 
 interface Props {
   view: View;
   onSelect: (view: View) => void;
   open: boolean;
   onClose: () => void;
+  onOpenWelcome: () => void;
+  onOpenAbout: () => void;
 }
 
-export function Sidebar({ view, onSelect, open, onClose }: Props) {
+export function Sidebar({ view, onSelect, open, onClose, onOpenWelcome, onOpenAbout }: Props) {
   const { data, tasksByList, addGroup } = useStore();
 
   const counts = useMemo(() => {
@@ -145,6 +148,52 @@ export function Sidebar({ view, onSelect, open, onClose }: Props) {
             ))
           )}
         </div>
+      </div>
+
+      <div className="sidebar__foot">
+        <Menu
+          label="Ajuda"
+          align="start"
+          triggerClassName="row"
+          triggerContent={
+            <>
+              <span className="row__icon">
+                <Icon name="help" />
+              </span>
+              <span className="row__label">Ajuda</span>
+            </>
+          }
+        >
+          {(close) => (
+            <>
+              <p className="menu__label">Ajuda</p>
+              <button
+                type="button"
+                className="menu__item"
+                onClick={() => {
+                  close();
+                  onClose();
+                  onOpenWelcome();
+                }}
+              >
+                <Icon name="mark" />
+                Como usar o Taskmate
+              </button>
+              <button
+                type="button"
+                className="menu__item"
+                onClick={() => {
+                  close();
+                  onClose();
+                  onOpenAbout();
+                }}
+              >
+                <Icon name="help" />
+                Sobre
+              </button>
+            </>
+          )}
+        </Menu>
       </div>
     </aside>
   );
