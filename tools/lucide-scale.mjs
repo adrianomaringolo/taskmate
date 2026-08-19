@@ -26,23 +26,34 @@ function num(n) {
 // Splits an SVG path `d` string into [command, ...rawNumberStrings] tokens.
 function tokenizePath(d) {
   const tokens = [];
-  const re = /([MLHVAZmlhvaz])|(-?\d*\.?\d+(?:e[+-]?\d+)?)/g;
+  const re = /([MLHVACSQTZmlhvacsqtz])|(-?\d*\.?\d+(?:e[+-]?\d+)?)/g;
   let m;
   while ((m = re.exec(d))) tokens.push(m[1] ?? m[2]);
   return tokens;
 }
 
-const ARITY = { M: 2, L: 2, H: 1, V: 1, A: 7, Z: 0 };
+// Every param of C/S/Q/T is a coordinate (no flags to leave unscaled), so the
+// generic branch in scalePath handles them once their arity is here.
+const ARITY = { M: 2, L: 2, H: 1, V: 1, A: 7, C: 6, S: 4, Q: 4, T: 2, Z: 0 };
 
 /**
  * Appends a number to `out`, adding a separating space only when omitting it
- * would merge two tokens (i.e. the new one doesn't already start with `-` or
- * `.`, which are self-delimiting) — the same terse style the rest of the
- * file's hand-drawn paths already use. Emitted this way, not hand-tightened
+ * would merge two tokens — the same terse style the rest of the file's
+ * hand-drawn paths already use. Emitted this way, not hand-tightened
  * afterward, so there is no manual retyping step where a digit could slip.
+ *
+ * A leading `-` is always safe to glue on with no space: a number can't
+ * validly end in one, so it unambiguously starts a new token (this is what
+ * lets ".3-5.2" already appear in the file's own hand-written paths). A
+ * leading `.` is safe only when the previous token *already* used its
+ * decimal point — gluing ".2" straight onto "1" reads back as one number,
+ * "1.2", not two. Telling those apart from a string alone would mean
+ * re-parsing what was just built, so the simple, always-correct rule is
+ * applied instead: a leading `.` gets a space unless it follows a command
+ * letter, at the cost of a few bytes it would sometimes not have needed.
  */
 function append(out, str) {
-  if (out === '' || /[A-Za-z]$/.test(out) || str[0] === '-' || str[0] === '.') return out + str;
+  if (out === '' || /[A-Za-z]$/.test(out) || str[0] === '-') return out + str;
   return out + ' ' + str;
 }
 
@@ -53,7 +64,7 @@ function scalePath(d) {
   let cmd = null;
   while (i < tokens.length) {
     const t = tokens[i];
-    if (/[MLHVAZmlhvaz]/.test(t)) {
+    if (/[MLHVACSQTZmlhvacsqtz]/.test(t)) {
       cmd = t;
       out += cmd;
       i++;

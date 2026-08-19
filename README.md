@@ -231,3 +231,14 @@ para isso — mas a propagação atrasa alguns segundos.
 dispositivo que ficou offline tempo suficiente para não ter visto a exclusão. O
 Automerge guarda histórico de qualquer forma, então purgar quase não reduziria o
 arquivo.
+
+**O lembrete diário de tarefas não é push de verdade.** Web Push exige um
+servidor que chame o serviço de push no horário certo, e esse servidor
+precisaria saber quais tarefas existem — exatamente a peça que este projeto
+não tem de propósito (`lib/notify.ts`, `PRODUCT.md`). O que existe em vez
+disso: a próxima vez que o app é aberto a partir das 8h de um dia ainda sem
+aviso, ele verifica as tarefas em aberto vencendo hoje ou amanhã e notifica
+uma vez. Um timer de 60 s cobre quem deixa a aba aberta durante a virada das
+8h. Se o app não for aberto naquele dia, o aviso daquele dia simplesmente não
+acontece — não há como entregá-lo com o navegador fechado sem abrir mão do
+"sem servidor nosso".
