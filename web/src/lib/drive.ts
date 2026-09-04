@@ -215,47 +215,57 @@ function authMessage(code?: string): string {
   return 'Não consegui autorizar no Google. Conecte novamente.';
 }
 
+/** One `requestAccessToken` round trip, resolved/rejected from the shared callback. */
+async function callToken(overrides: { prompt?: string; hint?: string }): Promise<string> {
+  const tokenClient = await ensureClient();
+  if (pending) throw new DriveError('Já existe uma autorização em andamento.', 'auth');
+
+  return new Promise<string>((resolve, reject) => {
+    pending = { resolve, reject };
+    try {
+      tokenClient.requestAccessToken(overrides);
+    } catch (err) {
+      pending = null;
+      reject(new DriveError(err instanceof Error ? err.message : 'Falha ao pedir autorização.', 'auth'));
+    }
+  });
+}
+
 /**
- * `interactive: true` is the only path that ever calls `requestAccessToken`.
- * Even a "silent" renewal opens a real Google popup to confirm the session and
- * closes it itself a moment later — and that flash steals window focus the
- * instant it appears. The sync loop used to call this non-interactively from a
- * heartbeat and from every tab/window focus event, which meant the popup could
- * interrupt whatever else the user was doing, repeatedly, for no reason visible
- * to them.
- *
- * So `interactive: false` (background sync) never reaches Google at all: it
+ * `interactive: true` is the only path that ever calls `requestAccessToken` —
+ * `interactive: false` (background sync) never reaches Google at all: it
  * returns the cached token if one is still valid, or fails with an `auth`
- * error. Callers treat that failure as "ask the user to reconnect" — see
- * `store.tsx`, which surfaces a Reconectar action instead of retrying — rather
- * than as fatal. Renewal only happens from a call the user actually made
- * (opening the app, or tapping Conectar / Sincronizar agora), so the popup, if
- * one is needed, appears while they are already looking at this app.
+ * error, which callers treat as "ask the user to reconnect" (see `store.tsx`,
+ * which surfaces a Reconectar action) rather than as fatal. That is what keeps
+ * a heartbeat or a tab/window focus event from popping Google's UI while the
+ * user is doing something else — renewal only happens from a call the user
+ * actually made: opening the app, or tapping Conectar / Sincronizar agora.
  *
- * `hint` rides along once known (see `captureHint`), which pins the request to
- * the account that was authorized before. Without it, anyone signed into more
- * than one Google account in the browser gets Google's account picker on every
- * single renewal — `hint` is what lets that happen once, at most.
+ * Once this device has connected before, `hint` is known (see `captureHint`),
+ * and the first attempt is `prompt: ''`: GIS renews using that exact account
+ * without asking the user to pick it again — if it shows anything at all, it's
+ * the brief popup that opens and closes itself, not one waiting for a click.
+ * That silent attempt can fail (consent revoked, Safari's tracking prevention
+ * blocking the third-party context it needs), and a first-ever connect has no
+ * hint to be silent with — both fall back to the full prompt, which still
+ * pins the account via `hint` when one exists but leaves the click to the
+ * user. Without `hint` at all, anyone signed into more than one Google account
+ * in the browser would get the account picker on every single renewal.
  */
 export async function requestToken({ interactive }: { interactive: boolean }): Promise<string> {
   if (!isConfigured()) throw new DriveError('Sincronização não configurada.', 'auth');
   if (token && Date.now() < tokenExpiry) return token;
   if (!interactive) throw new DriveError('A autorização do Drive expirou. Conecte novamente.', 'auth');
 
-  const tokenClient = await ensureClient();
-  if (pending) throw new DriveError('Já existe uma autorização em andamento.', 'auth');
-
   const hint = readPref(HINT_PREF) ?? undefined;
-
-  return new Promise<string>((resolve, reject) => {
-    pending = { resolve, reject };
+  if (hint) {
     try {
-      tokenClient.requestAccessToken({ hint });
-    } catch (err) {
-      pending = null;
-      reject(new DriveError(err instanceof Error ? err.message : 'Falha ao pedir autorização.', 'auth'));
+      return await callToken({ prompt: '', hint });
+    } catch {
+      // Falls through to the full prompt below.
     }
-  });
+  }
+  return callToken(hint ? { hint } : {});
 }
 
 export function forgetToken(): void {
