@@ -216,24 +216,31 @@ function authMessage(code?: string): string {
 }
 
 /**
- * `interactive: false` attempts a silent renewal, which works once consent has
- * been granted and the Google session is alive — no click required. It is not
- * invisible, though: GIS still opens a real popup to confirm the session and
- * closes it itself a moment later, which is the brief loading flash a user
- * sees on every reload. It can also fail outright — Safari's tracking
- * prevention blocks the third-party context this relies on — so callers must
- * treat an `auth` failure as "ask the user to reconnect" rather than as a
- * fatal error.
+ * `interactive: true` is the only path that ever calls `requestAccessToken`.
+ * Even a "silent" renewal opens a real Google popup to confirm the session and
+ * closes it itself a moment later — and that flash steals window focus the
+ * instant it appears. The sync loop used to call this non-interactively from a
+ * heartbeat and from every tab/window focus event, which meant the popup could
+ * interrupt whatever else the user was doing, repeatedly, for no reason visible
+ * to them.
  *
- * Every call passes `hint` once one is known (see `captureHint`), which pins
- * the request to the account that was authorized before. Without it, anyone
- * signed into more than one Google account in the browser gets Google's
- * account picker on every single renewal — `hint` is what lets that happen
- * once, at most.
+ * So `interactive: false` (background sync) never reaches Google at all: it
+ * returns the cached token if one is still valid, or fails with an `auth`
+ * error. Callers treat that failure as "ask the user to reconnect" — see
+ * `store.tsx`, which surfaces a Reconectar action instead of retrying — rather
+ * than as fatal. Renewal only happens from a call the user actually made
+ * (opening the app, or tapping Conectar / Sincronizar agora), so the popup, if
+ * one is needed, appears while they are already looking at this app.
+ *
+ * `hint` rides along once known (see `captureHint`), which pins the request to
+ * the account that was authorized before. Without it, anyone signed into more
+ * than one Google account in the browser gets Google's account picker on every
+ * single renewal — `hint` is what lets that happen once, at most.
  */
 export async function requestToken({ interactive }: { interactive: boolean }): Promise<string> {
   if (!isConfigured()) throw new DriveError('Sincronização não configurada.', 'auth');
   if (token && Date.now() < tokenExpiry) return token;
+  if (!interactive) throw new DriveError('A autorização do Drive expirou. Conecte novamente.', 'auth');
 
   const tokenClient = await ensureClient();
   if (pending) throw new DriveError('Já existe uma autorização em andamento.', 'auth');
@@ -243,7 +250,7 @@ export async function requestToken({ interactive }: { interactive: boolean }): P
   return new Promise<string>((resolve, reject) => {
     pending = { resolve, reject };
     try {
-      tokenClient.requestAccessToken(interactive ? { hint } : { prompt: '', hint });
+      tokenClient.requestAccessToken({ hint });
     } catch (err) {
       pending = null;
       reject(new DriveError(err instanceof Error ? err.message : 'Falha ao pedir autorização.', 'auth'));
