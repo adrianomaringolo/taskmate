@@ -152,6 +152,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const docRef = useRef<Doc | null>(null);
   const metaRef = useRef<SyncMeta>(EMPTY_SYNC_META);
   const syncingRef = useRef(false);
+  // Set when a background sync hit a dead token, cleared on the next successful
+  // sync. While set, background triggers stop calling runSync at all — without
+  // this, the heartbeat would rediscover the same dead token every 45s and each
+  // attempt is another round trip for a result the app already knows. The user
+  // clears it explicitly via Reconectar / Sincronizar agora.
+  const needsReauthRef = useRef(false);
   const undoRef = useRef<(() => void) | null>(null);
   const persistTimer = useRef<number | null>(null);
   const syncTimer = useRef<number | null>(null);
@@ -259,10 +265,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const current = docRef.current;
       if (!current) return;
       if (!interactive && metaRef.current.fileId === null && syncState.kind === 'off') return;
+      // A prior background sync already found the token dead; retrying silently
+      // on every heartbeat/focus would just fail the same way. Only an
+      // interactive call (Reconectar, Sincronizar agora) can clear this.
+      if (!interactive && needsReauthRef.current) return;
 
       syncingRef.current = true;
       setSyncState({ kind: 'syncing' });
       try {
+        // Interactive callers renew the token up front, so a popup — if one is
+        // needed at all — appears while the user is looking at this app, not
+        // mid-request from inside the transport.
+        if (interactive) await requestToken({ interactive: true });
+
         const outcome = await syncOnce({
           transport: driveTransport,
           doc: current,
@@ -278,14 +293,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
          */
         setDoc(D.merge(docRef.current ?? outcome.doc, outcome.doc));
         putMeta(outcome.meta);
+        needsReauthRef.current = false;
         setSyncState({ kind: 'idle', lastSyncAt: outcome.meta.lastSyncAt });
         setAccountEmail(accountHint());
       } catch (err) {
         const isDrive = err instanceof DriveError;
+        const needsAuth = isDrive && err.kind === 'auth';
+        if (needsAuth) needsReauthRef.current = true;
         setSyncState({
           kind: 'error',
           message: isDrive ? err.message : 'Falha ao sincronizar com o Drive.',
-          needsAuth: isDrive && err.kind === 'auth',
+          needsAuth,
           lastSyncAt: metaRef.current.lastSyncAt,
         });
       } finally {
@@ -346,10 +364,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         if (!bytes) await writeDocBytes(D.save(loaded));
 
-        // Already paired with a Drive file: resume silently.
+        // Already paired with a Drive file: resume automatically. This is the
+        // one background moment allowed to renew the token interactively — the
+        // user just opened the app, so a brief Google flash (if renewal is even
+        // needed) lands while they are looking at it, never while they are not.
         if (isConfigured() && storedMeta.fileId !== null) {
           setSyncState({ kind: 'idle', lastSyncAt: storedMeta.lastSyncAt });
-          void runSync({ interactive: false });
+          void runSync({ interactive: true });
         }
       } catch (err) {
         if (cancelled) return;
@@ -369,25 +390,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Focus and heartbeat triggers. Nothing polls while the tab is hidden.
+  // Background pull triggers: tab becomes visible again, connection comes
+  // back, and a slow heartbeat as a backstop. All three only fire non-interactive
+  // syncs (see runSync / drive.ts's requestToken — that path never opens Google
+  // UI), and all three are throttled to "stale", so switching tabs or alt-tabbing
+  // between apps does not, by itself, cost a network round trip. There is no
+  // `window.addEventListener('focus', …)` here on purpose: it fires on every
+  // return to the browser window regardless of which tab is active, which is
+  // exactly what used to make this run constantly while the user was elsewhere.
   useEffect(() => {
     if (!isConfigured()) return;
 
-    const onVisible = () => {
-      if (!document.hidden) void runSync({ interactive: false });
+    const pullIfStale = () => {
+      if (document.hidden) return;
+      const last = metaRef.current.lastSyncAt;
+      if (last && Date.now() - new Date(last).getTime() < SYNC_HEARTBEAT_MS) return;
+      void runSync({ interactive: false });
     };
-    window.addEventListener('visibilitychange', onVisible);
-    window.addEventListener('focus', onVisible);
-    window.addEventListener('online', onVisible);
 
-    const beat = window.setInterval(() => {
-      if (!document.hidden) void runSync({ interactive: false });
-    }, SYNC_HEARTBEAT_MS);
+    document.addEventListener('visibilitychange', pullIfStale);
+    window.addEventListener('online', pullIfStale);
+    const beat = window.setInterval(pullIfStale, SYNC_HEARTBEAT_MS);
 
     return () => {
-      window.removeEventListener('visibilitychange', onVisible);
-      window.removeEventListener('focus', onVisible);
-      window.removeEventListener('online', onVisible);
+      document.removeEventListener('visibilitychange', pullIfStale);
+      window.removeEventListener('online', pullIfStale);
       clearInterval(beat);
     };
   }, [runSync]);
@@ -556,21 +583,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   // --- sync controls --------------------------------------------------
 
+  // Interactive once, to obtain consent (runSync requests the token up front);
+  // every background sync after this is silent and never opens Google UI.
   const connect = useCallback(async () => {
     if (!isConfigured()) return;
-    setSyncState({ kind: 'syncing' });
-    try {
-      // Interactive once, to obtain consent; everything after is silent.
-      await requestToken({ interactive: true });
-    } catch (err) {
-      setSyncState({
-        kind: 'error',
-        message: err instanceof DriveError ? err.message : 'Não consegui conectar ao Drive.',
-        needsAuth: true,
-        lastSyncAt: metaRef.current.lastSyncAt,
-      });
-      return;
-    }
     await runSync({ interactive: true });
   }, [runSync]);
 
@@ -622,7 +638,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       state: syncState,
       connect,
       disconnect,
-      now: () => runSync({ interactive: false }),
+      // Interactive: an explicit click, so it may renew the token (and clears
+      // needsReauthRef on success) rather than silently no-op after a dead token.
+      now: () => runSync({ interactive: true }),
       forget,
     },
     addTask,

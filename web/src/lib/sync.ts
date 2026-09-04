@@ -130,12 +130,21 @@ export async function syncOnce(params: {
 /**
  * When to sync. Polling on a tight interval would burn quota for nothing — tens
  * of thousands of requests a day to learn that nothing changed — so the loop is
- * event-driven with a slow heartbeat as a backstop:
+ * event-driven with a slow heartbeat as a backstop, and every trigger below is
+ * throttled against `lastSyncAt`: none of it fires more often than every 45s no
+ * matter how often the underlying event does (see `store.tsx`'s `pullIfStale`).
  *
  * - on connect and on load
- * - when the tab regains focus (the moment a stale view is actually looked at)
+ * - when the tab becomes visible again, and while it is hidden nothing runs —
+ *   there is deliberately no plain `window.addEventListener('focus', …)`
+ *   trigger, since that fires on every return to the browser window regardless
+ *   of which tab is active and would run this while the user is elsewhere
  * - a few seconds after a local edit, debounced
- * - every 45s while the tab is visible, and never while it is hidden
+ * - at most every 45s while the tab is visible
+ *
+ * A background trigger never opens Google's auth UI — see drive.ts's
+ * `requestToken` — so a dead token just surfaces a Reconectar prompt instead of
+ * a popup interrupting whatever the user is doing in another app.
  */
 export const SYNC_DEBOUNCE_MS = 2_500;
 export const SYNC_HEARTBEAT_MS = 45_000;
