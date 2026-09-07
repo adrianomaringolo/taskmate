@@ -173,26 +173,34 @@ export function TaskRow({
               {listTag && <span className="task__list-tag">{listTag}</span>}
             </div>
           )}
-        </div>
 
-        {quickSchedule && !task.done && (
-          <span className="task__schedule">
-            <button
-              type="button"
-              className="btn btn--sm btn--ghost"
-              onClick={() => void patchTask(task.id, { dueDate: today() })}
-            >
-              Hoje
-            </button>
-            <button
-              type="button"
-              className="btn btn--sm btn--ghost"
-              onClick={() => void patchTask(task.id, { dueDate: addDays(today(), 1) })}
-            >
-              Amanhã
-            </button>
-          </span>
-        )}
+          {quickSchedule && !task.done && (
+            <div className="task__schedule">
+              <span className="task__schedule-label">Dar prazo:</span>
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => void patchTask(task.id, { dueDate: today() })}
+              >
+                Hoje
+              </button>
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => void patchTask(task.id, { dueDate: addDays(today(), 1) })}
+              >
+                Amanhã
+              </button>
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => void patchTask(task.id, { dueDate: addDays(today(), 7) })}
+              >
+                Em 1 semana
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="task__actions">
           <button

@@ -1930,12 +1930,25 @@ button {
   color: var(--ink-3);
 }
 
-/* Always visible, unlike .task__actions — dating is the point of the view. */
+/* Its own line under the title, not squeezed into the row: on a phone the
+   buttons and the title were fighting for the same width. Always visible,
+   unlike .task__actions — dating is the whole point of the view. */
 .task__schedule {
-  flex: none;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 2px;
+  gap: var(--s-1);
+  margin-top: var(--s-2);
+}
+
+.task__schedule-label {
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+  margin-right: var(--s-1);
+}
+
+.task__schedule .btn {
+  border: 1px solid var(--line);
 }
 
 .trash {
