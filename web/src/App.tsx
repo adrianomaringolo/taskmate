@@ -273,10 +273,10 @@ function Shell() {
           </button>
 
           <Menu
-            label="Atalhos de teclado"
+            label="Atalhos e captura"
             triggerContent={<Icon name="keyboard" />}
             triggerClassName="btn btn--icon topbar__shortcuts"
-            menuClassName="sheet"
+            menuClassName="sheet sheet--help"
           >
             {() => (
               <>
@@ -295,6 +295,31 @@ function Shell() {
                       <dd>
                         <kbd className="kbd">{keys}</kbd>
                       </dd>
+                    </div>
+                  ))}
+                </dl>
+
+                <hr className="menu__sep" />
+
+                <p className="menu__label">Na captura</p>
+                <p className="sheet__body">
+                  Escreva o prazo e a prioridade no próprio texto — a palavra fica destacada quando é
+                  reconhecida. O que o app não entende continua no título.
+                </p>
+                <dl className="sheet__list sheet__list--tokens">
+                  {[
+                    ['hoje', 'prazo para hoje'],
+                    ['amanhã', 'prazo para amanhã'],
+                    ['seg … dom', 'próxima ocorrência do dia'],
+                    ['12/03', 'data específica'],
+                    ['+3', 'daqui a 3 dias'],
+                    ['!alta !media !baixa', 'prioridade'],
+                  ].map(([token, what]) => (
+                    <div className="sheet__item" key={token}>
+                      <dt>
+                        <code className="sheet__token">{token}</code>
+                      </dt>
+                      <dd>{what}</dd>
                     </div>
                   ))}
                 </dl>

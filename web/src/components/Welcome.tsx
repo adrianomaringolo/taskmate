@@ -16,7 +16,7 @@ const STEPS: Step[] = [
   {
     icon: 'plus',
     title: 'Capturar é sempre rápido',
-    body: 'A tecla N foca a captura em qualquer tela. O que você digitar cai na Entrada — escolher grupo, lista ou prazo pode esperar pra depois.',
+    body: 'A tecla N foca a captura em qualquer tela e o que você digitar cai na Entrada. Se quiser, escreva o prazo e a prioridade no texto — "amanhã", "sex", "!alta" —, que a palavra fica destacada e vira campo da tarefa. O resto pode esperar.',
   },
   {
     icon: 'folder',

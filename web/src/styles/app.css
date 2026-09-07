@@ -652,13 +652,32 @@ button {
   color: var(--brand-ink);
 }
 
-.quick-add__input {
+/* Holds the transparent input over the highlight mirror; both share every
+   metric below so the marks land exactly behind the words. */
+.quick-add__editor {
+  position: relative;
   flex: 1;
   min-width: 0;
-  border: 0;
-  background: none;
+}
+
+.quick-add__input,
+.quick-add__mirror {
+  width: 100%;
+  box-sizing: border-box;
   padding: var(--s-2) 0;
   min-height: var(--tap-row);
+  font: inherit;
+  line-height: 1.5;
+  letter-spacing: inherit;
+  white-space: pre;
+  overflow-x: hidden;
+}
+
+.quick-add__input {
+  border: 0;
+  background: none;
+  position: relative;
+  appearance: none;
 }
 
 .quick-add__input:focus-visible {
@@ -667,6 +686,32 @@ button {
 
 .quick-add__input::placeholder {
   color: var(--ink-3);
+}
+
+.quick-add__mirror {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  color: transparent;
+}
+
+.quick-add__mirror-text {
+  flex: none;
+  white-space: pre;
+}
+
+.quick-add__mark {
+  border-radius: var(--r-sm);
+  color: transparent;
+  background: var(--brand-wash);
+  box-shadow: 0 0 0 1.5px var(--brand-wash);
+}
+
+.quick-add__mark--priority {
+  background: color-mix(in oklch, var(--brand) 22%, transparent);
+  box-shadow: 0 0 0 1.5px color-mix(in oklch, var(--brand) 22%, transparent);
 }
 
 .quick-add__hint {
@@ -1678,6 +1723,35 @@ button {
 
 .sheet__item dd {
   margin: 0;
+}
+
+.sheet--help {
+  max-width: 340px;
+}
+
+/* Syntax reference: token on the left, meaning on the right, top-aligned so a
+   long token can wrap without dragging the meaning with it. */
+.sheet__list--tokens .sheet__item {
+  align-items: baseline;
+  gap: var(--s-3);
+}
+
+.sheet__list--tokens dt {
+  flex: none;
+}
+
+.sheet__list--tokens dd {
+  text-align: right;
+  color: var(--ink-3);
+}
+
+.sheet__token {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  padding: 1px 5px;
+  border-radius: var(--r-sm);
+  background: var(--brand-wash);
+  color: var(--brand-ink);
 }
 
 /* ======================================================================

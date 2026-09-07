@@ -60,6 +60,44 @@ export function parseCapture(input: string): ParsedCapture {
   return { title, ...(dueDate ? { dueDate } : {}), ...(priority ? { priority } : {}) };
 }
 
+export type TokenKind = 'date' | 'priority' | null;
+
+export interface CaptureToken {
+  text: string;
+  kind: TokenKind;
+}
+
+/**
+ * Splits a capture string into runs the UI can render, whitespace preserved, so
+ * `tokens.map(t => t.text).join('')` reconstructs the input exactly. `kind` is
+ * set on the runs `parseCapture` would actually act on — the quick-add field
+ * highlights those in place so the syntax is visible as you type.
+ *
+ * Only the *effective* token of each kind is marked: with "sex 15/03" the date
+ * that wins is 15/03, so `sex` is left plain — a highlight means "this word is
+ * being used", and an overridden one is not. Mirrors `parseCapture`'s "keep the
+ * original if every word is a token" rule too: when nothing would be left as a
+ * title, nothing is marked.
+ */
+export function tokenizeCapture(input: string): CaptureToken[] {
+  const runs = input.split(/(\s+)/).filter((r) => r.length > 0);
+  const raw: TokenKind[] = runs.map((run) => {
+    if (/^\s+$/.test(run)) return null;
+    if (matchPriority(run) !== null) return 'priority';
+    if (matchDate(run) !== null) return 'date';
+    return null;
+  });
+
+  const hasTitle = runs.some((run, i) => raw[i] === null && run.trim().length > 0);
+  const lastDate = hasTitle ? raw.lastIndexOf('date') : -1;
+  const lastPriority = hasTitle ? raw.lastIndexOf('priority') : -1;
+
+  return runs.map((text, i) => ({
+    text,
+    kind: i === lastDate ? 'date' : i === lastPriority ? 'priority' : null,
+  }));
+}
+
 const strip = (s: string) =>
   s
     .normalize('NFD')
