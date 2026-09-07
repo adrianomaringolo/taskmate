@@ -31,6 +31,7 @@ import {
 } from './storage';
 import {
   SYNC_DEBOUNCE_MS,
+  SYNC_FOREGROUND_GAP_MS,
   SYNC_HEARTBEAT_MS,
   syncOnce,
   type SyncState,
@@ -152,12 +153,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const docRef = useRef<Doc | null>(null);
   const metaRef = useRef<SyncMeta>(EMPTY_SYNC_META);
   const syncingRef = useRef(false);
-  // Set when a background sync hit a dead token, cleared on the next successful
-  // sync. While set, background triggers stop calling runSync at all — without
-  // this, the heartbeat would rediscover the same dead token every 45s and each
-  // attempt is another round trip for a result the app already knows. The user
-  // clears it explicitly via Reconectar / Sincronizar agora.
+  // Set when a sync hit a dead token that would not renew silently, cleared on
+  // the next successful sync. It only holds the *heartbeat* back — hammering a
+  // renewal that just failed every 45s is pointless. A real foreground event
+  // (focus, tab shown) still retries, because "try to sign back in when I come
+  // back to the app" is exactly what should happen then.
   const needsReauthRef = useRef(false);
+  // Timestamp of the last foreground-triggered sync, for SYNC_FOREGROUND_GAP_MS.
+  const lastForegroundSyncRef = useRef(0);
   const undoRef = useRef<(() => void) | null>(null);
   const persistTimer = useRef<number | null>(null);
   const syncTimer = useRef<number | null>(null);
@@ -265,17 +268,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const current = docRef.current;
       if (!current) return;
       if (!interactive && metaRef.current.fileId === null && syncState.kind === 'off') return;
-      // A prior background sync already found the token dead; retrying silently
-      // on every heartbeat/focus would just fail the same way. Only an
-      // interactive call (Reconectar, Sincronizar agora) can clear this.
-      if (!interactive && needsReauthRef.current) return;
 
       syncingRef.current = true;
       setSyncState({ kind: 'syncing' });
       try {
-        // Interactive callers renew the token up front, so a popup — if one is
-        // needed at all — appears while the user is looking at this app, not
-        // mid-request from inside the transport.
+        // Interactive callers renew the token up front, so the fallback popup —
+        // if consent is actually needed — fires inside the click's own call
+        // stack rather than mid-request from inside the transport. Silent
+        // renewal (the common case) happens either way, in `authed`.
         if (interactive) await requestToken({ interactive: true });
 
         const outcome = await syncOnce({
@@ -364,13 +364,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         if (!bytes) await writeDocBytes(D.save(loaded));
 
-        // Already paired with a Drive file: resume automatically. This is the
-        // one background moment allowed to renew the token interactively — the
-        // user just opened the app, so a brief Google flash (if renewal is even
-        // needed) lands while they are looking at it, never while they are not.
+        // Already paired with a Drive file: resume automatically. Non-interactive
+        // — a lapsed token renews silently against the remembered account, and if
+        // even that fails the app just shows Reconectar rather than throwing a
+        // click-required popup at someone who only just opened it.
         if (isConfigured() && storedMeta.fileId !== null) {
           setSyncState({ kind: 'idle', lastSyncAt: storedMeta.lastSyncAt });
-          void runSync({ interactive: true });
+          lastForegroundSyncRef.current = Date.now();
+          void runSync({ interactive: false });
         }
       } catch (err) {
         if (cancelled) return;
@@ -390,31 +391,39 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Background pull triggers: tab becomes visible again, connection comes
-  // back, and a slow heartbeat as a backstop. All three only fire non-interactive
-  // syncs (see runSync / drive.ts's requestToken — that path never opens Google
-  // UI), and all three are throttled to "stale", so switching tabs or alt-tabbing
-  // between apps does not, by itself, cost a network round trip. There is no
-  // `window.addEventListener('focus', …)` here on purpose: it fires on every
-  // return to the browser window regardless of which tab is active, which is
-  // exactly what used to make this run constantly while the user was elsewhere.
+  // Foreground triggers + a focus-gated heartbeat. Coming back to the app —
+  // focusing the window, revealing the tab, or the network returning — syncs and,
+  // if the token lapsed, renews it silently against the remembered account (see
+  // drive.ts's requestToken). That is allowed to flash Google's self-closing
+  // popup precisely because the user is looking at the app when it happens; the
+  // heartbeat additionally checks `document.hasFocus()` so it never fires from a
+  // background window, which is what used to make the popup interrupt other work.
   useEffect(() => {
     if (!isConfigured()) return;
 
-    const pullIfStale = () => {
+    const syncForeground = () => {
       if (document.hidden) return;
-      const last = metaRef.current.lastSyncAt;
-      if (last && Date.now() - new Date(last).getTime() < SYNC_HEARTBEAT_MS) return;
+      if (Date.now() - lastForegroundSyncRef.current < SYNC_FOREGROUND_GAP_MS) return;
+      lastForegroundSyncRef.current = Date.now();
       void runSync({ interactive: false });
     };
 
-    document.addEventListener('visibilitychange', pullIfStale);
-    window.addEventListener('online', pullIfStale);
-    const beat = window.setInterval(pullIfStale, SYNC_HEARTBEAT_MS);
+    window.addEventListener('focus', syncForeground);
+    document.addEventListener('visibilitychange', syncForeground);
+    window.addEventListener('online', syncForeground);
+
+    const beat = window.setInterval(() => {
+      // Passive backstop only: the app must actually hold focus, and once a
+      // silent renewal has failed it waits for the next real foreground event
+      // rather than retrying on its own.
+      if (!document.hasFocus() || needsReauthRef.current) return;
+      syncForeground();
+    }, SYNC_HEARTBEAT_MS);
 
     return () => {
-      document.removeEventListener('visibilitychange', pullIfStale);
-      window.removeEventListener('online', pullIfStale);
+      window.removeEventListener('focus', syncForeground);
+      document.removeEventListener('visibilitychange', syncForeground);
+      window.removeEventListener('online', syncForeground);
       clearInterval(beat);
     };
   }, [runSync]);

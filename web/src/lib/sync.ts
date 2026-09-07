@@ -130,24 +130,26 @@ export async function syncOnce(params: {
 /**
  * When to sync. Polling on a tight interval would burn quota for nothing — tens
  * of thousands of requests a day to learn that nothing changed — so the loop is
- * event-driven with a slow heartbeat as a backstop, and every trigger below is
- * throttled against `lastSyncAt`: none of it fires more often than every 45s no
- * matter how often the underlying event does (see `store.tsx`'s `pullIfStale`).
+ * event-driven with a slow heartbeat as a backstop (see `store.tsx`):
  *
  * - on connect and on load
- * - when the tab becomes visible again, and while it is hidden nothing runs —
- *   there is deliberately no plain `window.addEventListener('focus', …)`
- *   trigger, since that fires on every return to the browser window regardless
- *   of which tab is active and would run this while the user is elsewhere
+ * - when the app comes to the foreground: the window gains focus, the tab
+ *   becomes visible, or the connection returns. These carry a `hint`-based
+ *   silent token renewal if the token lapsed — the user is looking at the app,
+ *   so the brief popup-that-closes-itself is acceptable here.
  * - a few seconds after a local edit, debounced
- * - at most every 45s while the tab is visible
+ * - every 45s, but only while the app actually holds focus (`document.hasFocus()`)
+ *   — never from a hidden tab or a background window, which is what used to make
+ *   the renewal popup interrupt whatever else the user was doing
  *
- * A background trigger never opens Google's auth UI — see drive.ts's
- * `requestToken` — so a dead token just surfaces a Reconectar prompt instead of
- * a popup interrupting whatever the user is doing in another app.
+ * The foreground triggers share a short throttle so repeatedly alt-tabbing back
+ * to the app is not one round trip per switch. A background trigger never opens
+ * the click-required account picker — see drive.ts's `requestToken`.
  */
 export const SYNC_DEBOUNCE_MS = 2_500;
 export const SYNC_HEARTBEAT_MS = 45_000;
+/** Shortest gap between two foreground-triggered syncs. */
+export const SYNC_FOREGROUND_GAP_MS = 15_000;
 
 export type SyncState =
   | { kind: 'off' }

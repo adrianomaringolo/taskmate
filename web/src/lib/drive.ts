@@ -232,38 +232,41 @@ async function callToken(overrides: { prompt?: string; hint?: string }): Promise
 }
 
 /**
- * `interactive: true` is the only path that ever calls `requestAccessToken` —
- * `interactive: false` (background sync) never reaches Google at all: it
- * returns the cached token if one is still valid, or fails with an `auth`
- * error, which callers treat as "ask the user to reconnect" (see `store.tsx`,
- * which surfaces a Reconectar action) rather than as fatal. That is what keeps
- * a heartbeat or a tab/window focus event from popping Google's UI while the
- * user is doing something else — renewal only happens from a call the user
- * actually made: opening the app, or tapping Conectar / Sincronizar agora.
+ * A live cached token is returned without touching Google. Past that:
  *
- * Once this device has connected before, `hint` is known (see `captureHint`),
- * and the first attempt is `prompt: ''`: GIS renews using that exact account
- * without asking the user to pick it again — if it shows anything at all, it's
- * the brief popup that opens and closes itself, not one waiting for a click.
- * That silent attempt can fail (consent revoked, Safari's tracking prevention
- * blocking the third-party context it needs), and a first-ever connect has no
- * hint to be silent with — both fall back to the full prompt, which still
- * pins the account via `hint` when one exists but leaves the click to the
- * user. Without `hint` at all, anyone signed into more than one Google account
- * in the browser would get the account picker on every single renewal.
+ * - With a `hint` (this device has connected before — see `captureHint`), the
+ *   first attempt is always `prompt: ''`: GIS renews the *same* account with no
+ *   account picker and no click. If it shows anything it's the popup that opens
+ *   and closes itself, so the caller must be sure the app is in the foreground
+ *   before asking — `store.tsx` only does from a focus/visibility event or an
+ *   explicit tap, never a background beat while the user is in another window.
+ *
+ * - `interactive: false` stops there: if the silent renewal fails (consent
+ *   revoked, Safari's tracking prevention blocking the third-party context),
+ *   the error propagates and the app shows a Reconectar affordance. A
+ *   background trigger never opens the click-required account picker.
+ *
+ * - `interactive: true` (Conectar / Sincronizar agora) falls back to the full
+ *   prompt — still pinned to `hint` when one exists, but leaving the click to
+ *   the user. A first-ever connect has no hint and lands here directly.
+ *
+ * Without `hint` at all, anyone signed into more than one Google account in the
+ * browser would get the account picker on every single renewal.
  */
 export async function requestToken({ interactive }: { interactive: boolean }): Promise<string> {
   if (!isConfigured()) throw new DriveError('Sincronização não configurada.', 'auth');
   if (token && Date.now() < tokenExpiry) return token;
-  if (!interactive) throw new DriveError('A autorização do Drive expirou. Conecte novamente.', 'auth');
 
   const hint = readPref(HINT_PREF) ?? undefined;
   if (hint) {
     try {
       return await callToken({ prompt: '', hint });
-    } catch {
-      // Falls through to the full prompt below.
+    } catch (err) {
+      if (!interactive) throw err;
+      // interactive: fall through to the full prompt below.
     }
+  } else if (!interactive) {
+    throw new DriveError('A autorização do Drive expirou. Conecte novamente.', 'auth');
   }
   return callToken(hint ? { hint } : {});
 }
