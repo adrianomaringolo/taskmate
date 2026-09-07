@@ -125,6 +125,16 @@ linhas de texto do que a lista com marcadores do Lucide para indicar notas).
 Mesmo esses usam a mesma grade de 16 unidades e o mesmo traço 1.5 — nunca uma
 curva nova inventada por conta própria.
 
+### A marca
+
+`mark` é um **tique cujo braço longo não para** — segue subindo num raio, com um
+risquinho solto logo à frente da ponta que lê como faísca/impulso: tarefa feita,
+e em movimento. Uma polilinha reta mais o traço curto, no mesmo grid e traço dos
+outros ícones. Não é uma caixa de seleção (lê como controle de UI) nem três
+barras (lê como o menu-sanduíche ao lado do qual ela aparece). Nos ícones do PWA
+e no favicon é tinta escura sobre o campo âmbar — latão/marca-texto, não botão
+colorido genérico. `tools/icons.ts` gera os PNGs a partir do mesmo caminho.
+
 ## Layout
 
 App shell de duas colunas: lateral de 264px (a árvore grupo › lista) + coluna de

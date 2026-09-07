@@ -172,12 +172,14 @@ const PATHS = {
     </>
   ),
   list: <path d="M3 4.5h10M3 8h10M3 11.5h6" />,
-  /* The brand mark. Deliberately not three bars — at 18px those read as a
-     hamburger menu, which is exactly what it sits next to. */
+  /* The brand mark: a check whose long arm keeps going, up into a ray, with a
+     detached dash just ahead of the tip — "done, and moving up". Deliberately
+     not a checkbox square (reads as a UI control) and not three bars (reads as
+     the hamburger it sits next to). */
   mark: (
     <>
-      <rect x="2" y="2" width="12" height="12" rx="3.6" />
-      <path d="M5 8.2l2.2 2.2L11.2 5.8" />
+      <path d="M3.4 10.4 5.5 12.7 11.6 4.6" />
+      <path d="M12.9 2.9 13.9 1.6" />
     </>
   ),
   folder: (
