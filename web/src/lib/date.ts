@@ -4,6 +4,7 @@
  * UTC midnight and show the day before for anyone west of Greenwich — the bug
  * this module exists to avoid.
  */
+import { weekStartDay } from './weekstart';
 
 /** Today in the user's own calendar, as `YYYY-MM-DD`. */
 export function today(): string {
@@ -83,19 +84,19 @@ export function addMonths(key: string, months: number): string {
   return toKey(d);
 }
 
-/** Monday-first weekday index: 0 = Monday … 6 = Sunday. */
-function mondayIndex(d: Date): number {
-  return (d.getDay() + 6) % 7;
+/** Days since the start of the week (0…6), honouring the week-start preference. */
+function weekIndex(d: Date): number {
+  return (d.getDay() - weekStartDay() + 7) % 7;
 }
 
-/** The Monday on or before `key`. */
+/** The first day of the week (per the preference) on or before `key`. */
 export function startOfWeek(key: string): string {
   const d = fromKey(key);
-  d.setDate(d.getDate() - mondayIndex(d));
+  d.setDate(d.getDate() - weekIndex(d));
   return toKey(d);
 }
 
-/** The seven days of the Monday-first week containing `key`. */
+/** The seven days of the week containing `key`, from the week's first day. */
 export function weekDays(key: string): string[] {
   const start = startOfWeek(key);
   return Array.from({ length: 7 }, (_, i) => addDays(start, i));
@@ -107,10 +108,10 @@ export function startOfMonth(key: string): string {
 }
 
 /**
- * Six full weeks (42 days), Monday-first, covering the month containing `key`
- * plus its leading/trailing days. Always six rows — a 28-day February and a
- * 31-day January render the same grid height, so the toolbar above never
- * jumps between months.
+ * Six full weeks (42 days) covering the month containing `key` plus its
+ * leading/trailing days, aligned to the week-start preference. Always six rows —
+ * a 28-day February and a 31-day January render the same grid height, so the
+ * toolbar above never jumps between months.
  */
 export function monthGrid(key: string): string[] {
   const start = startOfWeek(startOfMonth(key));

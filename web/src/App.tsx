@@ -3,7 +3,7 @@ import { About } from './components/About';
 import { ContentView } from './components/ContentView';
 import { Icon } from './components/Icon';
 import { Menu } from './components/Menu';
-import { NotificationsPanel } from './components/NotificationsPanel';
+import { Preferences } from './components/Preferences';
 import { Sidebar } from './components/Sidebar';
 import { SyncPanel } from './components/SyncPanel';
 import { Toasts } from './components/Toasts';
@@ -14,8 +14,9 @@ import { readPref, writePref } from './lib/prefs';
 import { initPwa } from './lib/pwa';
 import { StoreProvider, useStore } from './lib/store';
 import type { View } from './lib/types';
-import { useA11y, type VisionChoice } from './lib/useA11y';
-import { useTheme, type ThemeChoice } from './lib/useTheme';
+import { useA11y } from './lib/useA11y';
+import { useTheme } from './lib/useTheme';
+import { readWeekStart, setWeekStart, type WeekStart } from './lib/weekstart';
 
 const VIEW_KEY = 'view';
 const ONBOARDING_KEY = 'onboardingSeen';
@@ -28,7 +29,13 @@ function readView(): View {
     if (!raw) return TODAY;
 
     const parsed = JSON.parse(raw) as { kind?: unknown; listId?: unknown; mode?: unknown };
-    if (parsed.kind === 'today' || parsed.kind === 'upcoming') return { kind: parsed.kind };
+    if (
+      parsed.kind === 'today' ||
+      parsed.kind === 'upcoming' ||
+      parsed.kind === 'review' ||
+      parsed.kind === 'trash'
+    )
+      return { kind: parsed.kind };
     if (parsed.kind === 'list' && typeof parsed.listId === 'string')
       return { kind: 'list', listId: parsed.listId };
     // Restore the mode (month/week/day) but never a stale date — a calendar
@@ -50,9 +57,10 @@ export default function App() {
 }
 
 function Shell() {
-  const { data, undoLast, notify } = useStore();
+  const { data, status, addTask, undoLast, notify } = useStore();
   const { choice, setChoice } = useTheme();
   const { vision, setVision } = useA11y();
+  const [weekStart, setWeekStartState] = useState<WeekStart>(readWeekStart);
 
   const [view, setView] = useState<View>(readView);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -62,6 +70,12 @@ function Shell() {
   // time this component first renders on a slow connection.
   const [welcomeOpen, setWelcomeOpen] = useState(() => readPref(ONBOARDING_KEY) !== '1');
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [prefsOpen, setPrefsOpen] = useState(false);
+
+  const changeWeekStart = useCallback((value: WeekStart) => {
+    setWeekStart(value);
+    setWeekStartState(value);
+  }, []);
 
   const quickAddRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -113,6 +127,30 @@ function Shell() {
     if (next.kind !== 'search') setQuery('');
     mainRef.current?.scrollTo({ top: 0 });
   }, []);
+
+  // Android share sheet: the PWA is registered as a share target in the
+  // manifest, which hands us the shared text as query params on `/`. Drop it
+  // into the inbox, land on the inbox so the capture is visible, then scrub the
+  // URL so a reload does not re-add it.
+  const sharedHandled = useRef(false);
+  useEffect(() => {
+    if (sharedHandled.current || status !== 'ready') return;
+    const params = new URLSearchParams(location.search);
+    const shared = [params.get('title'), params.get('text'), params.get('url')]
+      .map((v) => v?.trim())
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    if (!shared) return;
+
+    sharedHandled.current = true;
+    history.replaceState(null, '', location.pathname);
+    const inbox = data.lists.find((l) => l.isInbox);
+    if (!inbox) return;
+    void addTask(inbox.id, shared.slice(0, 300));
+    select({ kind: 'list', listId: inbox.id });
+    notify('Adicionado na Entrada.');
+  }, [status, data.lists, addTask, notify, select]);
 
   // Marking "seen" on close, not on open, means reloading mid-tour on a
   // first visit shows it again instead of losing it to a half-read state.
@@ -225,68 +263,14 @@ function Shell() {
 
           <SyncPanel />
 
-          <NotificationsPanel />
-
-          <Menu
-            label="Tema e acessibilidade"
-            triggerContent={<Icon name={choice === 'system' ? 'monitor' : choice === 'dark' ? 'moon' : 'sun'} />}
+          <button
+            type="button"
+            className="btn btn--icon"
+            aria-label="Preferências"
+            onClick={() => setPrefsOpen(true)}
           >
-            {(close) => (
-              <>
-                <p className="menu__label">Tema</p>
-                {(
-                  [
-                    ['system', 'monitor', 'Seguir o sistema'],
-                    ['light', 'sun', 'Claro'],
-                    ['dark', 'moon', 'Escuro'],
-                  ] as const
-                ).map(([value, icon, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    className="menu__item"
-                    aria-pressed={choice === (value as ThemeChoice)}
-                    onClick={() => {
-                      setChoice(value as ThemeChoice);
-                      close();
-                    }}
-                  >
-                    <Icon name={icon} />
-                    {label}
-                    {choice === value && <Icon name="check" className="menu__check" />}
-                  </button>
-                ))}
-
-                <hr className="menu__sep" />
-
-                <p className="menu__label">Acessibilidade</p>
-                {(
-                  [
-                    ['default', 'eye', 'Padrão'],
-                    ['low-vision', 'eye', 'Ampliado (baixa visão)'],
-                  ] as const
-                ).map(([value, icon, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    className="menu__item"
-                    aria-pressed={vision === (value as VisionChoice)}
-                    onClick={() => {
-                      setVision(value as VisionChoice);
-                      close();
-                    }}
-                  >
-                    <Icon name={icon} />
-                    {label}
-                    {vision === value && <Icon name="check" className="menu__check" />}
-                  </button>
-                ))}
-                <p className="menu__hint">
-                  Aumenta o texto, os alvos de toque e o contorno de foco em todo o app.
-                </p>
-              </>
-            )}
-          </Menu>
+            <Icon name="settings" />
+          </button>
 
           <Menu
             label="Atalhos de teclado"
@@ -320,12 +304,28 @@ function Shell() {
         </div>
         </div>
 
-        <ContentView view={view} onSelect={select} quickAddRef={quickAddRef} />
+        <ContentView
+          view={view}
+          onSelect={select}
+          quickAddRef={quickAddRef}
+          weekStartKey={weekStart}
+        />
       </main>
 
       <Toasts />
       <Welcome open={welcomeOpen} onClose={closeWelcome} />
       <About open={aboutOpen} onClose={() => setAboutOpen(false)} />
+      <Preferences
+        open={prefsOpen}
+        onClose={() => setPrefsOpen(false)}
+        data={data}
+        theme={choice}
+        onTheme={setChoice}
+        vision={vision}
+        onVision={setVision}
+        weekStart={weekStart}
+        onWeekStart={changeWeekStart}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useCallback, useState, type CSSProperties, type RefObject } from 'react';
-import { addDays, describeDue, describeDueFull, fromKey, today } from '../lib/date';
+import { addDays, describeDue, describeDueFull, describeStamp, fromKey, today } from '../lib/date';
 import { useStore } from '../lib/store';
 import type { List, Task, View } from '../lib/types';
 import { CalendarView } from './CalendarView';
@@ -14,6 +14,8 @@ interface Props {
   view: View;
   onSelect: (view: View) => void;
   quickAddRef: RefObject<HTMLInputElement | null>;
+  /** Changing this remounts the calendar so a new week-start takes effect. */
+  weekStartKey: string;
 }
 
 export function ContentView(props: Props) {
@@ -41,7 +43,7 @@ export function ContentView(props: Props) {
   return <ReadyState {...props} />;
 }
 
-function ReadyState({ view, onSelect, quickAddRef }: Props) {
+function ReadyState({ view, onSelect, quickAddRef, weekStartKey }: Props) {
   const { data, listById, groupById } = useStore();
 
   /**
@@ -67,8 +69,19 @@ function ReadyState({ view, onSelect, quickAddRef }: Props) {
   }
 
   if (view.kind === 'calendar') {
-    return <CalendarView view={view} onSelect={onSelect} quickAddRef={quickAddRef} labelFor={labelFor} />;
+    return (
+      <CalendarView
+        key={weekStartKey}
+        view={view}
+        onSelect={onSelect}
+        quickAddRef={quickAddRef}
+        labelFor={labelFor}
+      />
+    );
   }
+
+  if (view.kind === 'review') return <ReviewView labelFor={labelFor} />;
+  if (view.kind === 'trash') return <TrashView />;
 
   const inbox = data.lists.find((l) => l.isInbox);
   const t = today();
@@ -378,6 +391,116 @@ export function DoneSection({ tasks, label }: { tasks: Task[]; label: string }) 
         </ul>
       )}
     </section>
+  );
+}
+
+/**
+ * Every open task with no due date, across every list — the triage half the
+ * product promises ("ver tudo cruzando grupos") and the one view where a task
+ * captured in a hurry and never dated can actually be found again. Each row
+ * carries inline Hoje / Amanhã buttons, and dating a task drops it from here.
+ */
+function ReviewView({ labelFor }: { labelFor: (listId: string) => string | undefined }) {
+  const { data } = useStore();
+
+  const undated = data.tasks.filter((task) => !task.done && !task.dueDate);
+
+  // Group by list, in the sidebar's own order (Entrada first, then the group
+  // tree) so the view reads like the navigation the user already knows.
+  const byList = new Map<string, Task[]>();
+  for (const list of data.lists) {
+    const rows = undated.filter((task) => task.listId === list.id);
+    if (rows.length > 0) byList.set(list.id, rows);
+  }
+
+  return (
+    <div className="main__inner">
+      <header className="view-head">
+        <p className="view-head__crumb">
+          <Icon name="list" size={13} />
+          Sem prazo, em qualquer lista
+        </p>
+        <h1 className="view-head__title">A revisar</h1>
+        <p className="view-head__sub">
+          {undated.length === 0
+            ? 'Nada esperando triagem.'
+            : `${undated.length} ${undated.length === 1 ? 'tarefa' : 'tarefas'} sem prazo`}
+        </p>
+      </header>
+
+      {undated.length === 0 ? (
+        <EmptyState illustration="week-free" title="Nada para revisar">
+          Toda tarefa em aberto já tem um prazo ou uma lista definida. O que você capturar sem
+          endereço aparece aqui para você decidir quando.
+        </EmptyState>
+      ) : (
+        [...byList.entries()].map(([listId, tasks]) => (
+          <section key={listId} className="day-group">
+            <h2 className="day-group__head">{labelFor(listId)}</h2>
+            <ul className="tasks">
+              {tasks.map((task) => (
+                <TaskRow key={task.id} task={task} quickSchedule />
+              ))}
+            </ul>
+          </section>
+        ))
+      )}
+    </div>
+  );
+}
+
+/**
+ * Deleted tasks, newest first. Nothing here is ever purged — the point of the
+ * view is that "nunca perder uma tarefa" is visible, not just true in the sync
+ * layer. Restoring also revives the task's list and group if the delete had
+ * taken those down too.
+ */
+function TrashView() {
+  const { trash, restoreFromTrash } = useStore();
+
+  return (
+    <div className="main__inner">
+      <header className="view-head">
+        <p className="view-head__crumb">
+          <Icon name="trash" size={13} />
+          Excluídas
+        </p>
+        <h1 className="view-head__title">Lixeira</h1>
+        <p className="view-head__sub">
+          {trash.length === 0
+            ? 'Nada foi excluído.'
+            : `${trash.length} ${trash.length === 1 ? 'tarefa' : 'tarefas'}`}
+        </p>
+      </header>
+
+      {trash.length === 0 ? (
+        <EmptyState illustration="inbox-empty" title="A lixeira está vazia">
+          Tarefas excluídas ficam aqui em vez de sumir. Restaurar traz a tarefa de volta — e a
+          lista e o grupo dela também, se tiverem sido excluídos junto.
+        </EmptyState>
+      ) : (
+        <ul className="trash">
+          {trash.map((item) => (
+            <li key={item.id} className="trash__row">
+              <div className="trash__body">
+                <span className="trash__title">{item.title || 'Sem título'}</span>
+                <span className="trash__meta">
+                  {item.listName} · excluída em {describeStamp(item.deletedAt)}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => void restoreFromTrash(item.id)}
+              >
+                <Icon name="undo" size={14} />
+                Restaurar
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 

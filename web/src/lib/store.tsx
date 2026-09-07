@@ -36,7 +36,7 @@ import {
   syncOnce,
   type SyncState,
 } from './sync';
-import type { AppState, Group, GroupColor, List, Task } from './types';
+import type { AppState, Group, GroupColor, List, Priority, Task } from './types';
 
 /**
  * Zero, deliberately. A `setTimeout(0)` still coalesces one synchronous burst of
@@ -87,6 +87,10 @@ interface Store {
   notify: (text: string, kind?: Toast['kind'], action?: ToastAction) => void;
   undoLast: () => void;
 
+  /** Tombstoned tasks, newest deletion first — the Lixeira view. */
+  trash: D.TrashItem[];
+  restoreFromTrash: (id: string) => Promise<void>;
+
   sync: {
     configured: boolean;
     connected: boolean;
@@ -99,7 +103,16 @@ interface Store {
     forget: () => Promise<void>;
   };
 
-  addTask: (listId: string, title: string) => Promise<void>;
+  addTask: (
+    listId: string,
+    title: string,
+    opts?: { dueDate?: string | null; priority?: Priority }
+  ) => Promise<void>;
+  /** Several tasks into one list, with a single undo — a multi-line paste. */
+  addTasks: (
+    listId: string,
+    items: { title: string; dueDate?: string | null; priority?: Priority }[]
+  ) => Promise<void>;
   patchTask: (id: string, patch: D.TaskPatch) => Promise<void>;
   removeTask: (id: string) => Promise<void>;
   moveTask: (id: string, listId: string, index: number) => Promise<void>;
@@ -451,12 +464,47 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // --- mutations ------------------------------------------------------
 
   const addTask = useCallback<Store['addTask']>(
-    async (listId, title) => {
+    async (listId, title, opts) => {
       const trimmed = title.trim();
       if (!trimmed) return;
-      mutate((d) => D.addTask(d, { listId, title: trimmed })[0]);
+      mutate(
+        (d) =>
+          D.addTask(d, {
+            listId,
+            title: trimmed,
+            dueDate: opts?.dueDate ?? null,
+            priority: opts?.priority ?? 0,
+          })[0]
+      );
     },
     [mutate]
+  );
+
+  const addTasks = useCallback<Store['addTasks']>(
+    async (listId, items) => {
+      const clean = items
+        .map((i) => ({ ...i, title: i.title.trim() }))
+        .filter((i) => i.title);
+      if (clean.length === 0) return;
+
+      const current = docRef.current;
+      if (!current) return;
+      const [next, ids] = D.addTasks(current, listId, clean);
+      setDoc(next);
+      syncSoon();
+
+      const undo = () => {
+        mutate((d) => D.removeTasks(d, ids));
+        undoRef.current = null;
+      };
+      undoRef.current = undo;
+      pushToast(
+        `${clean.length} ${clean.length === 1 ? 'tarefa adicionada' : 'tarefas adicionadas'}.`,
+        'info',
+        { label: 'Desfazer', run: undo }
+      );
+    },
+    [mutate, pushToast, setDoc, syncSoon]
   );
 
   const patchTask = useCallback<Store['patchTask']>(
@@ -590,6 +638,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const undoLast = useCallback(() => undoRef.current?.(), []);
 
+  const restoreFromTrash = useCallback<Store['restoreFromTrash']>(
+    async (id) => {
+      const title = docRef.current?.tasks[id]?.title ?? 'Tarefa';
+      mutate((d) => D.restoreTaskDeep(d, id));
+      notify(`"${truncate(title)}" foi restaurada.`);
+    },
+    [mutate, notify]
+  );
+
   // --- sync controls --------------------------------------------------
 
   // Interactive once, to obtain consent (runSync requests the token up front);
@@ -627,6 +684,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return map;
   }, [data.lists, data.tasks]);
 
+  // Off `doc` directly, not `data`: the projection drops tombstones, which is
+  // exactly what the trash needs to keep.
+  const trash = useMemo(() => (doc ? D.projectTrash(doc) : []), [doc]);
+
   const value: Store = {
     status,
     loadError,
@@ -640,6 +701,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     dismissToast,
     notify,
     undoLast,
+    trash,
+    restoreFromTrash,
     sync: {
       configured: isConfigured(),
       connected: meta.fileId !== null,
@@ -653,6 +716,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       forget,
     },
     addTask,
+    addTasks,
     patchTask,
     removeTask,
     moveTask,

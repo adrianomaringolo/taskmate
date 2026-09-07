@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { describeDue, describeDueFull, isOverdue, isToday } from '../lib/date';
+import { addDays, describeDue, describeDueFull, isOverdue, isToday, today } from '../lib/date';
 import { useStore } from '../lib/store';
 import { PRIORITY_LABELS, RECURRENCE_LABELS, type Task } from '../lib/types';
 import { Icon } from './Icon';
@@ -12,6 +12,8 @@ interface Props {
   listTag?: string;
   /** Manual order only applies inside a single list. */
   reorderable?: boolean;
+  /** Adds inline "Hoje" / "Amanhã" buttons — the triage view's whole point. */
+  quickSchedule?: boolean;
   dropEdge?: 'before' | 'after' | null;
   dragging?: boolean;
   onDragStart?: () => void;
@@ -25,6 +27,7 @@ export function TaskRow({
   task,
   listTag,
   reorderable = false,
+  quickSchedule = false,
   dropEdge = null,
   dragging = false,
   onDragStart,
@@ -171,6 +174,25 @@ export function TaskRow({
             </div>
           )}
         </div>
+
+        {quickSchedule && !task.done && (
+          <span className="task__schedule">
+            <button
+              type="button"
+              className="btn btn--sm btn--ghost"
+              onClick={() => void patchTask(task.id, { dueDate: today() })}
+            >
+              Hoje
+            </button>
+            <button
+              type="button"
+              className="btn btn--sm btn--ghost"
+              onClick={() => void patchTask(task.id, { dueDate: addDays(today(), 1) })}
+            >
+              Amanhã
+            </button>
+          </span>
+        )}
 
         <div className="task__actions">
           <button

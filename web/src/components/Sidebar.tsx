@@ -25,14 +25,19 @@ export function Sidebar({ view, onSelect, open, onClose, onOpenWelcome, onOpenAb
     let dueToday = 0;
     let overdue = 0;
     let upcoming = 0;
+    let review = 0;
 
     for (const task of data.tasks) {
-      if (task.done || !task.dueDate) continue;
+      if (task.done) continue;
+      if (!task.dueDate) {
+        review++;
+        continue;
+      }
       if (task.dueDate < t) overdue++;
       else if (task.dueDate === t) dueToday++;
       if (task.dueDate <= horizon) upcoming++;
     }
-    return { today: dueToday + overdue, overdue, upcoming };
+    return { today: dueToday + overdue, overdue, upcoming, review };
   }, [data.tasks]);
 
   const inbox = data.lists.find((l) => l.isInbox);
@@ -111,6 +116,19 @@ export function Sidebar({ view, onSelect, open, onClose, onOpenWelcome, onOpenAb
               {inboxPending > 0 && <span className="row__count">{inboxPending}</span>}
             </button>
           )}
+
+          <button
+            type="button"
+            className="row"
+            aria-current={view.kind === 'review'}
+            onClick={() => onSelect({ kind: 'review' })}
+          >
+            <span className="row__icon">
+              <Icon name="list" />
+            </span>
+            <span className="row__label">A revisar</span>
+            {counts.review > 0 && <span className="row__count">{counts.review}</span>}
+          </button>
         </nav>
 
         <div className="nav-section nav-section--groups">
@@ -151,6 +169,18 @@ export function Sidebar({ view, onSelect, open, onClose, onOpenWelcome, onOpenAb
       </div>
 
       <div className="sidebar__foot">
+        <button
+          type="button"
+          className="row row--muted"
+          aria-current={view.kind === 'trash'}
+          onClick={() => onSelect({ kind: 'trash' })}
+        >
+          <span className="row__icon">
+            <Icon name="trash" />
+          </span>
+          <span className="row__label">Lixeira</span>
+        </button>
+
         <Menu
           label="Ajuda"
           align="start"

@@ -140,5 +140,7 @@ export type View =
   | { kind: 'list'; listId: string }
   | { kind: 'today' }
   | { kind: 'upcoming' }
+  | { kind: 'review' }
+  | { kind: 'trash' }
   | { kind: 'calendar'; mode: CalendarMode; date: string }
   | { kind: 'search'; query: string };

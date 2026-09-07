@@ -1,5 +1,5 @@
 import * as A from '@automerge/automerge';
-import { generateKeyBetween } from 'fractional-indexing';
+import { generateKeyBetween, generateNKeysBetween } from 'fractional-indexing';
 import { advanceDue } from './date';
 import type {
   AppState,
@@ -401,6 +401,44 @@ export function addTask(
   return [next, id];
 }
 
+/**
+ * Adds several tasks to one list in a single change — a multi-line paste turned
+ * into one task per line. `generateNKeysBetween` lays the whole batch after the
+ * current last row in one call, so the orders stay strictly increasing without
+ * re-reading the list between inserts.
+ */
+export function addTasks(
+  doc: Doc,
+  listId: string,
+  items: { title: string; notes?: string; dueDate?: string | null; priority?: Priority }[]
+): [Doc, string[]] {
+  if (items.length === 0) return [doc, []];
+  const last = liveTasksOf(doc, listId).at(-1)?.order ?? null;
+  const orders = generateNKeysBetween(last, null, items.length);
+  const ids = items.map(() => uid());
+  const next = A.change(doc, 'add tasks', (d) => {
+    const ts = now();
+    items.forEach((item, i) => {
+      d.tasks[ids[i]!] = {
+        id: ids[i]!,
+        listId,
+        title: item.title,
+        notes: item.notes ?? '',
+        done: false,
+        doneAt: null,
+        dueDate: item.dueDate ?? null,
+        priority: item.priority ?? 0,
+        recurrence: null,
+        order: orders[i]!,
+        createdAt: ts,
+        updatedAt: ts,
+        deletedAt: null,
+      };
+    });
+  });
+  return [next, ids];
+}
+
 export interface TaskPatch {
   title?: string;
   notes?: string;
@@ -502,6 +540,75 @@ export function restoreTasks(doc: Doc, ids: string[]): Doc {
       if (!t) continue;
       t.deletedAt = null;
       t.updatedAt = ts;
+    }
+  });
+}
+
+/** Tombstones several tasks at once — undo for a multi-line paste. */
+export function removeTasks(doc: Doc, ids: string[]): Doc {
+  return A.change(doc, 'remove tasks', (d) => {
+    const ts = now();
+    for (const id of ids) {
+      const t = d.tasks[id];
+      if (!t || t.deletedAt !== null) continue;
+      t.deletedAt = ts;
+      t.updatedAt = ts;
+    }
+  });
+}
+
+// --- trash -------------------------------------------------------------
+
+/** A tombstoned task, for the Lixeira view. `listName` may name a dead list. */
+export interface TrashItem {
+  id: string;
+  title: string;
+  listName: string;
+  /** Non-null by construction — this is what `deletedAt` was set to. */
+  deletedAt: string;
+}
+
+/**
+ * Every tombstoned task, newest deletion first. Tombstones are never purged
+ * (see the README), so this is also the full history of what was removed — the
+ * point of the view is that "nunca perder uma tarefa" is something you can see,
+ * not just a promise in the sync layer.
+ */
+export function projectTrash(doc: Doc): TrashItem[] {
+  return Object.values(doc.tasks)
+    .filter((t) => t.deletedAt !== null)
+    .map((t) => ({
+      id: t.id,
+      title: t.title,
+      listName: doc.lists[t.listId]?.name ?? 'Lista removida',
+      deletedAt: t.deletedAt as string,
+    }))
+    .sort((a, b) => (a.deletedAt < b.deletedAt ? 1 : -1));
+}
+
+/**
+ * Restores a task from the trash and, if its list (or the list's group) was
+ * tombstoned too, revives those so the task lands somewhere visible instead of
+ * inside a dead list. Only walks upward from this one task — it does not revive
+ * the list's *other* deleted tasks.
+ */
+export function restoreTaskDeep(doc: Doc, id: string): Doc {
+  return A.change(doc, 'restore task from trash', (d) => {
+    const t = d.tasks[id];
+    if (!t) return;
+    const ts = now();
+    t.deletedAt = null;
+    t.updatedAt = ts;
+
+    const list = d.lists[t.listId];
+    if (list && list.deletedAt !== null) {
+      list.deletedAt = null;
+      list.updatedAt = ts;
+      const group = list.groupId ? d.groups[list.groupId] : undefined;
+      if (group && group.deletedAt !== null) {
+        group.deletedAt = null;
+        group.updatedAt = ts;
+      }
     }
   });
 }
