@@ -86,7 +86,7 @@ web/src/lib
   storage.ts   IndexedDB: o documento binário + metadados de sync
   store.tsx    estado React, persistência, agendamento de sync, desfazer
   date.ts      datas de calendário no fuso local (nunca instantes UTC)
-  parse.ts     linguagem natural na captura (prazo e prioridade no texto)
+  parse.ts     linguagem natural na captura (prazo, prioridade, repetição)
   export.ts    o documento inteiro como outline Markdown
   weekstart.ts preferência de primeiro dia da semana, lida por date.ts
 web/src/components   Sidebar (árvore) + ContentView (coluna) + linha/detalhe

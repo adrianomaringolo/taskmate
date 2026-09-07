@@ -303,8 +303,8 @@ function Shell() {
 
                 <p className="menu__label">Na captura</p>
                 <p className="sheet__body">
-                  Escreva o prazo e a prioridade no próprio texto — a palavra fica destacada quando é
-                  reconhecida. O que o app não entende continua no título.
+                  Escreva prazo, prioridade e repetição no próprio texto — a palavra fica destacada
+                  quando é reconhecida. O que o app não entende continua no título.
                 </p>
                 <dl className="sheet__list sheet__list--tokens">
                   {[
@@ -314,6 +314,7 @@ function Shell() {
                     ['12/03', 'data específica'],
                     ['+3', 'daqui a 3 dias'],
                     ['!alta !media !baixa', 'prioridade'],
+                    ['diária semanal mensal', 'repetição'],
                   ].map(([token, what]) => (
                     <div className="sheet__item" key={token}>
                       <dt>

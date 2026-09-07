@@ -1,8 +1,8 @@
 import { useMemo, useRef, useState, type ClipboardEvent, type RefObject } from 'react';
-import { describeDueFull } from '../lib/date';
+import { describeDueFull, today } from '../lib/date';
 import { parseCapture, stripListMarker, tokenizeCapture } from '../lib/parse';
 import { useStore } from '../lib/store';
-import { PRIORITY_LABELS } from '../lib/types';
+import { PRIORITY_LABELS, RECURRENCE_LABELS } from '../lib/types';
 import { Icon } from './Icon';
 
 interface Props {
@@ -21,15 +21,19 @@ export function QuickAdd({ listId, listName, inputRef }: Props) {
   // spans of its own. Plus a plain-language echo below of what that resolves to.
   const tokens = useMemo(() => tokenizeCapture(value), [value]);
   const parsed = useMemo(() => (value.trim() ? parseCapture(value) : null), [value]);
-  const hint =
-    parsed && (parsed.dueDate || parsed.priority)
-      ? [
-          parsed.dueDate ? describeDueFull(parsed.dueDate) : null,
-          parsed.priority ? `prioridade ${PRIORITY_LABELS[parsed.priority].toLowerCase()}` : null,
-        ]
-          .filter(Boolean)
-          .join(' · ')
-      : null;
+  const hint = useMemo(() => {
+    if (!parsed || !(parsed.dueDate || parsed.priority || parsed.recurrence)) return null;
+    // With a repetition, the date is only shown when the user actually named one
+    // — `parseCapture` also fills it with today() as an anchor, which is noise.
+    const showDate = parsed.dueDate && (!parsed.recurrence || parsed.dueDate !== today());
+    return [
+      parsed.recurrence ? RECURRENCE_LABELS[parsed.recurrence].toLowerCase() : null,
+      showDate ? describeDueFull(parsed.dueDate!) : null,
+      parsed.priority ? `prioridade ${PRIORITY_LABELS[parsed.priority].toLowerCase()}` : null,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+  }, [parsed]);
 
   const syncScroll = (el: HTMLInputElement) => {
     if (mirrorRef.current) mirrorRef.current.scrollLeft = el.scrollLeft;
@@ -37,10 +41,10 @@ export function QuickAdd({ listId, listName, inputRef }: Props) {
 
   const submit = () => {
     if (!value.trim()) return;
-    const { title, dueDate, priority } = parseCapture(value);
+    const { title, dueDate, priority, recurrence } = parseCapture(value);
     // Clear first: the field must feel instant even if the write is in flight.
     setValue('');
-    void addTask(listId, title, { dueDate: dueDate ?? null, priority });
+    void addTask(listId, title, { dueDate: dueDate ?? null, priority, recurrence });
   };
 
   const onPaste = (e: ClipboardEvent<HTMLInputElement>) => {
@@ -56,8 +60,8 @@ export function QuickAdd({ listId, listName, inputRef }: Props) {
     void addTasks(
       listId,
       lines.map((line) => {
-        const { title, dueDate, priority } = parseCapture(line);
-        return { title, dueDate: dueDate ?? null, priority };
+        const { title, dueDate, priority, recurrence } = parseCapture(line);
+        return { title, dueDate: dueDate ?? null, priority, recurrence };
       })
     );
   };

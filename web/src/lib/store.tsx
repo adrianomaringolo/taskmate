@@ -36,7 +36,7 @@ import {
   syncOnce,
   type SyncState,
 } from './sync';
-import type { AppState, Group, GroupColor, List, Priority, Task } from './types';
+import type { AppState, Group, GroupColor, List, Priority, RecurrenceUnit, Task } from './types';
 
 /**
  * Zero, deliberately. A `setTimeout(0)` still coalesces one synchronous burst of
@@ -106,13 +106,10 @@ interface Store {
   addTask: (
     listId: string,
     title: string,
-    opts?: { dueDate?: string | null; priority?: Priority }
+    opts?: CaptureOpts
   ) => Promise<void>;
   /** Several tasks into one list, with a single undo — a multi-line paste. */
-  addTasks: (
-    listId: string,
-    items: { title: string; dueDate?: string | null; priority?: Priority }[]
-  ) => Promise<void>;
+  addTasks: (listId: string, items: ({ title: string } & CaptureOpts)[]) => Promise<void>;
   patchTask: (id: string, patch: D.TaskPatch) => Promise<void>;
   removeTask: (id: string) => Promise<void>;
   moveTask: (id: string, listId: string, index: number) => Promise<void>;
@@ -128,6 +125,21 @@ interface Store {
   removeList: (id: string) => Promise<void>;
   moveList: (id: string, groupId: string, index: number) => Promise<void>;
 }
+
+/** Fields the quick-add parser can pull out of a capture string. */
+export interface CaptureOpts {
+  dueDate?: string | null;
+  priority?: Priority;
+  recurrence?: RecurrenceUnit | null;
+}
+
+/** Normalises a parsed capture into what `doc.ts` expects (recurrence as `{ unit }`). */
+const toNewTask = (i: { title: string } & CaptureOpts): D.NewTask => ({
+  title: i.title,
+  dueDate: i.dueDate ?? null,
+  priority: i.priority ?? 0,
+  recurrence: i.recurrence ? { unit: i.recurrence } : null,
+});
 
 const StoreContext = createContext<Store | null>(null);
 
@@ -467,15 +479,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     async (listId, title, opts) => {
       const trimmed = title.trim();
       if (!trimmed) return;
-      mutate(
-        (d) =>
-          D.addTask(d, {
-            listId,
-            title: trimmed,
-            dueDate: opts?.dueDate ?? null,
-            priority: opts?.priority ?? 0,
-          })[0]
-      );
+      mutate((d) => D.addTask(d, { listId, ...toNewTask({ ...opts, title: trimmed }) })[0]);
     },
     [mutate]
   );
@@ -483,7 +487,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const addTasks = useCallback<Store['addTasks']>(
     async (listId, items) => {
       const clean = items
-        .map((i) => ({ ...i, title: i.title.trim() }))
+        .map((i) => toNewTask({ ...i, title: i.title.trim() }))
         .filter((i) => i.title);
       if (clean.length === 0) return;
 

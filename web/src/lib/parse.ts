@@ -1,10 +1,11 @@
 import { addDays, today } from './date';
-import type { Priority } from './types';
+import type { Priority, RecurrenceUnit } from './types';
 
 export interface ParsedCapture {
   title: string;
   dueDate?: string;
   priority?: Priority;
+  recurrence?: RecurrenceUnit;
 }
 
 /**
@@ -27,8 +28,9 @@ export interface ParsedCapture {
  * | `+3`                      | 3 days from today                    |
  * | `!alta` / `!media` / `!baixa` | priority 3 / 2 / 1               |
  * | `!1` / `!2` / `!3`        | priority 1 / 2 / 3                   |
+ * | `diária` / `semanal` / `mensal` (e `-mente`) | repetição            |
  *
- * The last date token wins; the last priority token wins.
+ * The last token of each kind wins.
  */
 export function parseCapture(input: string): ParsedCapture {
   const raw = input.trim();
@@ -36,12 +38,18 @@ export function parseCapture(input: string): ParsedCapture {
 
   let dueDate: string | undefined;
   let priority: Priority | undefined;
+  let recurrence: RecurrenceUnit | undefined;
   const kept: string[] = [];
 
   for (const token of tokens) {
     const prio = matchPriority(token);
     if (prio !== null) {
       priority = prio;
+      continue;
+    }
+    const repeat = matchRecurrence(token);
+    if (repeat !== null) {
+      recurrence = repeat;
       continue;
     }
     const date = matchDate(token);
@@ -57,10 +65,19 @@ export function parseCapture(input: string): ParsedCapture {
   // a task with no title.
   if (!title) return { title: raw };
 
-  return { title, ...(dueDate ? { dueDate } : {}), ...(priority ? { priority } : {}) };
+  // A repetition is inert without a date to advance from, so anchor it to today
+  // — the same rule the detail panel applies.
+  if (recurrence && !dueDate) dueDate = today();
+
+  return {
+    title,
+    ...(dueDate ? { dueDate } : {}),
+    ...(priority ? { priority } : {}),
+    ...(recurrence ? { recurrence } : {}),
+  };
 }
 
-export type TokenKind = 'date' | 'priority' | null;
+export type TokenKind = 'date' | 'priority' | 'recurrence' | null;
 
 export interface CaptureToken {
   text: string;
@@ -84,17 +101,28 @@ export function tokenizeCapture(input: string): CaptureToken[] {
   const raw: TokenKind[] = runs.map((run) => {
     if (/^\s+$/.test(run)) return null;
     if (matchPriority(run) !== null) return 'priority';
+    if (matchRecurrence(run) !== null) return 'recurrence';
     if (matchDate(run) !== null) return 'date';
     return null;
   });
 
   const hasTitle = runs.some((run, i) => raw[i] === null && run.trim().length > 0);
-  const lastDate = hasTitle ? raw.lastIndexOf('date') : -1;
-  const lastPriority = hasTitle ? raw.lastIndexOf('priority') : -1;
+  const last: Record<'date' | 'priority' | 'recurrence', number> = {
+    date: hasTitle ? raw.lastIndexOf('date') : -1,
+    priority: hasTitle ? raw.lastIndexOf('priority') : -1,
+    recurrence: hasTitle ? raw.lastIndexOf('recurrence') : -1,
+  };
 
   return runs.map((text, i) => ({
     text,
-    kind: i === lastDate ? 'date' : i === lastPriority ? 'priority' : null,
+    kind:
+      i === last.date
+        ? 'date'
+        : i === last.priority
+          ? 'priority'
+          : i === last.recurrence
+            ? 'recurrence'
+            : null,
   }));
 }
 
@@ -109,6 +137,14 @@ function matchPriority(token: string): Priority | null {
   if (t === '!alta' || t === '!3') return 3;
   if (t === '!media' || t === '!2') return 2;
   if (t === '!baixa' || t === '!1') return 1;
+  return null;
+}
+
+function matchRecurrence(token: string): RecurrenceUnit | null {
+  const t = strip(token);
+  if (t === 'diaria' || t === 'diario' || t === 'diariamente') return 'day';
+  if (t === 'semanal' || t === 'semanalmente') return 'week';
+  if (t === 'mensal' || t === 'mensalmente') return 'month';
   return null;
 }
 

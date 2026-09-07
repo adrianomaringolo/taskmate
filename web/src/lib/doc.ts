@@ -1,6 +1,6 @@
 import * as A from '@automerge/automerge';
 import { generateKeyBetween, generateNKeysBetween } from 'fractional-indexing';
-import { advanceDue } from './date';
+import { advanceDue, today } from './date';
 import type {
   AppState,
   Group,
@@ -374,10 +374,19 @@ export function moveList(doc: Doc, id: string, groupId: string, index: number): 
 
 // --- tasks --------------------------------------------------------------
 
-export function addTask(
-  doc: Doc,
-  input: { listId: string; title: string; notes?: string; dueDate?: string | null; priority?: Priority }
-): [Doc, string] {
+export interface NewTask {
+  title: string;
+  notes?: string;
+  dueDate?: string | null;
+  priority?: Priority;
+  recurrence?: Recurrence | null;
+}
+
+/** A repetition needs a date to advance from; anchor to today when none was given. */
+const anchoredDue = (input: NewTask): string | null =>
+  input.dueDate ?? (input.recurrence ? today() : null);
+
+export function addTask(doc: Doc, input: NewTask & { listId: string }): [Doc, string] {
   const id = uid();
   const order = keyBetween(liveTasksOf(doc, input.listId).at(-1)?.order, undefined);
   const next = A.change(doc, 'add task', (d) => {
@@ -389,9 +398,9 @@ export function addTask(
       notes: input.notes ?? '',
       done: false,
       doneAt: null,
-      dueDate: input.dueDate ?? null,
+      dueDate: anchoredDue(input),
       priority: input.priority ?? 0,
-      recurrence: null,
+      recurrence: input.recurrence ?? null,
       order,
       createdAt: ts,
       updatedAt: ts,
@@ -407,11 +416,7 @@ export function addTask(
  * current last row in one call, so the orders stay strictly increasing without
  * re-reading the list between inserts.
  */
-export function addTasks(
-  doc: Doc,
-  listId: string,
-  items: { title: string; notes?: string; dueDate?: string | null; priority?: Priority }[]
-): [Doc, string[]] {
+export function addTasks(doc: Doc, listId: string, items: NewTask[]): [Doc, string[]] {
   if (items.length === 0) return [doc, []];
   const last = liveTasksOf(doc, listId).at(-1)?.order ?? null;
   const orders = generateNKeysBetween(last, null, items.length);
@@ -426,9 +431,9 @@ export function addTasks(
         notes: item.notes ?? '',
         done: false,
         doneAt: null,
-        dueDate: item.dueDate ?? null,
+        dueDate: anchoredDue(item),
         priority: item.priority ?? 0,
-        recurrence: null,
+        recurrence: item.recurrence ?? null,
         order: orders[i]!,
         createdAt: ts,
         updatedAt: ts,
