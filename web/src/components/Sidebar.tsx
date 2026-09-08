@@ -12,11 +12,13 @@ interface Props {
   onSelect: (view: View) => void;
   open: boolean;
   onClose: () => void;
+  /** Desktop: fold the sidebar out of the layout. Mobile uses `onClose`. */
+  onCollapse: () => void;
   onOpenWelcome: () => void;
   onOpenAbout: () => void;
 }
 
-export function Sidebar({ view, onSelect, open, onClose, onOpenWelcome, onOpenAbout }: Props) {
+export function Sidebar({ view, onSelect, open, onClose, onCollapse, onOpenWelcome, onOpenAbout }: Props) {
   const { data, tasksByList, addGroup } = useStore();
 
   const counts = useMemo(() => {
@@ -53,6 +55,15 @@ export function Sidebar({ view, onSelect, open, onClose, onOpenWelcome, onOpenAb
           <Icon name="mark" size={18} className="brand__mark" />
           Taskmate
         </p>
+        <button
+          type="button"
+          className="btn btn--icon sidebar__collapse"
+          onClick={onCollapse}
+          aria-label="Recolher a barra lateral"
+          title="Recolher a barra lateral"
+        >
+          <Icon name="panelLeft" />
+        </button>
         <button type="button" className="btn btn--icon sidebar__close" onClick={onClose} aria-label="Fechar menu">
           <Icon name="x" />
         </button>

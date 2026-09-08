@@ -520,6 +520,12 @@ button {
   max-width: 64rem;
 }
 
+/* Board view, "largura total" on: drop the reading-column cap so the columns
+   fill whatever space the (possibly collapsed) sidebar leaves. */
+.main__inner--full {
+  max-width: none;
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -544,6 +550,10 @@ button {
 
 .topbar__inner--wide {
   max-width: 64rem;
+}
+
+.topbar__inner--full {
+  max-width: none;
 }
 
 .topbar[data-scrolled='true'] {
@@ -1653,6 +1663,27 @@ button {
    board (a group, turned sideways: one column per list)
    ====================================================================== */
 
+.board-full-toggle {
+  flex: none;
+  margin-top: 2px;
+  color: var(--ink-3);
+}
+
+.board-full-toggle:hover {
+  color: var(--ink);
+}
+
+.board-full-toggle[aria-pressed='true'] {
+  color: var(--brand-ink);
+  background: var(--brand-wash);
+}
+
+@media (max-width: 860px) {
+  .board-full-toggle {
+    display: none;
+  }
+}
+
 .board {
   display: flex;
   align-items: flex-start;
@@ -1925,8 +1956,29 @@ button {
    ====================================================================== */
 
 .sidebar__close,
-.topbar__menu {
+.topbar__menu,
+.sidebar__collapse {
   display: none;
+}
+
+/* Desktop: fold the sidebar out of the grid. The phone layout keeps its own
+   drawer mechanism (`.sidebar` fixed + translate) and ignores all of this. */
+@media (min-width: 861px) {
+  .sidebar__collapse {
+    display: inline-flex;
+  }
+
+  .app[data-sidebar-collapsed='true'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app[data-sidebar-collapsed='true'] .sidebar {
+    display: none;
+  }
+
+  .app[data-sidebar-collapsed='true'] .topbar__menu {
+    display: inline-flex;
+  }
 }
 
 @media (max-width: 860px) {

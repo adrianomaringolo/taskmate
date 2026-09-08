@@ -20,6 +20,8 @@ import { readWeekStart, setWeekStart, type WeekStart } from './lib/weekstart';
 
 const VIEW_KEY = 'view';
 const ONBOARDING_KEY = 'onboardingSeen';
+const SIDEBAR_KEY = 'sidebarCollapsed';
+const BOARD_FULL_KEY = 'boardFull';
 
 const TODAY: View = { kind: 'today' };
 
@@ -73,6 +75,30 @@ function Shell() {
   const [welcomeOpen, setWelcomeOpen] = useState(() => readPref(ONBOARDING_KEY) !== '1');
   const [aboutOpen, setAboutOpen] = useState(false);
   const [prefsOpen, setPrefsOpen] = useState(false);
+  // Desktop only: the drawer (`drawerOpen`) still drives the phone layout. The
+  // two never fight — a media query decides which one is visually in effect.
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => readPref(SIDEBAR_KEY) === '1');
+  const [boardFull, setBoardFull] = useState(() => readPref(BOARD_FULL_KEY) === '1');
+
+  const showSidebar = useCallback(() => {
+    setDrawerOpen(true);
+    setSidebarCollapsed(false);
+    writePref(SIDEBAR_KEY, '0');
+  }, []);
+
+  const collapseSidebar = useCallback(() => {
+    setDrawerOpen(false);
+    setSidebarCollapsed(true);
+    writePref(SIDEBAR_KEY, '1');
+  }, []);
+
+  const toggleBoardFull = useCallback(() => {
+    setBoardFull((full) => {
+      const next = !full;
+      writePref(BOARD_FULL_KEY, next ? '1' : '0');
+      return next;
+    });
+  }, []);
 
   const changeWeekStart = useCallback((value: WeekStart) => {
     setWeekStart(value);
@@ -196,13 +222,16 @@ function Shell() {
     return () => window.removeEventListener('keydown', onKey);
   }, [drawerOpen, undoLast]);
 
+  const boardIsFull = view.kind === 'board' && boardFull;
+
   return (
-    <div className="app">
+    <div className="app" data-sidebar-collapsed={sidebarCollapsed}>
       <Sidebar
         view={view}
         onSelect={select}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        onCollapse={collapseSidebar}
         onOpenWelcome={() => setWelcomeOpen(true)}
         onOpenAbout={() => setAboutOpen(true)}
       />
@@ -219,12 +248,16 @@ function Shell() {
 
       <main className="main" ref={mainRef} onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 4)}>
         <div className="topbar" data-scrolled={scrolled}>
-        <div className={`topbar__inner${view.kind === 'calendar' || view.kind === 'board' ? ' topbar__inner--wide' : ''}`}>
+        <div
+          className={`topbar__inner${
+            view.kind === 'calendar' || view.kind === 'board' ? ' topbar__inner--wide' : ''
+          }${boardIsFull ? ' topbar__inner--full' : ''}`}
+        >
           <button
             type="button"
             className="btn btn--icon topbar__menu"
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Abrir menu"
+            onClick={showSidebar}
+            aria-label="Mostrar a barra lateral"
           >
             <Icon name="menu" />
           </button>
@@ -337,6 +370,8 @@ function Shell() {
           onSelect={select}
           quickAddRef={quickAddRef}
           weekStartKey={weekStart}
+          boardFull={boardFull}
+          onToggleBoardFull={toggleBoardFull}
         />
       </main>
 

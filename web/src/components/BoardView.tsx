@@ -4,6 +4,7 @@ import { useStore } from '../lib/store';
 import type { List, Task, View } from '../lib/types';
 import { DoneSection } from './ContentView';
 import { EmptyState } from './EmptyState';
+import { Icon } from './Icon';
 import { InlineCreate } from './InlineCreate';
 import { InlineText } from './InlineText';
 import { TaskRow } from './TaskRow';
@@ -13,6 +14,9 @@ type BoardV = Extract<View, { kind: 'board' }>;
 interface Props {
   view: BoardV;
   onSelect: (view: View) => void;
+  /** Span the full content width instead of the centred 64rem column. */
+  full: boolean;
+  onToggleFull: () => void;
 }
 
 /**
@@ -32,7 +36,7 @@ type Drag = {
  * cards. Dragging a card across columns is the point — it calls the same
  * `moveTask` a within-list reorder does, just aimed at another list.
  */
-export function BoardView({ view, onSelect }: Props) {
+export function BoardView({ view, onSelect, full, onToggleFull }: Props) {
   const { data, groupById, tasksByList, moveTask, addList } = useStore();
   const [drag, setDrag] = useState<Drag | null>(null);
 
@@ -87,7 +91,7 @@ export function BoardView({ view, onSelect }: Props) {
 
   return (
     <div
-      className="main__inner main__inner--wide"
+      className={`main__inner main__inner--wide${full ? ' main__inner--full' : ''}`}
       style={{ '--group-color': `var(--g-${group.color})` } as CSSProperties}
     >
       <header className="view-head">
@@ -97,6 +101,16 @@ export function BoardView({ view, onSelect }: Props) {
         </p>
         <div className="view-head__row">
           <h1 className="view-head__title">Quadro</h1>
+          <button
+            type="button"
+            className="btn btn--icon board-full-toggle"
+            aria-pressed={full}
+            aria-label={full ? 'Voltar à largura padrão' : 'Expandir para a largura total'}
+            title={full ? 'Largura padrão' : 'Largura total'}
+            onClick={onToggleFull}
+          >
+            <Icon name="expandWide" />
+          </button>
         </div>
         <p className="view-head__sub">
           {lists.length === 0
