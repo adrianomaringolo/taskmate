@@ -2,6 +2,7 @@ import { useCallback, useState, type CSSProperties, type RefObject } from 'react
 import { addDays, describeDue, describeDueFull, describeStamp, fromKey, today } from '../lib/date';
 import { useStore } from '../lib/store';
 import type { List, Task, View } from '../lib/types';
+import { BoardView } from './BoardView';
 import { CalendarView } from './CalendarView';
 import { EmptyState } from './EmptyState';
 import { Icon } from './Icon';
@@ -67,6 +68,8 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey }: Props) {
     if (!list) return <MissingList onSelect={onSelect} />;
     return <ListView list={list} quickAddRef={quickAddRef} />;
   }
+
+  if (view.kind === 'board') return <BoardView view={view} onSelect={onSelect} />;
 
   if (view.kind === 'calendar') {
     return (

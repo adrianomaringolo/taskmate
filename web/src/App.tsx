@@ -38,6 +38,8 @@ function readView(): View {
       return { kind: parsed.kind };
     if (parsed.kind === 'list' && typeof parsed.listId === 'string')
       return { kind: 'list', listId: parsed.listId };
+    if (parsed.kind === 'board' && typeof (parsed as { groupId?: unknown }).groupId === 'string')
+      return { kind: 'board', groupId: (parsed as { groupId: string }).groupId };
     // Restore the mode (month/week/day) but never a stale date — a calendar
     // reopened days later should land on today, not wherever it was left.
     if (parsed.kind === 'calendar' && (parsed.mode === 'month' || parsed.mode === 'week' || parsed.mode === 'day'))
@@ -217,7 +219,7 @@ function Shell() {
 
       <main className="main" ref={mainRef} onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 4)}>
         <div className="topbar" data-scrolled={scrolled}>
-        <div className={`topbar__inner${view.kind === 'calendar' ? ' topbar__inner--wide' : ''}`}>
+        <div className={`topbar__inner${view.kind === 'calendar' || view.kind === 'board' ? ' topbar__inner--wide' : ''}`}>
           <button
             type="button"
             className="btn btn--icon topbar__menu"

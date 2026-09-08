@@ -183,6 +183,14 @@ const PATHS = {
     </>
   ),
   list: <path d="M3 4.5h10M3 8h10M3 11.5h6" />,
+  /* Board: three columns. Same rounded-rect language as `today`/`calendar`. */
+  columns: (
+    <>
+      <rect x="2.5" y="2.5" width="3.5" height="11" rx="1" />
+      <rect x="6.5" y="2.5" width="3" height="7.5" rx="1" />
+      <rect x="10" y="2.5" width="3.5" height="9.5" rx="1" />
+    </>
+  ),
   /* The brand mark: a check whose long arm keeps going, up into a ray, with a
      detached dash just ahead of the tip — "done, and moving up". Deliberately
      not a checkbox square (reads as a UI control) and not three bars (reads as

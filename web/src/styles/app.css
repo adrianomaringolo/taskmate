@@ -238,6 +238,23 @@ button {
   color: var(--ink-2);
 }
 
+.group__board {
+  flex: none;
+  color: var(--ink-3);
+}
+
+.group__head:hover .group__board {
+  color: var(--ink-2);
+}
+
+.group__board:hover {
+  color: var(--ink);
+}
+
+.group__board[aria-current='true'] {
+  color: var(--group-color, var(--brand-ink));
+}
+
 .group__chevron {
   flex: none;
   color: var(--ink-3);
@@ -1630,6 +1647,155 @@ button {
   font-size: var(--t-sm);
   color: var(--ink-3);
   padding: var(--s-1) 0 var(--s-2);
+}
+
+/* ======================================================================
+   board (a group, turned sideways: one column per list)
+   ====================================================================== */
+
+.board {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  /* The columns keep their width and the row scrolls, rather than each column
+     being crushed to fit — a board with six lists is meant to run off-screen. */
+  overflow-x: auto;
+  padding-bottom: var(--s-3);
+  scroll-snap-type: x proximity;
+}
+
+.board-col {
+  flex: 0 0 18rem;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+
+.board-col[data-drop] {
+  border-color: var(--brand);
+  background: color-mix(in oklab, var(--brand) 6%, var(--surface));
+}
+
+.board-col__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.board-col__head::before {
+  content: '';
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--group-color, var(--g-honey));
+}
+
+.board-col__name {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  padding: 2px 4px;
+  margin: -2px 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--ink);
+  border-radius: var(--r-sm);
+  resize: none;
+  overflow: hidden;
+}
+
+.board-col__name:hover {
+  background: var(--surface-2);
+}
+
+.board-col__name:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+  background: var(--bg);
+}
+
+/* Cards, not rows: drop the list's full-bleed top border and let each column
+   own its scroll area. */
+.board-col__cards {
+  border-top: 0;
+  flex: 1;
+  min-height: 3.5rem;
+  max-height: min(60vh, 34rem);
+  overflow-y: auto;
+  padding: 0 var(--s-2);
+}
+
+.board-col__cards .task {
+  border-bottom: 1px solid var(--line);
+}
+
+.board-col__cards .task:last-child {
+  border-bottom: 0;
+}
+
+/* A column is far narrower than the list view, so the row actions are lifted
+   out of the flex flow and float over the top-right corner on hover instead of
+   reserving ~60px of width the title needs. The grip stays in flow but slims
+   down. */
+.board-col__cards .task__row {
+  position: relative;
+  gap: var(--s-2);
+  padding: var(--s-2) 0;
+}
+
+.board-col__cards .task__grip {
+  width: 12px;
+}
+
+.board-col__cards .task__actions {
+  position: absolute;
+  top: 4px;
+  right: 0;
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+  box-shadow: 0 0 0 4px var(--surface-2);
+}
+
+.board-col__cards .task[data-open='true'] .task__actions {
+  position: static;
+  background: none;
+  box-shadow: none;
+}
+
+.board-col__empty {
+  padding: var(--s-3) var(--s-1);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+
+.board-col__add {
+  padding: var(--s-2) var(--s-3);
+  border-top: 1px solid var(--line);
+}
+
+.board-col__add .btn--add {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.board-col--new {
+  border-style: dashed;
+  background: transparent;
+  padding: var(--s-2) var(--s-3);
+}
+
+.board-empty__add {
+  display: block;
+  margin-top: var(--s-3);
 }
 
 /* ---------- sync ---------- */

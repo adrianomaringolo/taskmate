@@ -138,6 +138,7 @@ export type CalendarMode = 'month' | 'week' | 'day';
 /** What the content column is showing. */
 export type View =
   | { kind: 'list'; listId: string }
+  | { kind: 'board'; groupId: string }
   | { kind: 'today' }
   | { kind: 'upcoming' }
   | { kind: 'review' }
