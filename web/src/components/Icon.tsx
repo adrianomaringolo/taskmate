@@ -153,6 +153,21 @@ const PATHS = {
     </>
   ),
   menu: <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" />,
+  /* Lucide panel-left, scaled: a framed rectangle with a divider near the left. */
+  panelLeft: (
+    <>
+      <rect x="2" y="3" width="12" height="10" rx="1.5" />
+      <path d="M6 3v10" />
+    </>
+  ),
+  /* Horizontal double-arrow: "widen this". */
+  expandWide: (
+    <>
+      <path d="M6 4.5 2.5 8 6 11.5" />
+      <path d="M10 4.5 13.5 8 10 11.5" />
+      <path d="M2.5 8h11" />
+    </>
+  ),
   /* Lucide's sliders-horizontal, simplified to three rows for 16px. */
   settings: (
     <>

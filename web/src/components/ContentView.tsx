@@ -17,6 +17,9 @@ interface Props {
   quickAddRef: RefObject<HTMLInputElement | null>;
   /** Changing this remounts the calendar so a new week-start takes effect. */
   weekStartKey: string;
+  /** Board view: whether it spans the full content width. */
+  boardFull: boolean;
+  onToggleBoardFull: () => void;
 }
 
 export function ContentView(props: Props) {
@@ -44,7 +47,7 @@ export function ContentView(props: Props) {
   return <ReadyState {...props} />;
 }
 
-function ReadyState({ view, onSelect, quickAddRef, weekStartKey }: Props) {
+function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onToggleBoardFull }: Props) {
   const { data, listById, groupById } = useStore();
 
   /**
@@ -69,7 +72,10 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey }: Props) {
     return <ListView list={list} quickAddRef={quickAddRef} />;
   }
 
-  if (view.kind === 'board') return <BoardView view={view} onSelect={onSelect} />;
+  if (view.kind === 'board')
+    return (
+      <BoardView view={view} onSelect={onSelect} full={boardFull} onToggleFull={onToggleBoardFull} />
+    );
 
   if (view.kind === 'calendar') {
     return (
