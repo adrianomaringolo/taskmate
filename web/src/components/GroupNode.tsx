@@ -65,6 +65,17 @@ export function GroupNode({ group, lists, index, total, view, onSelect }: Props)
           </button>
         )}
 
+        <button
+          type="button"
+          className="btn btn--icon group__board"
+          aria-label={`Ver ${group.name} como quadro`}
+          title="Ver como quadro"
+          aria-current={view.kind === 'board' && view.groupId === group.id}
+          onClick={() => onSelect({ kind: 'board', groupId: group.id })}
+        >
+          <Icon name="columns" />
+        </button>
+
         <Menu label={`Ações do grupo ${group.name}`} triggerContent={<Icon name="more" />}>
           {(close) => (
             <GroupMenu
