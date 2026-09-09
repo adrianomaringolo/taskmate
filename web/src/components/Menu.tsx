@@ -55,26 +55,40 @@ export function Menu({
     const menu = menuRef.current;
     if (!menu) return;
 
+    // Only track scroll/resize while the menu is actually open. A closed menu
+    // needs no repositioning, and this component is rendered once per task row —
+    // dozens of always-on capture-phase scroll listeners would be a real cost.
+    const bindReposition = () => {
+      window.addEventListener('resize', place);
+      // Capture phase: scroll events from the sidebar don't bubble to window.
+      window.addEventListener('scroll', place, true);
+    };
+    const unbindReposition = () => {
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+    };
+
     // Position before the first paint of the open state, then correct once the
     // real size is known.
     const onBeforeToggle = (e: Event) => {
       if ((e as ToggleEvent).newState === 'open') place();
     };
     const onToggle = (e: Event) => {
-      if ((e as ToggleEvent).newState === 'open') place();
+      if ((e as ToggleEvent).newState === 'open') {
+        place();
+        bindReposition();
+      } else {
+        unbindReposition();
+      }
     };
 
     menu.addEventListener('beforetoggle', onBeforeToggle);
     menu.addEventListener('toggle', onToggle);
-    window.addEventListener('resize', place);
-    // Capture phase: scroll events from the sidebar don't bubble to window.
-    window.addEventListener('scroll', place, true);
 
     return () => {
       menu.removeEventListener('beforetoggle', onBeforeToggle);
       menu.removeEventListener('toggle', onToggle);
-      window.removeEventListener('resize', place);
-      window.removeEventListener('scroll', place, true);
+      unbindReposition();
     };
   }, [place]);
 

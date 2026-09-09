@@ -963,6 +963,12 @@ button {
   opacity: 1;
 }
 
+/* Pointer devices get the two one-click buttons; the touch fallback menu is
+   hidden here and swapped in under `@media (hover: none)`. */
+.task__actions-more {
+  display: none;
+}
+
 .task__list-tag {
   font-size: var(--t-sm);
   color: var(--ink-3);
@@ -2069,7 +2075,9 @@ button {
 
 /* Touch: there is no hover to reveal row actions, and HTML5 drag does not fire
    from touch at all — so the grip is hidden and reordering moves to the two
-   buttons in the detail panel, which work with any input. */
+   buttons in the detail panel, which work with any input. The row's own
+   details/delete buttons fold into a single menu so they stop crowding the
+   title. */
 @media (hover: none) {
   .task__actions,
   .list-row__menu {
@@ -2078,6 +2086,14 @@ button {
 
   .task__grip {
     display: none;
+  }
+
+  .task__act {
+    display: none;
+  }
+
+  .task__actions-more {
+    display: inline-flex;
   }
 }
 
