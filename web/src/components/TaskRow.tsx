@@ -4,6 +4,7 @@ import { useStore } from '../lib/store';
 import { PRIORITY_LABELS, RECURRENCE_LABELS, type Task } from '../lib/types';
 import { Icon } from './Icon';
 import { InlineText } from './InlineText';
+import { Menu } from './Menu';
 import { TaskDetail } from './TaskDetail';
 
 interface Props {
@@ -203,9 +204,13 @@ export function TaskRow({
         </div>
 
         <div className="task__actions">
+          {/* Touch has no hover to reveal these, so on a phone both would sit
+              permanently next to the title. There they collapse into one menu
+              (see the `hover: none` rule in app.css); with a pointer they stay
+              as the two one-click buttons, hidden until hover. */}
           <button
             type="button"
-            className="btn btn--icon"
+            className="btn btn--icon task__act"
             aria-expanded={open}
             aria-label={open ? 'Fechar detalhes' : 'Abrir detalhes'}
             title={open ? 'Fechar detalhes' : 'Detalhes'}
@@ -215,13 +220,46 @@ export function TaskRow({
           </button>
           <button
             type="button"
-            className="btn btn--icon"
+            className="btn btn--icon task__act"
             aria-label={`Excluir ${task.title}`}
             title="Excluir"
             onClick={() => void removeTask(task.id)}
           >
             <Icon name="trash" size={14} />
           </button>
+
+          <Menu
+            label={`Ações de ${task.title}`}
+            triggerClassName="btn btn--icon task__actions-more"
+            triggerContent={<Icon name="more" size={14} />}
+          >
+            {(close) => (
+              <>
+                <button
+                  type="button"
+                  className="menu__item"
+                  onClick={() => {
+                    setOpen((o) => !o);
+                    close();
+                  }}
+                >
+                  <Icon name="eye" />
+                  {open ? 'Fechar detalhes' : 'Abrir detalhes'}
+                </button>
+                <button
+                  type="button"
+                  className="menu__item menu__item--danger"
+                  onClick={() => {
+                    close();
+                    void removeTask(task.id);
+                  }}
+                >
+                  <Icon name="trash" />
+                  Excluir
+                </button>
+              </>
+            )}
+          </Menu>
         </div>
       </div>
 
