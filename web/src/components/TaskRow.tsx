@@ -13,7 +13,11 @@ interface Props {
   listTag?: string;
   /** Manual order only applies inside a single list. */
   reorderable?: boolean;
-  /** Adds inline "Hoje" / "Amanhã" buttons — the triage view's whole point. */
+  /**
+   * Inline scheduling shortcuts, adapted to the task's state: an undated task
+   * gets "Dar prazo" (Hoje / Amanhã / 1 semana), an overdue one gets "Adiar"
+   * (Amanhã / 3 dias / 1 semana / 1 mês). The triage views' whole point.
+   */
   quickSchedule?: boolean;
   dropEdge?: 'before' | 'after' | null;
   dragging?: boolean;
@@ -175,7 +179,7 @@ export function TaskRow({
             </div>
           )}
 
-          {quickSchedule && !task.done && (
+          {quickSchedule && !task.done && !task.dueDate && (
             <div className="task__schedule">
               <span className="task__schedule-label">Dar prazo:</span>
               <button
@@ -198,6 +202,40 @@ export function TaskRow({
                 onClick={() => void patchTask(task.id, { dueDate: addDays(today(), 7) })}
               >
                 Em 1 semana
+              </button>
+            </div>
+          )}
+
+          {quickSchedule && !task.done && task.dueDate && isOverdue(task.dueDate) && (
+            <div className="task__schedule">
+              <span className="task__schedule-label">Adiar:</span>
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => void patchTask(task.id, { dueDate: addDays(today(), 1) })}
+              >
+                Amanhã
+              </button>
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => void patchTask(task.id, { dueDate: addDays(today(), 3) })}
+              >
+                3 dias
+              </button>
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => void patchTask(task.id, { dueDate: addDays(today(), 7) })}
+              >
+                1 semana
+              </button>
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => void patchTask(task.id, { dueDate: addDays(today(), 30) })}
+              >
+                1 mês
               </button>
             </div>
           )}
