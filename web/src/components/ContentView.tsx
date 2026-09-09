@@ -165,7 +165,7 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
             ficam nas suas listas.
           </EmptyState>
         ) : (
-          <FlatList tasks={sortByDue(due)} labelFor={labelFor} />
+          <FlatList tasks={sortByDue(due)} labelFor={labelFor} quickSchedule />
         )}
 
         {doneToday.length > 0 && (
@@ -223,7 +223,7 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
                 </>
               )}
             </h2>
-            <FlatList tasks={tasks} labelFor={labelFor} />
+            <FlatList tasks={tasks} labelFor={labelFor} quickSchedule={key === 'overdue'} />
           </section>
         ))
       )}
@@ -235,14 +235,22 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
 function FlatList({
   tasks,
   labelFor,
+  quickSchedule = false,
 }: {
   tasks: Task[];
   labelFor: (listId: string) => string | undefined;
+  /** Overdue rows get inline "Adiar" buttons — see TaskRow. */
+  quickSchedule?: boolean;
 }) {
   return (
     <ul className="tasks">
       {tasks.map((task) => (
-        <TaskRow key={task.id} task={task} listTag={labelFor(task.listId)} />
+        <TaskRow
+          key={task.id}
+          task={task}
+          listTag={labelFor(task.listId)}
+          quickSchedule={quickSchedule}
+        />
       ))}
     </ul>
   );
