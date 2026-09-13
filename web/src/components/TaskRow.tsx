@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { addDays, describeDue, describeDueFull, isOverdue, isToday, today } from '../lib/date';
 import { useStore } from '../lib/store';
 import { PRIORITY_LABELS, RECURRENCE_LABELS, type Task } from '../lib/types';
@@ -13,6 +13,11 @@ interface Props {
   listTag?: string;
   /** Manual order only applies inside a single list. */
   reorderable?: boolean;
+  /**
+   * A board card is too narrow to expand its detail panel inline the way a
+   * list row does, so it opens in a dialog instead.
+   */
+  detailInModal?: boolean;
   /**
    * Inline scheduling shortcuts, adapted to the task's state: an undated task
    * gets "Dar prazo" (Hoje / Amanhã / 1 semana), an overdue one gets "Adiar"
@@ -32,6 +37,7 @@ export function TaskRow({
   task,
   listTag,
   reorderable = false,
+  detailInModal = false,
   quickSchedule = false,
   dropEdge = null,
   dragging = false,
@@ -43,12 +49,28 @@ export function TaskRow({
 }: Props) {
   const { patchTask, removeTask } = useStore();
   const [open, setOpen] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  // Same native-<dialog> reasoning as Welcome.tsx / About.tsx: `open` drives
+  // showModal()/close(), and the dialog's own `close` event is the single
+  // path back to `onClose`, so Escape and a backdrop click stay in sync with
+  // the row's own state instead of fighting it.
+  useEffect(() => {
+    if (!detailInModal) return;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    else if (!open && dialog.open) dialog.close();
+  }, [open, detailInModal]);
 
   return (
     <li
       className="task"
       data-done={task.done}
-      data-open={open}
+      // The board card's absolute-positioned actions and lifted background
+      // both exist to react to *inline* expansion; a dialog covers the card
+      // instead, so the card underneath should look untouched while it's up.
+      data-open={detailInModal ? false : open}
       data-dragging={dragging}
       data-drop={dropEdge ?? undefined}
       onDragOver={
@@ -301,12 +323,38 @@ export function TaskRow({
         </div>
       </div>
 
-      {open && (
-        <TaskDetail
-          task={task}
+      {detailInModal ? (
+        <dialog
+          ref={dialogRef}
+          className="dialog task-dialog"
           onClose={() => setOpen(false)}
-          onNudge={reorderable ? onNudge : undefined}
-        />
+          onClick={(e) => {
+            if (e.target === dialogRef.current) dialogRef.current?.close();
+          }}
+        >
+          <button
+            type="button"
+            className="btn btn--icon dialog__close"
+            aria-label="Fechar"
+            onClick={() => dialogRef.current?.close()}
+          >
+            <Icon name="x" />
+          </button>
+          <h2 className="dialog__title">{task.title}</h2>
+          <TaskDetail
+            task={task}
+            onClose={() => dialogRef.current?.close()}
+            onNudge={reorderable ? onNudge : undefined}
+          />
+        </dialog>
+      ) : (
+        open && (
+          <TaskDetail
+            task={task}
+            onClose={() => setOpen(false)}
+            onNudge={reorderable ? onNudge : undefined}
+          />
+        )
       )}
     </li>
   );

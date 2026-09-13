@@ -386,7 +386,15 @@ function ListView({ list, quickAddRef }: { list: List; quickAddRef: RefObject<HT
   );
 }
 
-export function DoneSection({ tasks, label }: { tasks: Task[]; label: string }) {
+export function DoneSection({
+  tasks,
+  label,
+  detailInModal,
+}: {
+  tasks: Task[];
+  label: string;
+  detailInModal?: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -403,7 +411,7 @@ export function DoneSection({ tasks, label }: { tasks: Task[]; label: string }) 
       {open && (
         <ul className="tasks">
           {tasks.map((task) => (
-            <TaskRow key={task.id} task={task} />
+            <TaskRow key={task.id} task={task} detailInModal={detailInModal} />
           ))}
         </ul>
       )}
