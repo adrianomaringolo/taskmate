@@ -81,8 +81,8 @@ export function BoardView({ view, onSelect, full, onToggleFull }: Props) {
 
   const newColumn = (
     <InlineCreate
-      label="Nova coluna"
-      placeholder="Nome da coluna"
+      label="Nova lista"
+      placeholder="Nome da lista"
       onCreate={async (name) => {
         await addList(group.id, name);
       }}
