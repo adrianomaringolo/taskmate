@@ -37,6 +37,11 @@ export function daysFromToday(key: string): number {
   return Math.round((b.getTime() - a.getTime()) / 86_400_000);
 }
 
+/** Whole days since an ISO instant (e.g. a task's `updatedAt`), local calendar. */
+export function daysSince(iso: string): number {
+  return -daysFromToday(toKey(new Date(iso)));
+}
+
 const WEEKDAY = new Intl.DateTimeFormat('pt-BR', { weekday: 'long' });
 const WEEKDAY_SHORT = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' });
 const SHORT = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' });

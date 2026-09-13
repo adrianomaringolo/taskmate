@@ -7,6 +7,7 @@ import { CalendarView } from './CalendarView';
 import { EmptyState } from './EmptyState';
 import { Icon } from './Icon';
 import { InlineText } from './InlineText';
+import { InsightsView } from './InsightsView';
 import { Menu } from './Menu';
 import { QuickAdd } from './QuickAdd';
 import { TaskRow } from './TaskRow';
@@ -90,6 +91,7 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
   }
 
   if (view.kind === 'review') return <ReviewView labelFor={labelFor} />;
+  if (view.kind === 'insights') return <InsightsView onSelect={onSelect} labelFor={labelFor} />;
   if (view.kind === 'trash') return <TrashView />;
 
   const inbox = data.lists.find((l) => l.isInbox);
