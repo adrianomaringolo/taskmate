@@ -140,6 +140,18 @@ export function Sidebar({ view, onSelect, open, onClose, onCollapse, onOpenWelco
             <span className="row__label">A revisar</span>
             {counts.review > 0 && <span className="row__count">{counts.review}</span>}
           </button>
+
+          <button
+            type="button"
+            className="row"
+            aria-current={view.kind === 'insights'}
+            onClick={() => onSelect({ kind: 'insights' })}
+          >
+            <span className="row__icon">
+              <Icon name="compass" />
+            </span>
+            <span className="row__label">Insights</span>
+          </button>
         </nav>
 
         <div className="nav-section nav-section--groups">

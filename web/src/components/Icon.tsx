@@ -206,6 +206,12 @@ const PATHS = {
       <rect x="10" y="2.5" width="3.5" height="9.5" rx="1" />
     </>
   ),
+  compass: (
+    <>
+      <circle cx="8" cy="8" r="6.7" />
+      <path d="m10.8 5.2-1.2 3.6a1.3 1.3 0 0 1-.8 .8L5.2 10.8l1.2-3.6a1.3 1.3 0 0 1 .8-.8z" />
+    </>
+  ),
   /* The brand mark: a check whose long arm keeps going, up into a ray, with a
      detached dash just ahead of the tip — "done, and moving up". Deliberately
      not a checkbox square (reads as a UI control) and not three bars (reads as

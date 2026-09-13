@@ -35,6 +35,7 @@ function readView(): View {
       parsed.kind === 'today' ||
       parsed.kind === 'upcoming' ||
       parsed.kind === 'review' ||
+      parsed.kind === 'insights' ||
       parsed.kind === 'trash'
     )
       return { kind: parsed.kind };
