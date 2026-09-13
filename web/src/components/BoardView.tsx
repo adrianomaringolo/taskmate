@@ -219,6 +219,7 @@ function Column({
             key={task.id}
             task={task}
             reorderable
+            detailInModal
             dragging={drag?.id === task.id}
             dropEdge={drag && drag.overId === task.id && drag.id !== task.id ? drag.edge : null}
             onDragStart={() =>
@@ -248,7 +249,9 @@ function Column({
         />
       </div>
 
-      {done.length > 0 && <DoneSection tasks={done} label={`Concluídas (${done.length})`} />}
+      {done.length > 0 && (
+        <DoneSection tasks={done} label={`Concluídas (${done.length})`} detailInModal />
+      )}
     </section>
   );
 }

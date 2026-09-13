@@ -2095,6 +2095,17 @@ button {
   .task__actions-more {
     display: inline-flex;
   }
+
+  /* The board card's absolute, float-over-the-corner positioning (below)
+     assumes the actions stay invisible until a hover reveals them. On touch
+     they are permanently visible instead (the rule above), so floating them
+     would permanently cover the title. Back to normal flow, same as a
+     touch row in the plain list view. */
+  .board-col__cards .task__actions {
+    position: static;
+    background: none;
+    box-shadow: none;
+  }
 }
 
 /* ---------- dialogs (native <dialog>) ---------- */
@@ -2229,6 +2240,25 @@ button {
   margin-top: var(--s-4);
   font-size: var(--t-xs);
   color: var(--ink-3);
+}
+
+/* A board card is too narrow to expand its detail panel inline the way a
+   list row does, so it opens in a dialog instead — same shared .dialog
+   base as Welcome/About. */
+.task-dialog {
+  width: min(640px, calc(100vw - var(--s-4) * 2));
+  padding: var(--s-5);
+}
+
+.task-dialog .dialog__title {
+  padding-right: var(--s-6);
+  overflow-wrap: anywhere;
+}
+
+/* .detail's left padding aligns its fields under a row's grip + checkbox;
+   inside a dialog there is no row above it to align with. */
+.task-dialog .detail {
+  padding: 0;
 }
 
 /* ---------- review + trash ---------- */
