@@ -22,15 +22,21 @@ qualquer campo novo em `Task`/`List`/`Group` entra nessa conta.
 ## Onde o app está hoje
 
 Hierarquia grupo › lista › atividade + Entrada. Tarefa tem título, notas, prazo
-(dia de calendário), prioridade 0–3, recorrência (dia/semana/mês) e ordem por
-índice fracionário. Visões: Hoje, Próximos 7 dias, Calendário (mês/semana/dia),
-Busca (título + notas). Captura por `N`, desfazer por `Ctrl+Z` (só exclusão,
-via tombstone). Sync opcional por um arquivo no Drive. PWA instalável e offline.
-Lembrete diário local às 8h. Tema claro/escuro, modo de baixa visão.
+e início (dia de calendário, cada um opcional e independente), prioridade 0–3,
+recorrência (dia/semana/mês), etiquetas de texto e um checklist de passos, além
+da ordem por índice fracionário. Visões: Hoje, Próximos 7 dias, Calendário
+(mês/semana/dia), A revisar (sem prazo, cruzando listas), Quadro (um grupo como
+colunas de listas), Insights (assistente de triagem), Lixeira, Busca (título,
+notas e etiquetas). Captura por `N` com linguagem natural (prazo, prioridade,
+repetição), colar várias linhas vira várias tarefas, desfazer por `Ctrl+Z`.
+Sync opcional por um arquivo no Drive. PWA instalável e offline, com
+`share_target`. Lembrete diário local às 8h. Tema claro/escuro, modo de baixa
+visão, tela de Preferências, export Markdown legível.
 
-Não existe: linguagem natural na captura, uma visão de triagem do que não tem
-prazo, subtarefas, data de início, etiquetas, filtro/ordenação dentro da lista,
-lixeira, export legível, navegação da lista por teclado.
+Não existe: paleta de comandos, navegação da lista por teclado, filtro/
+ordenação dentro da lista, arrastar no calendário para reagendar, data de
+início escondendo a tarefa da própria lista (hoje ela só sai de Hoje/Próximos —
+ver 3.2), importar de outro app, `.ics`.
 
 ---
 
@@ -118,25 +124,23 @@ Hoje, como já existe em Próximos.
 
 ## 3. Modelo de tarefa
 
-### 3.1 Checklist dentro da tarefa — **M**
+### 3.1 Checklist dentro da tarefa — **M** — ✅ feito
 
 Um nível de itens marcáveis dentro de uma tarefa (não subtarefas com prazo
-próprio — só passos). Schema: `Task.steps: {id, text, done, order}[]`.
+próprio — só passos). Implementado como sugerido: sem prazo, sem prioridade,
+um nível só. Schema real ficou `RawTask.steps: Record<string, Step>` (keyed e
+tombstoned como todo o resto do documento, não o array cru do rascunho — um
+array liso teria o mesmo risco de "delete concorrente ressuscita o item" que
+`Tombstone` existe para evitar em grupos/listas/tarefas).
 
-**Por quê:** é a funcionalidade mais pedida em app de tarefa. "Preparar viagem"
-tem cinco passos que não merecem ser tarefas de primeira classe.
+### 3.2 Data de início / "esconder até" — **M** — ✅ feito, com escopo menor
 
-⚠ **Tensão:** vira porta de entrada para "por que não subtarefa com prazo, e
-recorrência, e…". Segurar em **um** nível, sem prazo, sem prioridade. Se as notas
-já resolvem para o usuário, não fazer.
-
-### 3.2 Data de início / "esconder até" — **M**
-
-Campo `startDate` separado do prazo: a tarefa só aparece em Hoje/Próximos/listas
-a partir dele. Complementa o 2.3.
-
-**Por quê:** "renovar o seguro" é relevante em novembro, não agora. Sem isso, ou
-polui a lista o ano inteiro ou é esquecida.
+Campo `startDate` implementado, mas só esconde a tarefa de **Hoje** e
+**Próximos 7 dias** — não da lista onde ela mora. Decisão deliberada: sumir da
+própria lista contrariaria "a hierarquia é navegação, não formulário" (abrir a
+lista sempre mostra tudo o que está nela). Se isso se provar insuficiente na
+prática, esconder também da lista é a extensão natural — mas toca contagens em
+vários lugares (lateral, quadro, grupo), então veio de fora do escopo inicial.
 
 ### 3.3 Recorrência melhor — **M**
 
@@ -147,16 +151,14 @@ polui a lista o ano inteiro ou é esquecida.
   `date.ts` só faz o modo "agendado" — avança a partir do prazo antigo, não de
   hoje, então concluir com atraso deixa a próxima ocorrência já vencida.
 
-### 3.4 Etiquetas / contextos — **M**
+### 3.4 Etiquetas / contextos — **M** — ✅ feito
 
-Rótulos de texto que cruzam a hierarquia: `@espera`, `@ligar`, `@rua`. Filtráveis,
-sem cor (cor é escassa), renderizados como chip neutro.
-
-**Por quê:** "aguardando resposta de alguém" é um contexto GTD clássico que os
-três níveis não capturam — não é grupo nem lista, é um estado transversal.
-
-⚠ **Tensão:** é o começo do "Todoist cheio de etiqueta colorida". Regra: sem
-matiz, no máximo um punhado, e some da UI quando não usado.
+Rótulos de texto livres (`@espera`, `@ligar`, ou o que fizer sentido), sem cor,
+renderizados como chip neutro — inclusive na busca, que agora casa etiqueta
+exata além de título/notas. Schema: `RawTask.tags: Record<string, true>`, um
+*set* por chave, não o array de string público — a mesma razão de `steps`:
+escrever `tags` como array inteiro faria duas adições concorrentes em
+dispositivos diferentes conflitarem e uma se perder.
 
 ### 3.5 Duplicar tarefa / usar como modelo — **P**
 
@@ -200,14 +202,11 @@ Arrastar uma tarefa entre dias no `CalendarView` muda o prazo. Hoje o calendári
 Soltar uma linha de tarefa sobre uma lista da árvore move para lá. Atalho para o
 `select` de "Lista" nos detalhes.
 
-### 4.6 Contagem de abertas por lista na lateral — **P**
+### 4.6 Contagem de abertas por lista na lateral — **P** — ✅ feito
 
 Número discreto ao lado do nome da lista.
 
-⚠ **Tensão:** o `PRODUCT.md` desconfia de badge e número. Manter em `--ink-3`,
-sem cor, e talvez só no hover ou só quando > 0.
-
-### 4.7 Tela de preferências — **P**
+### 4.7 Tela de preferências — **P** — ✅ feito
 
 Hoje as preferências estão espalhadas (tema e baixa visão num menu, lembrete
 noutro, sync noutro). Uma folha "Preferências" reúne: tema, baixa visão,
@@ -366,12 +365,19 @@ Contra as anti-referências do `PRODUCT.md`, **não**:
 
 ## 10. Se fosse pra escolher três
 
-1. **2.1 Visão "A revisar"** — é a metade da triagem que o produto promete e não
-   entrega. Maior distância entre o que o `PRODUCT.md` diz e o que o app faz.
-2. **1.1 Linguagem natural na captura** — multiplica a velocidade da metade que
-   "se falhar, o app morre".
-3. **6.3 Lixeira** — barato (os dados já existem), e transforma o princípio
-   "nunca perder uma tarefa" de promessa de bastidor em coisa visível.
+A lista original aqui (A revisar, linguagem natural, Lixeira) já saiu — feita,
+junto com share_target, colar várias linhas, export Markdown, preferências,
+Quadro, Insights e o modelo de tarefa inteiro da seção 3. Do que resta:
 
-Menções honrosas de baixo custo: 1.2 (`share_target`), 1.3 (colar várias linhas),
-6.1 (export Markdown), 4.7 (tela de preferências).
+1. **4.1 Navegação da lista por teclado** — encaixa direto no persona
+   dev/consultor em sessões de 30s, e é puro acelerador (nunca o único
+   caminho), então não briga com acessibilidade.
+2. **3.3 Recorrência "N dias depois de concluída"** — corrige um bug de UX
+   real: completar uma recorrência atrasada hoje deixa a próxima ocorrência
+   já vencida, porque `advanceDue` só sabe avançar do prazo antigo.
+3. **6.3.2 (nova) Lixeira e Insights também para checklist/etiquetas** — os
+   itens de checklist já são tombstoned como qualquer outra linha, mas não
+   aparecem na Lixeira nem têm sinal em Insights; provavelmente baixo valor
+   por ora — reavaliar se o checklist pegar uso.
+
+Menções honrosas de baixo custo: 3.5 (duplicar tarefa), 6.4 (`.ics`).

@@ -436,6 +436,54 @@ await test('tarefa move entre listas e a origem não fica com fantasma', async (
   assert(inB[0]!.listId === listId, 'a tarefa não chegou na lista de destino em B');
 });
 
+await test('tags concorrentes em dispositivos diferentes não se sobrescrevem', async () => {
+  const store = new FakeStore();
+  const a = new Device('A', store);
+  const [withTask, taskId] = doc.addTask(a.doc, { listId: listOf(a), title: 'com etiquetas' });
+  a.doc = withTask;
+  await a.sync();
+  const b = new Device('B', store);
+  await b.sync();
+
+  // Each device adds a different tag, neither having seen the other's write —
+  // the failure this guards against is a whole-array replace where the later
+  // upload silently discards the earlier tag.
+  a.edit((d) => doc.addTag(d, taskId, '@espera'));
+  b.edit((d) => doc.addTag(d, taskId, '@ligar'));
+
+  await a.sync();
+  await b.sync();
+  await a.sync();
+
+  const ta = a.state().tasks.find((t) => t.id === taskId)!;
+  const tb = b.state().tasks.find((t) => t.id === taskId)!;
+  assertSame(ta.tags, ['@espera', '@ligar'], 'A perdeu uma das duas tags');
+  assertSame(tb.tags, ['@espera', '@ligar'], 'B perdeu uma das duas tags');
+});
+
+await test('excluir um item do checklist num dispositivo e editar noutro não ressuscita o item', async () => {
+  const store = new FakeStore();
+  const a = new Device('A', store);
+  const [withTask, taskId] = doc.addTask(a.doc, { listId: listOf(a), title: 'com checklist' });
+  const [withStep, stepId] = doc.addStep(withTask, taskId, 'passo condenado');
+  a.doc = withStep;
+  await a.sync();
+  const b = new Device('B', store);
+  await b.sync();
+
+  a.edit((d) => doc.removeStep(d, taskId, stepId!));
+  b.edit((d) => doc.patchStep(d, taskId, stepId!, { done: true }));
+
+  await a.sync();
+  await b.sync();
+  await a.sync();
+
+  const stepsA = a.state().tasks.find((t) => t.id === taskId)!.steps;
+  const stepsB = b.state().tasks.find((t) => t.id === taskId)!.steps;
+  assert(stepsA.length === 0, `o item voltou em A: ${JSON.stringify(stepsA)}`);
+  assert(stepsB.length === 0, `o item voltou em B: ${JSON.stringify(stepsB)}`);
+});
+
 console.log(
   failures === 0
     ? `\nTodos os cenários de convergência passaram.`

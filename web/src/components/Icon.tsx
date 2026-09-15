@@ -212,6 +212,29 @@ const PATHS = {
       <path d="m10.8 5.2-1.2 3.6a1.3 1.3 0 0 1-.8 .8L5.2 10.8l1.2-3.6a1.3 1.3 0 0 1 .8-.8z" />
     </>
   ),
+  tag: (
+    <>
+      <path d="M8.4 1.7A1.3 1.3 0 0 0 7.4 1.3H2.7a1.3 1.3 0 0 0-1.3 1.3v4.8a1.3 1.3 0 0 0 .4 .9l5.8 5.8a1.6 1.6 0 0 0 2.3 0l4.4-4.4a1.6 1.6 0 0 0 0-2.3z" />
+      <circle cx="5" cy="5" r=".3" fill="currentColor" stroke="none" />
+    </>
+  ),
+  listChecks: (
+    <>
+      <path d="M8.7 3.3h5.3" />
+      <path d="M8.7 8h5.3" />
+      <path d="M8.7 12.7h5.3" />
+      <path d="m2 11.3 1.3 1.3 2.7-2.7" />
+      <path d="m2 4.7 1.3 1.3 2.7-2.7" />
+    </>
+  ),
+  hourglass: (
+    <>
+      <path d="M3.3 14.7h9.3" />
+      <path d="M3.3 1.3h9.3" />
+      <path d="M11.3 14.7v-2.8a1.3 1.3 0 0 0-.4-.9L8 8l-2.9 2.9A1.3 1.3 0 0 0 4.7 11.9V14.7" />
+      <path d="M4.7 1.3v2.8a1.3 1.3 0 0 0 .4 .9L8 8l2.9-2.9A1.3 1.3 0 0 0 11.3 4.1V1.3" />
+    </>
+  ),
   /* The brand mark: a check whose long arm keeps going, up into a ray, with a
      detached dash just ahead of the tip — "done, and moving up". Deliberately
      not a checkbox square (reads as a UI control) and not three bars (reads as

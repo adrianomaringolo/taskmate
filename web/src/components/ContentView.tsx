@@ -101,7 +101,10 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
     const q = normalize(view.query);
     const matches = q
       ? data.tasks.filter(
-          (task) => normalize(task.title).includes(q) || normalize(task.notes).includes(q)
+          (task) =>
+            normalize(task.title).includes(q) ||
+            normalize(task.notes).includes(q) ||
+            task.tags.some((tag) => normalize(tag) === q)
         )
       : [];
 
@@ -130,7 +133,9 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
   }
 
   if (view.kind === 'today') {
-    const due = data.tasks.filter((task) => !task.done && task.dueDate && task.dueDate <= t);
+    const due = data.tasks.filter(
+      (task) => !task.done && task.dueDate && task.dueDate <= t && hasStarted(task, t)
+    );
     const doneToday = data.tasks.filter((task) => task.done && task.doneAt?.startsWith(t));
     const overdue = due.filter((task) => task.dueDate! < t);
 
@@ -179,7 +184,9 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
 
   // upcoming
   const horizon = addDays(t, 7);
-  const upcoming = data.tasks.filter((task) => !task.done && task.dueDate && task.dueDate <= horizon);
+  const upcoming = data.tasks.filter(
+    (task) => !task.done && task.dueDate && task.dueDate <= horizon && hasStarted(task, t)
+  );
   const byDay = new Map<string, Task[]>();
   for (const task of sortByDue(upcoming)) {
     const key = task.dueDate! < t ? 'overdue' : task.dueDate!;
@@ -568,6 +575,13 @@ function LoadingState() {
 }
 
 // --- helpers ------------------------------------------------------------
+
+/**
+ * Gates Hoje and Próximos 7 dias only — never the task's own list, which
+ * stays a place you can always see everything by opening it. A future
+ * `startDate` just mutes the cross-cutting "what's relevant now" views.
+ */
+const hasStarted = (task: Task, t: string) => !task.startDate || task.startDate <= t;
 
 /** Due date first, then priority — the order triage actually wants. */
 function sortByDue(tasks: Task[]): Task[] {

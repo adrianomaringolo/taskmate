@@ -16,13 +16,18 @@ export function toMarkdown(data: AppState): string {
 
   const renderTask = (t: Task) => {
     const box = t.done ? '[x]' : '[ ]';
-    const tags: string[] = [];
-    if (t.dueDate) tags.push(t.dueDate);
-    if (t.priority > 0) tags.push('!'.repeat(t.priority));
-    if (t.recurrence) tags.push(RECURRENCE_LABELS[t.recurrence.unit].toLowerCase());
-    out.push(`- ${box} ${t.title}${tags.length ? ` (${tags.join(', ')})` : ''}`);
+    const meta: string[] = [];
+    if (t.dueDate) meta.push(t.dueDate);
+    if (t.startDate) meta.push(`início ${t.startDate}`);
+    if (t.priority > 0) meta.push('!'.repeat(t.priority));
+    if (t.recurrence) meta.push(RECURRENCE_LABELS[t.recurrence.unit].toLowerCase());
+    meta.push(...t.tags);
+    out.push(`- ${box} ${t.title}${meta.length ? ` (${meta.join(', ')})` : ''}`);
     if (t.notes.trim()) {
       for (const line of t.notes.split('\n')) out.push(`  ${line}`.trimEnd());
+    }
+    for (const step of t.steps) {
+      out.push(`  - [${step.done ? 'x' : ' '}] ${step.text}`);
     }
   };
 

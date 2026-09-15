@@ -9,6 +9,7 @@ import type {
   Order,
   Priority,
   Recurrence,
+  Step,
   Task,
 } from './types';
 
@@ -19,7 +20,8 @@ import type {
  * concurrent list mutations, but array indices are a poor fit for records: two
  * devices inserting at index 3 offline both "win" and you cannot tell which row
  * is which afterwards. Keyed maps make every write address one specific record,
- * so concurrent edits to different records never interact at all.
+ * so concurrent edits to different records never interact at all. A task's
+ * checklist steps follow the same rule one level down — see `RawTask`.
  *
  * `collapsed` is deliberately absent: whether a group is folded is a property of
  * this screen, not of the data. Syncing it would make one device reach over and
@@ -29,7 +31,26 @@ export interface TaskmateDoc {
   schema: number;
   groups: Record<string, Group>;
   lists: Record<string, List>;
-  tasks: Record<string, Task>;
+  tasks: Record<string, RawTask>;
+}
+
+/**
+ * `Task` as it actually sits in the document — as opposed to `Task` the public
+ * shape `project()` hands the UI. The two fields below are where they diverge:
+ *
+ * - `tags` is a **set**, not the public string array. Writing tags as a whole
+ *   array (`t.tags = [...]`) would make every edit a full replace — two
+ *   devices concurrently adding *different* tags to the same task would
+ *   conflict, and one addition would silently lose. Keyed by the tag text
+ *   itself, concurrent adds just become two writes to two different keys:
+ *   both survive, same as every other collection here.
+ * - `steps` is keyed and tombstoned exactly like groups/lists/tasks, for the
+ *   same reason: deleting a checklist item outright would let a concurrent
+ *   edit to that same item resurrect it as a half-dead ghost.
+ */
+interface RawTask extends Omit<Task, 'tags' | 'steps'> {
+  tags: Record<string, true>;
+  steps: Record<string, Step>;
 }
 
 export type Doc = A.Doc<TaskmateDoc>;
@@ -137,7 +158,15 @@ const plainList = (l: List): List => ({
   deletedAt: l.deletedAt,
 });
 
-const plainTask = (t: Task): Task => ({
+const plainStep = (s: Step): Step => ({
+  id: s.id,
+  text: s.text,
+  done: s.done,
+  order: s.order,
+  deletedAt: s.deletedAt,
+});
+
+const plainTask = (t: RawTask): Task => ({
   id: t.id,
   listId: t.listId,
   title: t.title,
@@ -145,9 +174,14 @@ const plainTask = (t: Task): Task => ({
   done: t.done,
   doneAt: t.doneAt,
   dueDate: t.dueDate,
+  // `?? null`: documents written before startDate existed have no such key.
+  startDate: t.startDate ?? null,
   priority: t.priority,
   // `?? null`: documents written before recurrence existed have no such key.
   recurrence: t.recurrence ?? null,
+  // `?? {}` / `?? {}`: same, for documents written before tags/steps existed.
+  tags: Object.keys(t.tags ?? {}).sort(),
+  steps: Object.values(t.steps ?? {}).filter(alive).map(plainStep).sort(byOrder),
   order: t.order,
   createdAt: t.createdAt,
   updatedAt: t.updatedAt,
@@ -156,6 +190,9 @@ const plainTask = (t: Task): Task => ({
 
 const liveTasksOf = (doc: Doc, listId: string): Task[] =>
   Object.values(doc.tasks).filter((t) => alive(t) && t.listId === listId).map(plainTask).sort(byOrder);
+
+const liveStepsOf = (t: RawTask): Step[] =>
+  Object.values(t.steps ?? {}).filter(alive).sort(byOrder);
 
 const liveListsOf = (doc: Doc, groupId: string | null): List[] =>
   Object.values(doc.lists).filter((l) => alive(l) && l.groupId === groupId).map(plainList).sort(byOrder);
@@ -378,6 +415,7 @@ export interface NewTask {
   title: string;
   notes?: string;
   dueDate?: string | null;
+  startDate?: string | null;
   priority?: Priority;
   recurrence?: Recurrence | null;
 }
@@ -399,8 +437,11 @@ export function addTask(doc: Doc, input: NewTask & { listId: string }): [Doc, st
       done: false,
       doneAt: null,
       dueDate: anchoredDue(input),
+      startDate: input.startDate ?? null,
       priority: input.priority ?? 0,
       recurrence: input.recurrence ?? null,
+      tags: {},
+      steps: {},
       order,
       createdAt: ts,
       updatedAt: ts,
@@ -432,8 +473,11 @@ export function addTasks(doc: Doc, listId: string, items: NewTask[]): [Doc, stri
         done: false,
         doneAt: null,
         dueDate: anchoredDue(item),
+        startDate: item.startDate ?? null,
         priority: item.priority ?? 0,
         recurrence: item.recurrence ?? null,
+        tags: {},
+        steps: {},
         order: orders[i]!,
         createdAt: ts,
         updatedAt: ts,
@@ -449,6 +493,7 @@ export interface TaskPatch {
   notes?: string;
   done?: boolean;
   dueDate?: string | null;
+  startDate?: string | null;
   priority?: Priority;
   recurrence?: Recurrence | null;
 }
@@ -473,6 +518,7 @@ export function patchTask(doc: Doc, id: string, patch: TaskPatch): Doc {
     if (patch.title !== undefined) t.title = patch.title;
     if (patch.notes !== undefined) t.notes = patch.notes;
     if (patch.dueDate !== undefined) t.dueDate = patch.dueDate;
+    if (patch.startDate !== undefined) t.startDate = patch.startDate;
     if (patch.priority !== undefined) t.priority = patch.priority;
     if (patch.recurrence !== undefined) t.recurrence = patch.recurrence;
     if (patch.done !== undefined && patch.done !== t.done) {
@@ -559,6 +605,86 @@ export function removeTasks(doc: Doc, ids: string[]): Doc {
       t.deletedAt = ts;
       t.updatedAt = ts;
     }
+  });
+}
+
+// --- tags ----------------------------------------------------------------
+
+/**
+ * Adds one tag. Not folded into `patchTask` on purpose — see `RawTask`'s tag
+ * comment for why a tag is a set entry, never a whole-array replace.
+ */
+export function addTag(doc: Doc, taskId: string, tag: string): Doc {
+  const clean = tag.trim();
+  if (!clean) return doc;
+  return A.change(doc, 'add tag', (d) => {
+    const t = d.tasks[taskId];
+    if (!t) return;
+    t.tags[clean] = true;
+    t.updatedAt = now();
+  });
+}
+
+export function removeTag(doc: Doc, taskId: string, tag: string): Doc {
+  return A.change(doc, 'remove tag', (d) => {
+    const t = d.tasks[taskId];
+    if (!t) return;
+    delete t.tags[tag];
+    t.updatedAt = now();
+  });
+}
+
+// --- checklist steps -------------------------------------------------------
+
+export function addStep(doc: Doc, taskId: string, text: string): [Doc, string | null] {
+  const clean = text.trim();
+  if (!clean) return [doc, null];
+  const id = uid();
+  const next = A.change(doc, 'add step', (d) => {
+    const t = d.tasks[taskId];
+    if (!t) return;
+    const order = keyBetween(liveStepsOf(t).at(-1)?.order, undefined);
+    t.steps[id] = { id, text: clean, done: false, order, deletedAt: null };
+    t.updatedAt = now();
+  });
+  return [next, id];
+}
+
+export interface StepPatch {
+  text?: string;
+  done?: boolean;
+}
+
+export function patchStep(doc: Doc, taskId: string, stepId: string, patch: StepPatch): Doc {
+  return A.change(doc, 'patch step', (d) => {
+    const t = d.tasks[taskId];
+    const s = t?.steps[stepId];
+    if (!t || !s) return;
+    if (patch.text !== undefined) s.text = patch.text;
+    if (patch.done !== undefined) s.done = patch.done;
+    t.updatedAt = now();
+  });
+}
+
+/** Tombstoned, like every other row — see `RawTask`'s comment for why. */
+export function removeStep(doc: Doc, taskId: string, stepId: string): Doc {
+  return A.change(doc, 'remove step', (d) => {
+    const t = d.tasks[taskId];
+    const s = t?.steps[stepId];
+    if (!t || !s) return;
+    const ts = now();
+    s.deletedAt = ts;
+    t.updatedAt = ts;
+  });
+}
+
+export function restoreStep(doc: Doc, taskId: string, stepId: string): Doc {
+  return A.change(doc, 'restore step', (d) => {
+    const t = d.tasks[taskId];
+    const s = t?.steps[stepId];
+    if (!t || !s) return;
+    s.deletedAt = null;
+    t.updatedAt = now();
   });
 }
 
