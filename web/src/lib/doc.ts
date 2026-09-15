@@ -620,6 +620,9 @@ export function addTag(doc: Doc, taskId: string, tag: string): Doc {
   return A.change(doc, 'add tag', (d) => {
     const t = d.tasks[taskId];
     if (!t) return;
+    // A task written before `tags` existed has no such key yet — same reason
+    // `plainTask` falls back to `?? {}` on the read side.
+    if (!t.tags) t.tags = {};
     t.tags[clean] = true;
     t.updatedAt = now();
   });
@@ -628,7 +631,7 @@ export function addTag(doc: Doc, taskId: string, tag: string): Doc {
 export function removeTag(doc: Doc, taskId: string, tag: string): Doc {
   return A.change(doc, 'remove tag', (d) => {
     const t = d.tasks[taskId];
-    if (!t) return;
+    if (!t?.tags) return;
     delete t.tags[tag];
     t.updatedAt = now();
   });
@@ -643,6 +646,9 @@ export function addStep(doc: Doc, taskId: string, text: string): [Doc, string | 
   const next = A.change(doc, 'add step', (d) => {
     const t = d.tasks[taskId];
     if (!t) return;
+    // A task written before `steps` existed has no such key yet — same
+    // reason `plainTask` falls back to `?? {}` on the read side.
+    if (!t.steps) t.steps = {};
     const order = keyBetween(liveStepsOf(t).at(-1)?.order, undefined);
     t.steps[id] = { id, text: clean, done: false, order, deletedAt: null };
     t.updatedAt = now();
@@ -658,7 +664,7 @@ export interface StepPatch {
 export function patchStep(doc: Doc, taskId: string, stepId: string, patch: StepPatch): Doc {
   return A.change(doc, 'patch step', (d) => {
     const t = d.tasks[taskId];
-    const s = t?.steps[stepId];
+    const s = t?.steps?.[stepId];
     if (!t || !s) return;
     if (patch.text !== undefined) s.text = patch.text;
     if (patch.done !== undefined) s.done = patch.done;
@@ -670,7 +676,7 @@ export function patchStep(doc: Doc, taskId: string, stepId: string, patch: StepP
 export function removeStep(doc: Doc, taskId: string, stepId: string): Doc {
   return A.change(doc, 'remove step', (d) => {
     const t = d.tasks[taskId];
-    const s = t?.steps[stepId];
+    const s = t?.steps?.[stepId];
     if (!t || !s) return;
     const ts = now();
     s.deletedAt = ts;
@@ -681,7 +687,7 @@ export function removeStep(doc: Doc, taskId: string, stepId: string): Doc {
 export function restoreStep(doc: Doc, taskId: string, stepId: string): Doc {
   return A.change(doc, 'restore step', (d) => {
     const t = d.tasks[taskId];
-    const s = t?.steps[stepId];
+    const s = t?.steps?.[stepId];
     if (!t || !s) return;
     s.deletedAt = null;
     t.updatedAt = now();

@@ -9,6 +9,7 @@
  *
  *   npx tsx tools/sync.test.ts
  */
+import * as A from '@automerge/automerge';
 import * as doc from '../web/src/lib/doc.js';
 import { syncOnce, type RemoteFile, type Transport } from '../web/src/lib/sync.js';
 import { EMPTY_SYNC_META, type SyncMeta } from '../web/src/lib/storage.js';
@@ -482,6 +483,44 @@ await test('excluir um item do checklist num dispositivo e editar noutro não re
   const stepsB = b.state().tasks.find((t) => t.id === taskId)!.steps;
   assert(stepsA.length === 0, `o item voltou em A: ${JSON.stringify(stepsA)}`);
   assert(stepsB.length === 0, `o item voltou em B: ${JSON.stringify(stepsB)}`);
+});
+
+await test('checklist e etiquetas funcionam numa tarefa gravada antes desses campos existirem', async () => {
+  // A task written by a build older than tags/steps has neither key in the
+  // raw document — `addTask` never set them. Built directly with Automerge
+  // rather than through `doc.addTask`, since the current `addTask` always
+  // writes both.
+  const a = new Device('A', new FakeStore());
+  const legacyId = crypto.randomUUID();
+  a.doc = A.change(a.doc, 'legacy task, predates tags/steps', (d) => {
+    const ts = new Date().toISOString();
+    (d.tasks as Record<string, unknown>)[legacyId] = {
+      id: legacyId,
+      listId: listOf(a),
+      title: 'tarefa antiga',
+      notes: '',
+      done: false,
+      doneAt: null,
+      dueDate: null,
+      startDate: null,
+      priority: 0,
+      recurrence: null,
+      order: 'a0',
+      createdAt: ts,
+      updatedAt: ts,
+      deletedAt: null,
+    };
+  });
+
+  a.edit((d) => doc.addTag(d, legacyId, '@antiga'));
+  a.edit((d) => doc.addStep(d, legacyId, 'primeiro passo')[0]);
+
+  const task = a.state().tasks.find((t) => t.id === legacyId)!;
+  assertSame(task.tags, ['@antiga'], 'a etiqueta não pegou numa tarefa antiga');
+  assert(
+    task.steps.length === 1 && task.steps[0]!.text === 'primeiro passo',
+    `o item do checklist não pegou numa tarefa antiga: ${JSON.stringify(task.steps)}`
+  );
 });
 
 console.log(
