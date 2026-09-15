@@ -21,12 +21,17 @@ const STEPS: Step[] = [
   {
     icon: 'folder',
     title: 'Organize quando fizer sentido',
-    body: 'Crie grupos e listas pela lateral quando a Entrada começar a misturar assuntos. Arraste tarefas entre listas, ou use as setas no detalhe da tarefa.',
+    body: 'Crie grupos e listas pela lateral quando a Entrada começar a misturar assuntos. Um grupo também pode virar um quadro, com cada lista numa coluna. Arraste tarefas entre listas ou colunas, ou use as setas no detalhe da tarefa.',
+  },
+  {
+    icon: 'compass',
+    title: 'Veja tudo, sem abrir lista por lista',
+    body: 'Hoje e Próximos 7 dias juntam o que tem prazo perto. A revisar junta o que ainda não tem prazo. Insights aponta atraso concentrado, prioridade alta sem prazo e grupos parados — sem abrir uma lista de cada vez.',
   },
   {
     icon: 'today',
-    title: 'Prazo, prioridade e repetição',
-    body: 'Cada tarefa pode ter prazo, prioridade e uma repetição — diária, semanal ou mensal. Concluir uma tarefa recorrente só avança para a próxima data; ela nunca some do histórico.',
+    title: 'Prazo, prioridade, repetição e mais',
+    body: 'Prazo, prioridade e uma repetição — diária, semanal ou mensal — cobrem o básico. Os detalhes da tarefa também guardam um checklist, etiquetas de texto livre e uma data de início, pra segurar algo fora de Hoje e Próximos até a hora certa. Concluir uma recorrência só avança a data; a tarefa nunca some do histórico.',
   },
   {
     icon: 'cloud',
@@ -36,7 +41,7 @@ const STEPS: Step[] = [
   {
     icon: 'keyboard',
     title: 'Atalhos e lembretes',
-    body: 'O ícone de teclado na barra de cima lista os atalhos, e o de sino ativa um aviso diário sobre tarefas vencendo. Este tour fica sempre disponível em "Ajuda", na lateral.',
+    body: 'O ícone de teclado lista os atalhos, e o de sino ativa um aviso diário sobre tarefas vencendo. A engrenagem abre as preferências — tema, lembrete, exportar tudo em Markdown — e a Lixeira, na lateral, guarda o que foi excluído. Este tour fica sempre em "Ajuda".',
   },
 ];
 
