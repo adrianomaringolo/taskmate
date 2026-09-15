@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { addDays, describeDue, describeDueFull, isOverdue, isToday, today } from '../lib/date';
+import { useRef, useState } from 'react';
+import { addDays, daysFromToday, describeDue, describeDueFull, isOverdue, isToday, today } from '../lib/date';
 import { useStore } from '../lib/store';
 import { PRIORITY_LABELS, RECURRENCE_LABELS, type Task } from '../lib/types';
 import { Icon } from './Icon';
@@ -51,17 +51,32 @@ export function TaskRow({
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  // Same native-<dialog> reasoning as Welcome.tsx / About.tsx: `open` drives
-  // showModal()/close(), and the dialog's own `close` event is the single
-  // path back to `onClose`, so Escape and a backdrop click stay in sync with
-  // the row's own state instead of fighting it.
-  useEffect(() => {
+  // Only worth a chip while it's still in the future: once reached, the task
+  // behaves like any other and a "começa em [data passada]" chip would be
+  // stale, not informative.
+  const pendingStart = !!task.startDate && daysFromToday(task.startDate) > 0;
+
+  /**
+   * `showModal()` is called here, synchronously inside the click handler —
+   * not from a `useEffect` reacting to `open` — because `TaskDetail`'s
+   * content (the checklist's `InlineText` items) mounts in the same render
+   * that flips `open` to true. A reactive effect would call `showModal()`
+   * only *after* that render's layout effects had already run, so every
+   * `InlineText` would measure its own height while the dialog was still
+   * `display: none` and bake in a collapsed `height: 0` it never recovers
+   * from. Calling it here means the dialog is already open by the time
+   * `TaskDetail` mounts and its children measure themselves.
+   *
+   * The dialog's own `close` event (Escape, backdrop click) is still the
+   * only path back to `setOpen(false)` — see the `<dialog>` below.
+   */
+  const toggleDetail = () => {
+    const next = !open;
+    setOpen(next);
     if (!detailInModal) return;
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    else if (!open && dialog.open) dialog.close();
-  }, [open, detailInModal]);
+    if (next) dialogRef.current?.showModal();
+    else dialogRef.current?.close();
+  };
 
   return (
     <li
@@ -147,7 +162,14 @@ export function TaskRow({
             onCommit={(title) => void patchTask(task.id, { title })}
           />
 
-          {(task.dueDate || task.priority > 0 || listTag || task.notes || task.recurrence) && (
+          {(task.dueDate ||
+            pendingStart ||
+            task.priority > 0 ||
+            listTag ||
+            task.notes ||
+            task.recurrence ||
+            task.tags.length > 0 ||
+            task.steps.length > 0) && (
             <div className="task__meta">
               {task.dueDate && (
                 <span
@@ -165,10 +187,24 @@ export function TaskRow({
                 </span>
               )}
 
+              {pendingStart && (
+                <span className="chip" title={`Começa ${describeDueFull(task.startDate!)}`}>
+                  <Icon name="hourglass" size={13} />
+                  começa {describeDue(task.startDate!)}
+                </span>
+              )}
+
               {task.recurrence && (
                 <span className="chip" title={RECURRENCE_LABELS[task.recurrence.unit]}>
                   <Icon name="repeat" size={13} />
                   {RECURRENCE_LABELS[task.recurrence.unit]}
+                </span>
+              )}
+
+              {task.steps.length > 0 && (
+                <span className="chip" title="Checklist">
+                  <Icon name="listChecks" size={13} />
+                  {task.steps.filter((s) => s.done).length}/{task.steps.length}
                 </span>
               )}
 
@@ -196,6 +232,13 @@ export function TaskRow({
                   notas
                 </span>
               )}
+
+              {task.tags.map((tag) => (
+                <span key={tag} className="chip" title={`Etiqueta: ${tag}`}>
+                  <Icon name="tag" size={13} />
+                  {tag}
+                </span>
+              ))}
 
               {listTag && <span className="task__list-tag">{listTag}</span>}
             </div>
@@ -274,7 +317,7 @@ export function TaskRow({
             aria-expanded={open}
             aria-label={open ? 'Fechar detalhes' : 'Abrir detalhes'}
             title={open ? 'Fechar detalhes' : 'Detalhes'}
-            onClick={() => setOpen((o) => !o)}
+            onClick={toggleDetail}
           >
             <Icon name="chevron" size={14} className={open ? 'rotated' : undefined} />
           </button>
@@ -299,7 +342,7 @@ export function TaskRow({
                   type="button"
                   className="menu__item"
                   onClick={() => {
-                    setOpen((o) => !o);
+                    toggleDetail();
                     close();
                   }}
                 >
@@ -341,11 +384,17 @@ export function TaskRow({
             <Icon name="x" />
           </button>
           <h2 className="dialog__title">{task.title}</h2>
-          <TaskDetail
-            task={task}
-            onClose={() => dialogRef.current?.close()}
-            onNudge={reorderable ? onNudge : undefined}
-          />
+          {/* Mounted only once `open`, and only after `toggleDetail` has
+              already called `showModal()` — see its comment. Mounting
+              unconditionally would run the checklist's `InlineText` layout
+              effects while the dialog was still `display: none`. */}
+          {open && (
+            <TaskDetail
+              task={task}
+              onClose={() => dialogRef.current?.close()}
+              onNudge={reorderable ? onNudge : undefined}
+            />
+          )}
         </dialog>
       ) : (
         open && (

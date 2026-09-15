@@ -3,6 +3,8 @@ import { addDays, describeStamp, today } from '../lib/date';
 import { useStore } from '../lib/store';
 import { PRIORITY_LABELS, RECURRENCE_LABELS, type RecurrenceUnit, type Task } from '../lib/types';
 import { Icon } from './Icon';
+import { InlineCreate } from './InlineCreate';
+import { InlineText } from './InlineText';
 
 interface Props {
   task: Task;
@@ -31,7 +33,8 @@ const keepFocus = (e: MouseEvent) => e.preventDefault();
  * user was reading.
  */
 export function TaskDetail({ task, onClose, onNudge }: Props) {
-  const { data, groupById, patchTask, removeTask, moveTask } = useStore();
+  const { data, groupById, patchTask, removeTask, moveTask, addTag, removeTag, addStep, patchStep, removeStep } =
+    useStore();
   const ids = useId();
   const [notes, setNotes] = useState(task.notes);
 
@@ -119,6 +122,47 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
                 onClick={() => setDue(null)}
               >
                 Sem prazo
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="field field--due">
+          <label className="field__label" htmlFor={`${ids}-start`}>
+            Início
+          </label>
+          <input
+            id={`${ids}-start`}
+            className="input"
+            type="date"
+            value={task.startDate ?? ''}
+            onChange={(e) => void patchTask(task.id, { startDate: e.target.value || null })}
+          />
+          <div className="detail__quick">
+            <button
+              type="button"
+              className="btn btn--sm btn--ghost"
+              onMouseDown={keepFocus}
+              onClick={() => void patchTask(task.id, { startDate: today() })}
+            >
+              Hoje
+            </button>
+            <button
+              type="button"
+              className="btn btn--sm btn--ghost"
+              onMouseDown={keepFocus}
+              onClick={() => void patchTask(task.id, { startDate: addDays(today(), 1) })}
+            >
+              Amanhã
+            </button>
+            {task.startDate && (
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onMouseDown={keepFocus}
+                onClick={() => void patchTask(task.id, { startDate: null })}
+              >
+                Sem início
               </button>
             )}
           </div>
@@ -216,6 +260,86 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
             })}
           </select>
         </div>
+
+        <div className="field field--tags">
+          <label className="field__label" id={`${ids}-tags`}>
+            Etiquetas
+          </label>
+          <div className="tag-list" role="group" aria-labelledby={`${ids}-tags`}>
+            {task.tags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                className="tag tag--removable"
+                onClick={() => void removeTag(task.id, tag)}
+                aria-label={`Remover etiqueta ${tag}`}
+                title="Remover"
+              >
+                {tag}
+                <Icon name="x" size={10} />
+              </button>
+            ))}
+            <InlineCreate
+              compact
+              label="Adicionar etiqueta"
+              placeholder="Nome da etiqueta"
+              maxLength={40}
+              onCreate={(tag) => void addTag(task.id, tag)}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="field field--steps">
+        <label className="field__label" id={`${ids}-steps`}>
+          Checklist
+        </label>
+        <ul className="steps" aria-labelledby={`${ids}-steps`}>
+          {task.steps.map((step) => (
+            <li key={step.id} className="step" data-done={step.done}>
+              <button
+                type="button"
+                className="check"
+                role="checkbox"
+                aria-checked={step.done}
+                aria-label={step.done ? `Reabrir ${step.text}` : `Concluir ${step.text}`}
+                onClick={() => void patchStep(task.id, step.id, { done: !step.done })}
+              >
+                <svg className="check__tick" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path
+                    d="M4 9.2l3.1 3.1L14 5.6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              <InlineText
+                className="step__text"
+                value={step.text}
+                ariaLabel="Texto do item"
+                maxLength={200}
+                onCommit={(text) => void patchStep(task.id, step.id, { text })}
+              />
+              <button
+                type="button"
+                className="btn btn--icon step__remove"
+                aria-label={`Excluir ${step.text}`}
+                title="Excluir"
+                onClick={() => void removeStep(task.id, step.id)}
+              >
+                <Icon name="x" size={12} />
+              </button>
+            </li>
+          ))}
+        </ul>
+        <InlineCreate
+          label="Adicionar item"
+          placeholder="Novo item"
+          maxLength={200}
+          onCreate={(text) => void addStep(task.id, text)}
+        />
       </div>
 
       <div className="detail__foot">

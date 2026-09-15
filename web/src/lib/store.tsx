@@ -115,6 +115,13 @@ interface Store {
   moveTask: (id: string, listId: string, index: number) => Promise<void>;
   clearDone: (listId: string) => Promise<void>;
 
+  addTag: (taskId: string, tag: string) => Promise<void>;
+  removeTag: (taskId: string, tag: string) => Promise<void>;
+
+  addStep: (taskId: string, text: string) => Promise<void>;
+  patchStep: (taskId: string, stepId: string, patch: D.StepPatch) => Promise<void>;
+  removeStep: (taskId: string, stepId: string) => Promise<void>;
+
   addGroup: (name: string, color: GroupColor) => Promise<string | null>;
   patchGroup: (id: string, patch: { name?: string; color?: GroupColor }) => Promise<void>;
   removeGroup: (id: string) => Promise<void>;
@@ -560,6 +567,41 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [mutate, pushToast, setDoc, syncSoon]
   );
 
+  const addTag = useCallback<Store['addTag']>(
+    async (taskId, tag) => mutate((d) => D.addTag(d, taskId, tag)),
+    [mutate]
+  );
+
+  const removeTag = useCallback<Store['removeTag']>(
+    async (taskId, tag) => mutate((d) => D.removeTag(d, taskId, tag)),
+    [mutate]
+  );
+
+  const addStep = useCallback<Store['addStep']>(
+    async (taskId, text) => mutate((d) => D.addStep(d, taskId, text)[0]),
+    [mutate]
+  );
+
+  const patchStep = useCallback<Store['patchStep']>(
+    async (taskId, stepId, patch) => mutate((d) => D.patchStep(d, taskId, stepId, patch)),
+    [mutate]
+  );
+
+  const removeStep = useCallback<Store['removeStep']>(
+    async (taskId, stepId) => {
+      const text = docRef.current?.tasks[taskId]?.steps[stepId]?.text ?? 'Item';
+      mutate((d) => D.removeStep(d, taskId, stepId));
+
+      const undo = () => {
+        mutate((d) => D.restoreStep(d, taskId, stepId));
+        undoRef.current = null;
+      };
+      undoRef.current = undo;
+      pushToast(`"${truncate(text)}" foi excluído.`, 'info', { label: 'Desfazer', run: undo });
+    },
+    [mutate, pushToast]
+  );
+
   const addGroup = useCallback<Store['addGroup']>(
     async (name, color) => {
       const current = docRef.current;
@@ -725,6 +767,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     removeTask,
     moveTask,
     clearDone,
+    addTag,
+    removeTag,
+    addStep,
+    patchStep,
+    removeStep,
     addGroup,
     patchGroup,
     removeGroup,

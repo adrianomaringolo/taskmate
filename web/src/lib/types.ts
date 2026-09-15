@@ -105,6 +105,16 @@ export interface Recurrence {
   unit: RecurrenceUnit;
 }
 
+/** One checklist item inside a task — see doc.ts's `RawTask` for why it's
+ *  keyed and tombstoned like a top-level row instead of a plain array entry. */
+export interface Step {
+  id: string;
+  text: string;
+  done: boolean;
+  order: Order;
+  deletedAt: Tombstone;
+}
+
 export interface Task {
   id: string;
   listId: string;
@@ -114,12 +124,23 @@ export interface Task {
   doneAt: string | null;
   /** `YYYY-MM-DD` — a calendar day, never an instant. */
   dueDate: string | null;
+  /**
+   * `YYYY-MM-DD`, separate from `dueDate`: when set, the task is hidden from
+   * Hoje and Próximos 7 dias until that day arrives. It still lives in its
+   * own list, unhidden — this only mutes the cross-cutting "what's relevant
+   * now" views, never the place the task actually lives.
+   */
+  startDate: string | null;
   priority: Priority;
   /**
    * Anchored to `dueDate`, which is why it is inert without one — see
    * `advanceDue` in date.ts and the completion branch in `patchTask`.
    */
   recurrence: Recurrence | null;
+  /** Free-text labels, sorted. No colour — see PRODUCT.md, "cor é estado". */
+  tags: string[];
+  /** Live, sorted checklist items — see `Step`. */
+  steps: Step[];
   order: Order;
   createdAt: string;
   updatedAt: string;

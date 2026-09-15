@@ -1037,6 +1037,92 @@ button {
   padding: 0;
 }
 
+/* ---------- tags ---------- */
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--tap-row-sm);
+}
+
+/* Pill, not the plain `.chip` text-with-icon shown in a task row's meta line:
+   here it also carries a remove affordance, so it needs a visible boundary to
+   read as one interactive unit. No colour — see PRODUCT.md, "cor é estado". */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: 3px var(--s-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+}
+
+.tag--removable:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* ---------- checklist ---------- */
+
+.field--steps {
+  margin-top: var(--s-4);
+}
+
+.steps {
+  list-style: none;
+  padding: 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 3px 0;
+}
+
+.step__text {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  resize: none;
+  padding: 2px 4px;
+  margin-left: -4px;
+  border-radius: var(--r-sm);
+}
+
+.step__text:hover {
+  background: var(--surface-2);
+}
+
+.step__text:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+  background: var(--bg);
+}
+
+.step[data-done='true'] .step__text {
+  color: var(--ink-3);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.step__remove {
+  flex: none;
+  opacity: 0;
+}
+
+.step:hover .step__remove,
+.step__remove:focus-visible {
+  opacity: 1;
+}
+
 /* ---------- done section ---------- */
 
 .done-section {
