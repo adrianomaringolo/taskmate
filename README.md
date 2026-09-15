@@ -48,12 +48,21 @@ um heartbeat de 45s enquanto a aba está visível. Aba oculta não sincroniza.
 
 Verificar metadados é barato; o arquivo só é baixado quando a revisão mudou.
 
+## CLI (acesso para scripts e agentes)
+
+`tools/cli.ts` fala com o mesmo documento pelo terminal — para automações ou
+agentes que precisam ler ou criar tarefas sem passar pelo navegador. Reaproveita
+`doc.ts` e `sync.ts` sem alterações, então uma tarefa criada por ele converge com
+o app web como se fosse um segundo dispositivo. Configuração e comandos em
+[`tools/cli/README.md`](tools/cli/README.md).
+
 ## Verificação
 
 ```bash
-npm test               # tokens de cor + convergência de sincronização
+npm test               # tokens de cor + convergência de sincronização + CLI
 npm run test:tokens    # 47 checagens de contraste e gamut sRGB
 npm run test:sync      # 12 cenários de convergência, sem navegador
+npm run test:cli       # pull/push/--create do CLI, com Drive falso
 npm run test:e2e       # 23 fluxos no navegador (precisa de `npm run dev`)
 npm run test:offline   # 10 checagens do service worker (ver abaixo)
 npm run test:rename    # 6 checagens da migração de nomes (precisa de `npm run dev`)
