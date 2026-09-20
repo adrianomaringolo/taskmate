@@ -51,19 +51,25 @@ registro de produto pede sem recorrer a sombra ou borda pesada.
 
 | Papel | Claro | Escuro |
 |---|---|---|
-| `--brand` (preenchimento, ação primária) | `oklch(0.660 0.135 62)` | `oklch(0.755 0.135 64)` |
-| `--brand-hover` | `oklch(0.615 0.140 62)` | `oklch(0.800 0.130 64)` |
-| `--brand-ink` (texto/link em cima da página) | `oklch(0.485 0.112 58)` | `oklch(0.800 0.130 64)` |
-| `--on-brand` (rótulo sobre preenchimento) | `oklch(0.240 0.030 62)` | `oklch(0.200 0.030 62)` |
+| `--brand` (preenchimento, ação primária) | `oklch(0.670 0.130 62)` | `oklch(0.790 0.130 64)` |
+| `--brand-hover` | `oklch(0.625 0.135 62)` | `oklch(0.815 0.125 64)` |
+| `--brand-ink` (texto/link em cima da página) | `oklch(0.550 0.110 58)` | `oklch(0.805 0.120 64)` |
+| `--on-brand` (rótulo sobre preenchimento) | `oklch(0.220 0.030 62)` | `oklch(0.200 0.030 62)` |
 
 Duas decisões deliberadas:
 
-1. **`--brand` no claro é L 0.660, não L 0.700.** O valor da semente (0.700)
-   dava 2.76:1 contra o branco — abaixo dos 3:1 de UI não textual, ou seja, um
-   checkbox preenchido cuja borda desaparece. 0.660 dá 3.22:1.
+1. **`--brand` no claro tem teto real: L 0.678 a essa matiz/croma.** Acima
+   disso, o preenchimento cai abaixo dos 3:1 de UI não textual contra
+   `--bg` branco puro — um checkbox preenchido cuja borda desaparece. Ficou
+   em 0.670 (3.09:1), com uma margem de segurança pequena de propósito: é
+   o mesmo teto que limita o quanto a marca pode clarear no claro, ponto
+   final — nem trocar matiz nem reduzir croma abre muito mais espaço (o
+   teto varia entre L 0.671 e L 0.682 em toda a faixa 46–90°). Foi
+   `--brand-ink` — o texto/link, sem esse piso de 3:1 não textual — quem
+   ganhou a clareada visível: de L 0.485 para L 0.550.
 2. **O rótulo sobre âmbar é tinta escura, não branco.** Branco sobre âmbar
-   L 0.66 não alcança 4.5:1 sem escurecer o âmbar até virar marrom. Tinta
-   escura sobre âmbar dá 5.13:1 e lê como latão/marca-texto, não como botão
+   não alcança 4.5:1 sem escurecer o âmbar até virar marrom. Tinta escura
+   sobre âmbar dá 5.62:1 e lê como latão/marca-texto, não como botão
    genérico colorido.
 
 ### Semântica de estado
@@ -167,7 +173,7 @@ Todo componente interativo tem os sete estados: default, hover, focus-visible,
 active, disabled, loading, error. Vocabulário único em toda a superfície.
 
 - **Foco**: `outline: 2px solid var(--focus)` com `outline-offset: 2px`. Um
-  padrão só, em tudo. `--focus` é `--brand-ink` no claro (3.6:1 contra branco).
+  padrão só, em tudo. `--focus` é `--brand-ink` no claro (5.02:1 contra branco).
 - **Botões**: raio 8px, altura 32px (compacto) / 36px (padrão). Três variantes:
   `primary` (preenchimento âmbar, tinta escura), `ghost` (transparente, hover em
   `--surface-2`), `danger` (texto vermelho, hover com tinte).

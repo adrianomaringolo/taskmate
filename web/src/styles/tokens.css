@@ -22,11 +22,11 @@
   --ink-2: oklch(0.44 0.014 255);
   --ink-3: oklch(0.545 0.014 255);
 
-  --brand: oklch(0.66 0.135 62);
-  --brand-hover: oklch(0.615 0.14 62);
-  --brand-ink: oklch(0.485 0.112 58);
-  --brand-wash: oklch(0.66 0.135 62 / 0.1);
-  --on-brand: oklch(0.24 0.03 62);
+  --brand: oklch(0.67 0.13 62);
+  --brand-hover: oklch(0.625 0.135 62);
+  --brand-ink: oklch(0.55 0.11 58);
+  --brand-wash: oklch(0.67 0.13 62 / 0.1);
+  --on-brand: oklch(0.22 0.03 62);
 
   --danger: oklch(0.53 0.2 25);
   --danger-wash: oklch(0.53 0.2 25 / 0.09);
@@ -135,10 +135,10 @@
     --illo-line: oklch(0.655 0.013 255);
     --illo-plate: oklch(0.285 0.011 255);
 
-    --brand: oklch(0.755 0.135 64);
-    --brand-hover: oklch(0.8 0.13 64);
-    --brand-ink: oklch(0.8 0.13 64);
-    --brand-wash: oklch(0.755 0.135 64 / 0.14);
+    --brand: oklch(0.79 0.13 64);
+    --brand-hover: oklch(0.815 0.125 64);
+    --brand-ink: oklch(0.805 0.12 64);
+    --brand-wash: oklch(0.79 0.13 64 / 0.14);
     --on-brand: oklch(0.2 0.03 62);
 
     --danger: oklch(0.68 0.18 25);
@@ -186,10 +186,10 @@
   --illo-line: oklch(0.655 0.013 255);
   --illo-plate: oklch(0.285 0.011 255);
 
-  --brand: oklch(0.755 0.135 64);
-  --brand-hover: oklch(0.8 0.13 64);
-  --brand-ink: oklch(0.8 0.13 64);
-  --brand-wash: oklch(0.755 0.135 64 / 0.14);
+  --brand: oklch(0.79 0.13 64);
+  --brand-hover: oklch(0.815 0.125 64);
+  --brand-ink: oklch(0.805 0.12 64);
+  --brand-wash: oklch(0.79 0.13 64 / 0.14);
   --on-brand: oklch(0.2 0.03 62);
 
   --danger: oklch(0.68 0.18 25);

@@ -13,8 +13,8 @@ const OUT = new URL('../web/public/', import.meta.url).pathname;
 // whose long arm carries up into a ray, with a detached dash just ahead of the
 // tip. Dark ink on an amber field, matching --on-brand / --brand: it reads as
 // brass/highlighter, not a generic coloured button.
-const BRAND = '#cc7d2a';
-const INK = '#2a1c10';
+const BRAND = '#cd8134';
+const INK = '#25170b';
 
 const mark = (weight: number) => `
   <path d="M3.4 10.4 5.5 12.7 11.6 4.6"

@@ -65,7 +65,7 @@ export default defineConfig({
         orientation: 'any',
         // Matches --bg and --brand in the light theme.
         background_color: '#ffffff',
-        theme_color: '#cc7d2a',
+        theme_color: '#cd8134',
         categories: ['productivity', 'utilities'],
         // Android share sheet: text/links shared to the app arrive as query
         // params on `/`, which App.tsx reads once on load and drops into the
