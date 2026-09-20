@@ -235,6 +235,12 @@ const PATHS = {
       <path d="M4.7 1.3v2.8a1.3 1.3 0 0 0 .4 .9L8 8l2.9-2.9A1.3 1.3 0 0 0 11.3 4.1V1.3" />
     </>
   ),
+  bookOpen: (
+    <>
+      <path d="M8 3.3v10.7" />
+      <path d="M13.3 12.7A1.3 1.3 0 0 0 14.7 11.3V3.3a1.3 1.3 0 0 0-1.3-1.3L10.7 2A3.3 3.3 0 0 0 8 3.3a3.3 3.3 0 0 0-2.7-1.3H2.7a1.3 1.3 0 0 0-1.3 1.3v8a1.3 1.3 0 0 0 1.3 1.3H5.3a3.3 3.3 0 0 1 2.7 1.3 3.3 3.3 0 0 1 2.7-1.3z" />
+    </>
+  ),
   /* The brand mark: a check whose long arm keeps going, up into a ray, with a
      detached dash just ahead of the tip — "done, and moving up". Deliberately
      not a checkbox square (reads as a UI control) and not three bars (reads as

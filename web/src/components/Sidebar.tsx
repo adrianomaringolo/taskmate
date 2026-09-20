@@ -15,10 +15,20 @@ interface Props {
   /** Desktop: fold the sidebar out of the layout. Mobile uses `onClose`. */
   onCollapse: () => void;
   onOpenWelcome: () => void;
+  onOpenGuide: () => void;
   onOpenAbout: () => void;
 }
 
-export function Sidebar({ view, onSelect, open, onClose, onCollapse, onOpenWelcome, onOpenAbout }: Props) {
+export function Sidebar({
+  view,
+  onSelect,
+  open,
+  onClose,
+  onCollapse,
+  onOpenWelcome,
+  onOpenGuide,
+  onOpenAbout,
+}: Props) {
   const { data, tasksByList, addGroup } = useStore();
 
   const counts = useMemo(() => {
@@ -231,6 +241,18 @@ export function Sidebar({ view, onSelect, open, onClose, onCollapse, onOpenWelco
               >
                 <Icon name="mark" />
                 Como usar o Taskmate
+              </button>
+              <button
+                type="button"
+                className="menu__item"
+                onClick={() => {
+                  close();
+                  onClose();
+                  onOpenGuide();
+                }}
+              >
+                <Icon name="bookOpen" />
+                Todas as funcionalidades
               </button>
               <button
                 type="button"
