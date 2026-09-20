@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { About } from './components/About';
 import { ContentView } from './components/ContentView';
+import { Guide } from './components/Guide';
 import { Icon } from './components/Icon';
 import { Menu } from './components/Menu';
 import { Preferences } from './components/Preferences';
@@ -75,6 +76,7 @@ function Shell() {
   // time this component first renders on a slow connection.
   const [welcomeOpen, setWelcomeOpen] = useState(() => readPref(ONBOARDING_KEY) !== '1');
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   const [prefsOpen, setPrefsOpen] = useState(false);
   // Desktop only: the drawer (`drawerOpen`) still drives the phone layout. The
   // two never fight — a media query decides which one is visually in effect.
@@ -234,6 +236,7 @@ function Shell() {
         onClose={() => setDrawerOpen(false)}
         onCollapse={collapseSidebar}
         onOpenWelcome={() => setWelcomeOpen(true)}
+        onOpenGuide={() => setGuideOpen(true)}
         onOpenAbout={() => setAboutOpen(true)}
       />
 
@@ -378,6 +381,7 @@ function Shell() {
 
       <Toasts />
       <Welcome open={welcomeOpen} onClose={closeWelcome} />
+      <Guide open={guideOpen} onClose={() => setGuideOpen(false)} />
       <About open={aboutOpen} onClose={() => setAboutOpen(false)} />
       <Preferences
         open={prefsOpen}

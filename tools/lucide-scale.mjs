@@ -24,11 +24,50 @@ function num(n) {
 }
 
 // Splits an SVG path `d` string into [command, ...rawNumberStrings] tokens.
+//
+// Arc (`A`/`a`) parameters are the one place a naive number regex breaks:
+// the large-arc-flag and sweep-flag are each exactly one digit (0 or 1), and
+// SVG allows writing them with no separator before the next token — "00-1.999"
+// is flag 0, flag 0, then the number -1.999, not the number 00 followed by
+// -1.999. A regex greedy enough to tokenize ordinary numbers is *always*
+// greedy enough to swallow "00" as one number here, which then shifts every
+// remaining parameter in the path by one and produces silent garbage (this
+// is not hypothetical — `book-open` hits it). So arcs are walked with a
+// dedicated single-character read for those two slots instead of the
+// generic number matcher.
 function tokenizePath(d) {
   const tokens = [];
-  const re = /([MLHVACSQTZmlhvacsqtz])|(-?\d*\.?\d+(?:e[+-]?\d+)?)/g;
-  let m;
-  while ((m = re.exec(d))) tokens.push(m[1] ?? m[2]);
+  const numRe = /-?\d*\.?\d+(?:e[+-]?\d+)?/y;
+  const flagRe = /[01]/y;
+  let i = 0;
+  let cmd = null;
+  let paramIndex = 0; // position within the current command's parameter group
+
+  const skipSep = () => {
+    while (i < d.length && /[\s,]/.test(d[i])) i++;
+  };
+
+  while (i < d.length) {
+    skipSep();
+    if (i >= d.length) break;
+    if (/[MLHVACSQTZmlhvacsqtz]/.test(d[i])) {
+      cmd = d[i];
+      paramIndex = 0;
+      tokens.push(cmd);
+      i++;
+      continue;
+    }
+    // Arc flags sit at parameter slots 3 and 4 of every 7-number group; every
+    // other command's parameters are ordinary numbers.
+    const isFlagSlot = cmd && cmd.toUpperCase() === 'A' && (paramIndex % 7 === 3 || paramIndex % 7 === 4);
+    const re = isFlagSlot ? flagRe : numRe;
+    re.lastIndex = i;
+    const m = re.exec(d);
+    if (!m) throw new Error(`Could not parse "${d}" at position ${i}`);
+    tokens.push(m[0]);
+    i = re.lastIndex;
+    paramIndex++;
+  }
   return tokens;
 }
 

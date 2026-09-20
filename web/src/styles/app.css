@@ -2394,6 +2394,51 @@ button {
   color: var(--ink-3);
 }
 
+/* ---------- guide (complete reference) ---------- */
+
+.guide {
+  width: min(640px, calc(100vw - var(--s-4) * 2));
+  padding: var(--s-5);
+}
+
+.guide__section {
+  margin-top: var(--s-5);
+}
+
+.guide__heading {
+  font-size: var(--t-md);
+  font-weight: 650;
+  margin-bottom: var(--s-2);
+}
+
+.guide__body {
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.guide__body + .guide__body {
+  margin-top: var(--s-2);
+}
+
+.guide__list {
+  margin: var(--s-2) 0 0;
+  padding-left: 1.2em;
+  color: var(--ink-2);
+  display: grid;
+  gap: var(--s-1);
+}
+
+.guide__list strong {
+  color: var(--ink);
+}
+
+.guide__tokens {
+  margin: var(--s-3) 0;
+  padding: var(--s-3);
+  background: var(--surface);
+  border-radius: var(--r-md);
+}
+
 /* A board card is too narrow to expand its detail panel inline the way a
    list row does, so it opens in a dialog instead — same shared .dialog
    base as Welcome/About. */
