@@ -11,9 +11,12 @@
   },
   "dependencies": {
     "@automerge/automerge": "^3.4.1",
+    "dompurify": "^3.4.15",
     "fractional-indexing": "^4.0.0",
+    "lucide-react": "^1.47.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-html-content-editor": "^2.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.20.1",

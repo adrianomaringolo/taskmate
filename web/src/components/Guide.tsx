@@ -163,9 +163,13 @@ export function Guide({ open, onClose }: Props) {
         <h3 className="guide__heading">Notas</h3>
         <p className="guide__body">
           Para o que não é tarefa — uma referência, uma ideia solta, algo para guardar sem prazo nem
-          conclusão. Título, corpo em texto livre e etiquetas: as mesmas etiquetas das tarefas,
-          mesmo vocabulário, buscável junto. Sem lista nem grupo — nada aqui exige endereço antes de
-          ser escrito.
+          conclusão. Título, corpo com formatação simples e etiquetas: as mesmas etiquetas das
+          tarefas, mesmo vocabulário, buscável junto. Sem lista nem grupo — nada aqui exige
+          endereço antes de ser escrito.
+        </p>
+        <p className="guide__body">
+          O corpo aceita negrito, itálico, sublinhado, títulos e marcadores — só isso, de propósito.
+          Nada de tabelas, imagens ou links: uma nota continua rápida de escrever e de ler.
         </p>
       </section>
 

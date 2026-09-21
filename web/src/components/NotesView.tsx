@@ -1,4 +1,18 @@
+import DOMPurify from 'dompurify';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import {
+  Wysiwyg,
+  WysiwygBold,
+  WysiwygContent,
+  WysiwygHeading,
+  WysiwygItalic,
+  WysiwygParagraph,
+  WysiwygSeparator,
+  WysiwygToolbar,
+  WysiwygUnderline,
+  WysiwygUnorderedList,
+} from 'react-html-content-editor';
+import 'react-html-content-editor/dist/style.css';
 import { describeStamp } from '../lib/date';
 import { useStore } from '../lib/store';
 import type { Note } from '../lib/types';
@@ -6,6 +20,19 @@ import { EmptyState } from './EmptyState';
 import { Icon } from './Icon';
 import { InlineCreate } from './InlineCreate';
 import { InlineText } from './InlineText';
+
+/**
+ * Only what the toolbar below can actually produce, plus the structural tags
+ * a paragraph/line break needs. Anything else — a pasted table, an image, a
+ * link, inline styles — is stripped rather than smuggled in through paste:
+ * "apenas formatação simples" is a content rule, not just a toolbar one, and
+ * this is also the app's XSS backstop for HTML a device did not itself write
+ * (contentEditable renders whatever it's given as real DOM).
+ */
+const NOTE_BODY_ALLOWED_TAGS = ['b', 'strong', 'i', 'em', 'u', 'h1', 'h2', 'h3', 'ul', 'li', 'p', 'br', 'div'];
+
+const sanitizeNoteBody = (html: string): string =>
+  DOMPurify.sanitize(html, { ALLOWED_TAGS: NOTE_BODY_ALLOWED_TAGS, ALLOWED_ATTR: [] });
 
 /**
  * Flat, tag-only — no list or group to choose, matching PRODUCT.md's
@@ -102,7 +129,7 @@ export function NoteCard({ note }: { note: Note }) {
   useEffect(() => setBody(note.body), [note.id, note.body]);
 
   const commitBody = useCallback(() => {
-    if (body !== note.body) void patchNote(note.id, { body });
+    if (body !== note.body) void patchNote(note.id, { body: sanitizeNoteBody(body) });
   }, [body, note.body, note.id, patchNote]);
 
   // Same autosave-while-typing discipline as a task's notes field: the body
@@ -139,14 +166,23 @@ export function NoteCard({ note }: { note: Note }) {
         </button>
       </div>
 
-      <textarea
-        className="textarea note__body"
-        value={body}
-        placeholder="Escreva aqui…"
-        aria-label="Corpo da nota"
-        onChange={(e) => setBody(e.target.value)}
-        onBlur={commitBody}
-      />
+      <div className="note__body" onBlur={commitBody}>
+        <Wysiwyg value={body} onChange={setBody} className="note__editor">
+          <WysiwygToolbar aria-label="Formatação">
+            <WysiwygHeading level={1} title="Título 1" />
+            <WysiwygHeading level={2} title="Título 2" />
+            <WysiwygHeading level={3} title="Título 3" />
+            <WysiwygParagraph title="Texto normal" />
+            <WysiwygSeparator />
+            <WysiwygBold title="Negrito" />
+            <WysiwygItalic title="Itálico" />
+            <WysiwygUnderline title="Sublinhado" />
+            <WysiwygSeparator />
+            <WysiwygUnorderedList title="Lista com marcadores" />
+          </WysiwygToolbar>
+          <WysiwygContent placeholder="Escreva aqui…" minHeight="80px" aria-label="Corpo da nota" />
+        </Wysiwyg>
+      </div>
 
       <div className="note__foot">
         <div className="tag-list" role="group" aria-labelledby={`${ids}-tags`}>
