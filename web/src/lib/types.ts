@@ -147,11 +147,29 @@ export interface Task {
   deletedAt: Tombstone;
 }
 
+/**
+ * A note: free-form text with tags, no list/group address and none of a
+ * task's scheduling fields. Captura, not triagem — see PRODUCT.md's "a
+ * hierarquia é navegação, não formulário". Tags are the same free-text
+ * labels tasks use, so one vocabulary covers both.
+ */
+export interface Note {
+  id: string;
+  title: string;
+  body: string;
+  tags: string[];
+  order: Order;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: Tombstone;
+}
+
 /** The live projection the UI renders: tombstones filtered out, sorted. */
 export interface AppState {
   groups: Group[];
   lists: List[];
   tasks: Task[];
+  notes: Note[];
 }
 
 export type CalendarMode = 'month' | 'week' | 'day';
@@ -166,4 +184,5 @@ export type View =
   | { kind: 'insights' }
   | { kind: 'trash' }
   | { kind: 'calendar'; mode: CalendarMode; date: string }
-  | { kind: 'search'; query: string };
+  | { kind: 'search'; query: string }
+  | { kind: 'notes' };

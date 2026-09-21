@@ -9,6 +9,7 @@ import { Icon } from './Icon';
 import { InlineText } from './InlineText';
 import { InsightsView } from './InsightsView';
 import { Menu } from './Menu';
+import { NoteCard, NotesView } from './NotesView';
 import { QuickAdd } from './QuickAdd';
 import { TaskRow } from './TaskRow';
 
@@ -93,13 +94,14 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
   if (view.kind === 'review') return <ReviewView labelFor={labelFor} />;
   if (view.kind === 'insights') return <InsightsView onSelect={onSelect} labelFor={labelFor} />;
   if (view.kind === 'trash') return <TrashView />;
+  if (view.kind === 'notes') return <NotesView />;
 
   const inbox = data.lists.find((l) => l.isInbox);
   const t = today();
 
   if (view.kind === 'search') {
     const q = normalize(view.query);
-    const matches = q
+    const taskMatches = q
       ? data.tasks.filter(
           (task) =>
             normalize(task.title).includes(q) ||
@@ -107,26 +109,44 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
             task.tags.some((tag) => normalize(tag) === q)
         )
       : [];
+    const noteMatches = q
+      ? data.notes.filter(
+          (note) =>
+            normalize(note.title).includes(q) ||
+            normalize(note.body).includes(q) ||
+            note.tags.some((tag) => normalize(tag) === q)
+        )
+      : [];
+    const total = taskMatches.length + noteMatches.length;
 
     return (
       <div className="main__inner">
         <header className="view-head">
           <p className="view-head__crumb">Busca</p>
-          <h1 className="view-head__title">{view.query ? `“${view.query}”` : 'Buscar tarefas'}</h1>
+          <h1 className="view-head__title">{view.query ? `“${view.query}”` : 'Buscar tarefas e notas'}</h1>
           <p className="view-head__sub">
             {!view.query
-              ? 'Digite acima para procurar em títulos e notas.'
-              : `${matches.length} ${matches.length === 1 ? 'resultado' : 'resultados'}`}
+              ? 'Digite acima para procurar em tarefas e notas.'
+              : `${total} ${total === 1 ? 'resultado' : 'resultados'}`}
           </p>
         </header>
 
-        {view.query && matches.length === 0 ? (
+        {view.query && total === 0 ? (
           <EmptyState illustration="not-found" title="Nada encontrado">
-            A busca cobre títulos e notas, sem diferenciar acentos ou maiúsculas. Talvez a tarefa
+            A busca cobre títulos, notas e etiquetas, sem diferenciar acentos ou maiúsculas. Talvez
             esteja com outro nome.
           </EmptyState>
         ) : (
-          <FlatList tasks={sortByDue(matches)} labelFor={labelFor} />
+          <>
+            {taskMatches.length > 0 && <FlatList tasks={sortByDue(taskMatches)} labelFor={labelFor} />}
+            {noteMatches.length > 0 && (
+              <ul className="notes">
+                {noteMatches.map((note) => (
+                  <NoteCard key={note.id} note={note} />
+                ))}
+              </ul>
+            )}
+          </>
         )}
       </div>
     );
@@ -503,14 +523,14 @@ function TrashView() {
         <p className="view-head__sub">
           {trash.length === 0
             ? 'Nada foi excluído.'
-            : `${trash.length} ${trash.length === 1 ? 'tarefa' : 'tarefas'}`}
+            : `${trash.length} ${trash.length === 1 ? 'item' : 'itens'}`}
         </p>
       </header>
 
       {trash.length === 0 ? (
         <EmptyState illustration="inbox-empty" title="A lixeira está vazia">
-          Tarefas excluídas ficam aqui em vez de sumir. Restaurar traz a tarefa de volta — e a
-          lista e o grupo dela também, se tiverem sido excluídos junto.
+          Tarefas e notas excluídas ficam aqui em vez de sumir. Restaurar traz o item de volta — e,
+          para uma tarefa, a lista e o grupo dela também, se tiverem sido excluídos junto.
         </EmptyState>
       ) : (
         <ul className="trash">
@@ -519,13 +539,13 @@ function TrashView() {
               <div className="trash__body">
                 <span className="trash__title">{item.title || 'Sem título'}</span>
                 <span className="trash__meta">
-                  {item.listName} · excluída em {describeStamp(item.deletedAt)}
+                  {item.subtitle} · excluída em {describeStamp(item.deletedAt)}
                 </span>
               </div>
               <button
                 type="button"
                 className="btn btn--sm btn--ghost"
-                onClick={() => void restoreFromTrash(item.id)}
+                onClick={() => void restoreFromTrash(item)}
               >
                 <Icon name="undo" size={14} />
                 Restaurar

@@ -154,6 +154,19 @@ export function Sidebar({
           <button
             type="button"
             className="row"
+            aria-current={view.kind === 'notes'}
+            onClick={() => onSelect({ kind: 'notes' })}
+          >
+            <span className="row__icon">
+              <Icon name="notepadText" />
+            </span>
+            <span className="row__label">Notas</span>
+            {data.notes.length > 0 && <span className="row__count">{data.notes.length}</span>}
+          </button>
+
+          <button
+            type="button"
+            className="row"
             aria-current={view.kind === 'insights'}
             onClick={() => onSelect({ kind: 'insights' })}
           >

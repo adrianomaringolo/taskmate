@@ -124,7 +124,10 @@ export function Guide({ open, onClose }: Props) {
             <strong>Calendário</strong> — mês, semana ou dia.
           </li>
           <li>
-            <strong>Busca</strong> — título, notas e etiquetas.
+            <strong>Busca</strong> — tarefas e notas, por título, corpo e etiquetas.
+          </li>
+          <li>
+            <strong>Notas</strong> — captura livre com etiquetas, sem lista ou grupo obrigatório.
           </li>
         </ul>
       </section>
@@ -157,6 +160,16 @@ export function Guide({ open, onClose }: Props) {
       </section>
 
       <section className="guide__section">
+        <h3 className="guide__heading">Notas</h3>
+        <p className="guide__body">
+          Para o que não é tarefa — uma referência, uma ideia solta, algo para guardar sem prazo nem
+          conclusão. Título, corpo em texto livre e etiquetas: as mesmas etiquetas das tarefas,
+          mesmo vocabulário, buscável junto. Sem lista nem grupo — nada aqui exige endereço antes de
+          ser escrito.
+        </p>
+      </section>
+
+      <section className="guide__section">
         <h3 className="guide__heading">Sincronizar entre dispositivos</h3>
         <p className="guide__body">
           Opcional, por um único arquivo no seu Google Drive. Sem servidor nosso, sem tabela de
@@ -175,11 +188,11 @@ export function Guide({ open, onClose }: Props) {
       </section>
 
       <section className="guide__section">
-        <h3 className="guide__heading">Nunca perder uma tarefa</h3>
+        <h3 className="guide__heading">Nunca perder uma tarefa (ou nota)</h3>
         <p className="guide__body">
           Excluir tem desfazer na hora (<kbd className="kbd">Ctrl</kbd> + <kbd className="kbd">Z</kbd>
-          ), e tudo o que foi excluído continua na Lixeira, restaurável quando quiser. Nada é
-          apagado de verdade.
+          ), e tudo o que foi excluído — tarefa ou nota — continua na Lixeira, restaurável quando
+          quiser. Nada é apagado de verdade.
         </p>
       </section>
 

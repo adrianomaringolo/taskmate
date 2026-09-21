@@ -37,7 +37,8 @@ function readView(): View {
       parsed.kind === 'upcoming' ||
       parsed.kind === 'review' ||
       parsed.kind === 'insights' ||
-      parsed.kind === 'trash'
+      parsed.kind === 'trash' ||
+      parsed.kind === 'notes'
     )
       return { kind: parsed.kind };
     if (parsed.kind === 'list' && typeof parsed.listId === 'string')
@@ -276,7 +277,7 @@ function Shell() {
               type="search"
               value={query}
               placeholder="Buscar"
-              aria-label="Buscar tarefas"
+              aria-label="Buscar tarefas e notas"
               onChange={(e) => {
                 const next = e.target.value;
                 setQuery(next);
