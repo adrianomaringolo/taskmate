@@ -523,6 +523,110 @@ await test('checklist e etiquetas funcionam numa tarefa gravada antes desses cam
   );
 });
 
+await test('notas criadas offline em dois dispositivos convergem', async () => {
+  const store = new FakeStore();
+  const a = new Device('A', store);
+  const b = new Device('B', store);
+
+  a.edit((d) => doc.addNote(d, { title: 'da A' })[0]);
+  b.edit((d) => doc.addNote(d, { title: 'da B' })[0]);
+
+  await a.sync();
+  await b.sync();
+  await a.sync();
+
+  const titlesA = a.state().notes.map((n) => n.title).sort();
+  const titlesB = b.state().notes.map((n) => n.title).sort();
+  assertSame(titlesA, ['da A', 'da B'], 'A não tem as duas notas');
+  assertSame(titlesB, ['da A', 'da B'], 'B não tem as duas notas');
+  assertSame(a.state(), b.state(), 'as projeções divergem');
+});
+
+await test('etiquetas concorrentes numa nota não se sobrescrevem', async () => {
+  const store = new FakeStore();
+  const a = new Device('A', store);
+  const [withNote, noteId] = doc.addNote(a.doc, { title: 'com etiquetas' });
+  a.doc = withNote;
+  await a.sync();
+  const b = new Device('B', store);
+  await b.sync();
+
+  a.edit((d) => doc.addNoteTag(d, noteId, '@referencia'));
+  b.edit((d) => doc.addNoteTag(d, noteId, '@ideia'));
+
+  await a.sync();
+  await b.sync();
+  await a.sync();
+
+  const na = a.state().notes.find((n) => n.id === noteId)!;
+  const nb = b.state().notes.find((n) => n.id === noteId)!;
+  assertSame(na.tags, ['@ideia', '@referencia'], 'A perdeu uma das duas tags');
+  assertSame(nb.tags, ['@ideia', '@referencia'], 'B perdeu uma das duas tags');
+});
+
+await test('excluir uma nota num dispositivo e editar no outro não a ressuscita', async () => {
+  const store = new FakeStore();
+  const a = new Device('A', store);
+  const [withNote, noteId] = doc.addNote(a.doc, { title: 'condenada' });
+  a.doc = withNote;
+  await a.sync();
+  const b = new Device('B', store);
+  await b.sync();
+
+  a.edit((d) => doc.removeNote(d, noteId));
+  b.edit((d) => doc.patchNote(d, noteId, { body: 'editada offline' }));
+
+  await a.sync();
+  await b.sync();
+  await a.sync();
+
+  const titlesA = a.state().notes.map((n) => n.title);
+  const titlesB = b.state().notes.map((n) => n.title);
+  assert(!titlesA.includes('condenada'), 'a nota voltou em A');
+  assert(!titlesB.includes('condenada'), 'a nota voltou em B');
+  assertSame(a.state(), b.state(), 'as projeções divergem');
+});
+
+await test('notas não vazam para a projeção de tarefas, nem tarefas para a de notas', async () => {
+  // Notes are rows in the same `tasks` collection, filed under a reserved
+  // listId (see doc.ts's NOTE_LIST_ID) rather than a collection of their
+  // own — a brand-new top-level collection cannot be introduced safely into
+  // a document real devices have already diverged from. This is the split
+  // that guards against a regression collapsing the two projections back
+  // into one list.
+  const a = new Device('A', new FakeStore());
+  const [withTask, taskId] = doc.addTask(a.doc, { listId: listOf(a), title: 'tarefa normal' });
+  const [withNote, noteId] = doc.addNote(withTask, { title: 'nota normal' });
+  a.doc = doc.addNoteTag(withNote, noteId, '@ideia');
+
+  assertSame(a.state().tasks.map((t) => t.id), [taskId], 'a nota vazou para a lista de tarefas');
+  assertSame(a.state().notes.map((n) => n.id), [noteId], 'a tarefa vazou para a lista de notas');
+  const note = a.state().notes[0]!;
+  assertSame(note.tags, ['@ideia'], 'a etiqueta não pegou na nota');
+  assert(!('notes' in a.doc), 'notas deixaram de reusar a coleção tasks — este teste ficou obsoleto');
+});
+
+await test('a lixeira classifica tarefas e notas excluídas corretamente', async () => {
+  const a = new Device('A', new FakeStore());
+  const [withTask, taskId] = doc.addTask(a.doc, { listId: listOf(a), title: 'tarefa condenada' });
+  const [withNote, noteId] = doc.addNote(withTask, { title: 'nota condenada' });
+  a.doc = doc.removeTask(withNote, taskId);
+  a.doc = doc.removeNote(a.doc, noteId);
+
+  const trash = doc.projectTrash(a.doc);
+  const task = trash.find((i) => i.id === taskId)!;
+  const note = trash.find((i) => i.id === noteId)!;
+  assertSame(task.kind, 'task', 'a tarefa excluída não foi classificada como task');
+  assertSame(note.kind, 'note', 'a nota excluída não foi classificada como note');
+  assertSame(note.subtitle, 'Nota', 'a nota excluída não tem o subtítulo esperado');
+
+  a.doc = doc.restoreNoteDeep(a.doc, noteId);
+  assert(
+    a.state().notes.some((n) => n.id === noteId),
+    'a nota não voltou depois de restaurada'
+  );
+});
+
 console.log(
   failures === 0
     ? `\nTodos os cenários de convergência passaram.`

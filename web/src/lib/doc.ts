@@ -6,6 +6,7 @@ import type {
   Group,
   GroupColor,
   List,
+  Note,
   Order,
   Priority,
   Recurrence,
@@ -52,6 +53,15 @@ interface RawTask extends Omit<Task, 'tags' | 'steps'> {
   tags: Record<string, true>;
   steps: Record<string, Step>;
 }
+
+/**
+ * Notes are rows in the *tasks* collection, not a collection of their own —
+ * see the big comment above `NOTE_LIST_ID` for why. `title` and `tags` are
+ * reused as-is; `notes` (the task's free-text field) doubles as the note's
+ * body.
+ */
+const NOTE_LIST_ID = '__note__';
+const isNoteRow = (t: { listId: string }): boolean => t.listId === NOTE_LIST_ID;
 
 export type Doc = A.Doc<TaskmateDoc>;
 
@@ -131,8 +141,10 @@ const alive = <T extends { deletedAt: string | null }>(row: T) => row.deletedAt 
 export function project(doc: Doc): AppState {
   const groups = Object.values(doc.groups).filter(alive).map(plainGroup).sort(byOrder);
   const lists = Object.values(doc.lists).filter(alive).map(plainList).sort(byOrder);
-  const tasks = Object.values(doc.tasks).filter(alive).map(plainTask).sort(byOrder);
-  return { groups, lists, tasks };
+  const rows = Object.values(doc.tasks).filter(alive);
+  const tasks = rows.filter((t) => !isNoteRow(t)).map(plainTask).sort(byOrder);
+  const notes = rows.filter(isNoteRow).map(plainNote).sort(byOrder);
+  return { groups, lists, tasks, notes };
 }
 
 // Automerge hands back proxies; the UI gets plain frozen-free objects so React
@@ -182,6 +194,17 @@ const plainTask = (t: RawTask): Task => ({
   // `?? {}` / `?? {}`: same, for documents written before tags/steps existed.
   tags: Object.keys(t.tags ?? {}).sort(),
   steps: Object.values(t.steps ?? {}).filter(alive).map(plainStep).sort(byOrder),
+  order: t.order,
+  createdAt: t.createdAt,
+  updatedAt: t.updatedAt,
+  deletedAt: t.deletedAt,
+});
+
+const plainNote = (t: RawTask): Note => ({
+  id: t.id,
+  title: t.title,
+  body: t.notes,
+  tags: Object.keys(t.tags ?? {}).sort(),
   order: t.order,
   createdAt: t.createdAt,
   updatedAt: t.updatedAt,
@@ -637,6 +660,72 @@ export function removeTag(doc: Doc, taskId: string, tag: string): Doc {
   });
 }
 
+/**
+ * Every tag in use, across tasks and notes, for the autocomplete on both —
+ * one vocabulary since a tag is just a string with no owner, and notes are
+ * rows in this same collection (see `NOTE_LIST_ID`). Sorted, deduped.
+ */
+export function allTags(doc: Doc): string[] {
+  const set = new Set<string>();
+  for (const t of Object.values(doc.tasks)) {
+    if (!alive(t)) continue;
+    for (const tag of Object.keys(t.tags ?? {})) set.add(tag);
+  }
+  return [...set].sort((a, b) => a.localeCompare(b));
+}
+
+// --- notes ------------------------------------------------------------
+//
+// A note is a task row filed under the reserved `NOTE_LIST_ID`, reusing
+// `title` and the task's free-text `notes` field (as the body) — never a
+// collection of its own. The reason is structural, not stylistic:
+//
+// A brand-new top-level Automerge collection cannot be introduced safely
+// into a document that real devices have already diverged from — two
+// devices that have never synced with each other would each independently
+// create their own, unrelated "notes" map the first time either one writes
+// a note, and merging two independently-created objects at the same key
+// keeps one and silently discards the other and everything nested inside
+// it (Automerge map-key conflict, not a merge). The only fix for that is a
+// shared ancestor — which is exactly what the seed exists for (see
+// `tools/gen-seed.mjs`) — but re-baking the seed is not an option for a
+// document format already in the wild: any device holding a document built
+// from the old seed shares no history with one built from a new seed, and
+// merging those two is the same silent-data-loss failure at the root
+// instead of one key down.
+//
+// `tasks` has been part of the seed since the very first release, so every
+// device already shares it — a new row in it is exactly as safe as any
+// other task ever created (see the very first scenario in sync.test.ts).
+// Piggybacking on it sidesteps the whole problem instead of accepting a
+// narrower version of it.
+
+export interface NewNote {
+  title?: string;
+  body?: string;
+}
+
+export function addNote(doc: Doc, input: NewNote): [Doc, string] {
+  return addTask(doc, { listId: NOTE_LIST_ID, title: input.title ?? '', notes: input.body ?? '' });
+}
+
+export interface NotePatch {
+  title?: string;
+  body?: string;
+}
+
+export function patchNote(doc: Doc, id: string, patch: NotePatch): Doc {
+  return patchTask(doc, id, {
+    ...(patch.title !== undefined ? { title: patch.title } : {}),
+    ...(patch.body !== undefined ? { notes: patch.body } : {}),
+  });
+}
+
+export const removeNote = (doc: Doc, id: string): Doc => removeTask(doc, id);
+export const restoreNote = (doc: Doc, id: string): Doc => restoreTask(doc, id);
+export const addNoteTag = (doc: Doc, noteId: string, tag: string): Doc => addTag(doc, noteId, tag);
+export const removeNoteTag = (doc: Doc, noteId: string, tag: string): Doc => removeTag(doc, noteId, tag);
+
 // --- checklist steps -------------------------------------------------------
 
 export function addStep(doc: Doc, taskId: string, text: string): [Doc, string | null] {
@@ -696,31 +785,46 @@ export function restoreStep(doc: Doc, taskId: string, stepId: string): Doc {
 
 // --- trash -------------------------------------------------------------
 
-/** A tombstoned task, for the Lixeira view. `listName` may name a dead list. */
+/**
+ * A tombstoned task or note, for the Lixeira view. `subtitle` names the dead
+ * task's list, or reads "Nota" for a note — notes have no list to name.
+ */
 export interface TrashItem {
+  kind: 'task' | 'note';
   id: string;
   title: string;
-  listName: string;
+  subtitle: string;
   /** Non-null by construction — this is what `deletedAt` was set to. */
   deletedAt: string;
 }
 
 /**
- * Every tombstoned task, newest deletion first. Tombstones are never purged
- * (see the README), so this is also the full history of what was removed — the
- * point of the view is that "nunca perder uma tarefa" is something you can see,
- * not just a promise in the sync layer.
+ * Every tombstoned task and note, newest deletion first. Tombstones are never
+ * purged (see the README), so this is also the full history of what was
+ * removed — the point of the view is that "nunca perder uma tarefa" is
+ * something you can see, not just a promise in the sync layer.
  */
 export function projectTrash(doc: Doc): TrashItem[] {
-  return Object.values(doc.tasks)
+  const items: TrashItem[] = Object.values(doc.tasks)
     .filter((t) => t.deletedAt !== null)
-    .map((t) => ({
-      id: t.id,
-      title: t.title,
-      listName: doc.lists[t.listId]?.name ?? 'Lista removida',
-      deletedAt: t.deletedAt as string,
-    }))
-    .sort((a, b) => (a.deletedAt < b.deletedAt ? 1 : -1));
+    .map((t) =>
+      isNoteRow(t)
+        ? {
+            kind: 'note' as const,
+            id: t.id,
+            title: t.title || t.notes,
+            subtitle: 'Nota',
+            deletedAt: t.deletedAt as string,
+          }
+        : {
+            kind: 'task' as const,
+            id: t.id,
+            title: t.title,
+            subtitle: doc.lists[t.listId]?.name ?? 'Lista removida',
+            deletedAt: t.deletedAt as string,
+          }
+    );
+  return items.sort((a, b) => (a.deletedAt < b.deletedAt ? 1 : -1));
 }
 
 /**
@@ -749,6 +853,14 @@ export function restoreTaskDeep(doc: Doc, id: string): Doc {
     }
   });
 }
+
+/**
+ * Restores a note from the trash. Plain `restoreTask` would also be correct
+ * here — `NOTE_LIST_ID` never matches a real list, so its list-revival step
+ * is always a no-op for a note — but a dedicated name keeps the call site in
+ * store.tsx honest about which kind it is restoring.
+ */
+export const restoreNoteDeep = (doc: Doc, id: string): Doc => restoreTask(doc, id);
 
 // --- serialisation ------------------------------------------------------
 

@@ -33,8 +33,19 @@ const keepFocus = (e: MouseEvent) => e.preventDefault();
  * user was reading.
  */
 export function TaskDetail({ task, onClose, onNudge }: Props) {
-  const { data, groupById, patchTask, removeTask, moveTask, addTag, removeTag, addStep, patchStep, removeStep } =
-    useStore();
+  const {
+    data,
+    groupById,
+    patchTask,
+    removeTask,
+    moveTask,
+    addTag,
+    removeTag,
+    addStep,
+    patchStep,
+    removeStep,
+    allTags,
+  } = useStore();
   const ids = useId();
   const [notes, setNotes] = useState(task.notes);
 
@@ -284,6 +295,7 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
               label="Adicionar etiqueta"
               placeholder="Nome da etiqueta"
               maxLength={40}
+              suggestions={allTags.filter((t) => !task.tags.includes(t))}
               onCreate={(tag) => void addTag(task.id, tag)}
             />
           </div>

@@ -87,9 +87,12 @@ interface Store {
   notify: (text: string, kind?: Toast['kind'], action?: ToastAction) => void;
   undoLast: () => void;
 
-  /** Tombstoned tasks, newest deletion first — the Lixeira view. */
+  /** Tombstoned tasks and notes, newest deletion first — the Lixeira view. */
   trash: D.TrashItem[];
-  restoreFromTrash: (id: string) => Promise<void>;
+  restoreFromTrash: (item: D.TrashItem) => Promise<void>;
+
+  /** Every tag in use across tasks and notes, for the tag-field autocomplete. */
+  allTags: string[];
 
   sync: {
     configured: boolean;
@@ -131,6 +134,12 @@ interface Store {
   patchList: (id: string, patch: { name?: string }) => Promise<void>;
   removeList: (id: string) => Promise<void>;
   moveList: (id: string, groupId: string, index: number) => Promise<void>;
+
+  addNote: (input?: D.NewNote) => Promise<string | null>;
+  patchNote: (id: string, patch: D.NotePatch) => Promise<void>;
+  removeNote: (id: string) => Promise<void>;
+  addNoteTag: (noteId: string, tag: string) => Promise<void>;
+  removeNoteTag: (noteId: string, tag: string) => Promise<void>;
 }
 
 /** Fields the quick-add parser can pull out of a capture string. */
@@ -150,7 +159,7 @@ const toNewTask = (i: { title: string } & CaptureOpts): D.NewTask => ({
 
 const StoreContext = createContext<Store | null>(null);
 
-const EMPTY: AppState = { groups: [], lists: [], tasks: [] };
+const EMPTY: AppState = { groups: [], lists: [], tasks: [], notes: [] };
 
 function readCollapsed(): Set<string> {
   try {
@@ -685,12 +694,56 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const undoLast = useCallback(() => undoRef.current?.(), []);
 
   const restoreFromTrash = useCallback<Store['restoreFromTrash']>(
-    async (id) => {
-      const title = docRef.current?.tasks[id]?.title ?? 'Tarefa';
-      mutate((d) => D.restoreTaskDeep(d, id));
-      notify(`"${truncate(title)}" foi restaurada.`);
+    async (item) => {
+      mutate((d) => (item.kind === 'note' ? D.restoreNoteDeep(d, item.id) : D.restoreTaskDeep(d, item.id)));
+      notify(`"${truncate(item.title || 'Sem título')}" foi restaurada.`);
     },
     [mutate, notify]
+  );
+
+  // --- notes ------------------------------------------------------------
+
+  const addNote = useCallback<Store['addNote']>(
+    async (input) => {
+      const current = docRef.current;
+      if (!current) return null;
+      const [next, id] = D.addNote(current, input ?? {});
+      setDoc(next);
+      syncSoon();
+      return id;
+    },
+    [setDoc, syncSoon]
+  );
+
+  const patchNote = useCallback<Store['patchNote']>(
+    async (id, patch) => mutate((d) => D.patchNote(d, id, patch)),
+    [mutate]
+  );
+
+  const removeNote = useCallback<Store['removeNote']>(
+    async (id) => {
+      const note = docRef.current?.tasks[id];
+      const title = note?.title || note?.notes || 'Nota';
+      mutate((d) => D.removeNote(d, id));
+
+      const undo = () => {
+        mutate((d) => D.restoreNote(d, id));
+        undoRef.current = null;
+      };
+      undoRef.current = undo;
+      pushToast(`"${truncate(title)}" foi excluída.`, 'info', { label: 'Desfazer', run: undo });
+    },
+    [mutate, pushToast]
+  );
+
+  const addNoteTag = useCallback<Store['addNoteTag']>(
+    async (noteId, tag) => mutate((d) => D.addNoteTag(d, noteId, tag)),
+    [mutate]
+  );
+
+  const removeNoteTag = useCallback<Store['removeNoteTag']>(
+    async (noteId, tag) => mutate((d) => D.removeNoteTag(d, noteId, tag)),
+    [mutate]
   );
 
   // --- sync controls --------------------------------------------------
@@ -734,6 +787,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // exactly what the trash needs to keep.
   const trash = useMemo(() => (doc ? D.projectTrash(doc) : []), [doc]);
 
+  const allTags = useMemo(() => (doc ? D.allTags(doc) : []), [doc]);
+
   const value: Store = {
     status,
     loadError,
@@ -749,6 +804,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     undoLast,
     trash,
     restoreFromTrash,
+    allTags,
     sync: {
       configured: isConfigured(),
       connected: meta.fileId !== null,
@@ -780,6 +836,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     patchList,
     removeList,
     moveList,
+    addNote,
+    patchNote,
+    removeNote,
+    addNoteTag,
+    removeNoteTag,
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

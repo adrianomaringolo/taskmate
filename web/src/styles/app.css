@@ -1123,6 +1123,63 @@ button {
   opacity: 1;
 }
 
+/* ---------- notes ---------- */
+
+.notes {
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-4) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.note__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+}
+
+.note__title {
+  flex: 1;
+  font-weight: 600;
+}
+
+.note__delete {
+  flex: none;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+.note:hover .note__delete,
+.note__delete:focus-visible {
+  opacity: 1;
+}
+
+.note__body {
+  min-height: 44px;
+  max-width: none;
+}
+
+.note__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.note__stamp {
+  flex: none;
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+}
+
 /* ---------- done section ---------- */
 
 .done-section {

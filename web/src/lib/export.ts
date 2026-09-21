@@ -3,7 +3,8 @@ import { RECURRENCE_LABELS, type AppState, type Task } from './types';
 /**
  * The whole document as a Markdown outline: `##` per group (Entrada first),
  * `###` per list, one `- [ ]` / `- [x]` per task with prazo, prioridade and
- * recorrência in parentheses, and notes indented beneath.
+ * recorrência in parentheses, and notes indented beneath. A final `## Notas`
+ * section lists the free-standing notes feature, one bullet per note.
  *
  * The synced file on Drive is opaque Automerge binary; `PRODUCT.md` says the
  * user owns their data, and a plain-text export is what makes that true — it
@@ -48,6 +49,18 @@ export function toMarkdown(data: AppState): string {
     if (!hasTasks) continue;
     out.push(`## ${group.name}`, '');
     for (const list of lists) renderList(list.name, list.id, '###');
+  }
+
+  if (data.notes.length > 0) {
+    out.push('## Notas', '');
+    for (const note of data.notes) {
+      const meta = note.tags.length > 0 ? ` (${note.tags.join(', ')})` : '';
+      out.push(`- **${note.title || 'Sem título'}**${meta}`);
+      if (note.body.trim()) {
+        for (const line of note.body.split('\n')) out.push(`  ${line}`.trimEnd());
+      }
+    }
+    out.push('');
   }
 
   return `${out.join('\n').trim()}\n`;
