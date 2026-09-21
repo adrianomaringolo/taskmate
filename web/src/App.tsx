@@ -56,6 +56,26 @@ function readView(): View {
   return TODAY;
 }
 
+/**
+ * Joins the OS share sheet's title/text/url into one string, `title` first
+ * — it's the real page or article title when the source app sets one (most
+ * browsers do), so it leads instead of getting buried after a duplicate.
+ * Many apps also just mirror the same string into more than one field (or
+ * set `text` to the same `url`), so each part is skipped once its content is
+ * already covered by what came before, rather than always concatenating all
+ * three.
+ */
+function joinShared(title: string | null, text: string | null, url: string | null): string {
+  const parts: string[] = [];
+  for (const raw of [title, text, url]) {
+    const v = raw?.trim();
+    if (!v) continue;
+    if (parts.some((p) => p.toLowerCase().includes(v.toLowerCase()))) continue;
+    parts.push(v);
+  }
+  return parts.join(' ').trim();
+}
+
 export default function App() {
   return (
     <StoreProvider>
@@ -171,11 +191,7 @@ function Shell() {
   useEffect(() => {
     if (sharedHandled.current || status !== 'ready') return;
     const params = new URLSearchParams(location.search);
-    const shared = [params.get('title'), params.get('text'), params.get('url')]
-      .map((v) => v?.trim())
-      .filter(Boolean)
-      .join(' ')
-      .trim();
+    const shared = joinShared(params.get('title'), params.get('text'), params.get('url'));
     if (!shared) return;
 
     sharedHandled.current = true;

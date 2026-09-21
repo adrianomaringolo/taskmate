@@ -125,8 +125,19 @@ export function NoteCard({ note }: { note: Note }) {
   const { patchNote, removeNote, addNoteTag, removeNoteTag, allTags } = useStore();
   const ids = useId();
   const [body, setBody] = useState(note.body);
+  // The editor (toolbar included) only mounts once the body is clicked —
+  // otherwise every note in the list carries its own toolbar permanently,
+  // which reads as "always editing" rather than a list of things written
+  // down. Reading a note stays a plain, uncluttered render.
+  const [editing, setEditing] = useState(false);
+  const bodyWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setBody(note.body), [note.id, note.body]);
+
+  useEffect(() => {
+    if (!editing) return;
+    bodyWrapRef.current?.querySelector<HTMLElement>('[contenteditable="true"]')?.focus();
+  }, [editing]);
 
   const commitBody = useCallback(() => {
     if (body !== note.body) void patchNote(note.id, { body: sanitizeNoteBody(body) });
@@ -134,6 +145,8 @@ export function NoteCard({ note }: { note: Note }) {
 
   // Same autosave-while-typing discipline as a task's notes field: the body
   // survives a closed tab instead of waiting for a blur that may never come.
+  // Saving does not itself close the editor — that would kick the cursor out
+  // mid-sentence every 600ms.
   useEffect(() => {
     if (body === note.body) return;
     const timer = setTimeout(commitBody, 600);
@@ -143,6 +156,11 @@ export function NoteCard({ note }: { note: Note }) {
   const flushRef = useRef(commitBody);
   flushRef.current = commitBody;
   useEffect(() => () => flushRef.current(), []);
+
+  const stopEditing = useCallback(() => {
+    commitBody();
+    setEditing(false);
+  }, [commitBody]);
 
   return (
     <li className="note">
@@ -166,23 +184,44 @@ export function NoteCard({ note }: { note: Note }) {
         </button>
       </div>
 
-      <div className="note__body" onBlur={commitBody}>
-        <Wysiwyg value={body} onChange={setBody} className="note__editor">
-          <WysiwygToolbar aria-label="Formatação">
-            <WysiwygHeading level={1} title="Título 1" />
-            <WysiwygHeading level={2} title="Título 2" />
-            <WysiwygHeading level={3} title="Título 3" />
-            <WysiwygParagraph title="Texto normal" />
-            <WysiwygSeparator />
-            <WysiwygBold title="Negrito" />
-            <WysiwygItalic title="Itálico" />
-            <WysiwygUnderline title="Sublinhado" />
-            <WysiwygSeparator />
-            <WysiwygUnorderedList title="Lista com marcadores" />
-          </WysiwygToolbar>
-          <WysiwygContent placeholder="Escreva aqui…" minHeight="80px" aria-label="Corpo da nota" />
-        </Wysiwyg>
-      </div>
+      {editing ? (
+        <div className="note__body" ref={bodyWrapRef} onBlur={stopEditing}>
+          <Wysiwyg value={body} onChange={setBody} className="note__editor">
+            <WysiwygToolbar aria-label="Formatação">
+              <WysiwygHeading level={1} title="Título 1" />
+              <WysiwygHeading level={2} title="Título 2" />
+              <WysiwygHeading level={3} title="Título 3" />
+              <WysiwygParagraph title="Texto normal" />
+              <WysiwygSeparator />
+              <WysiwygBold title="Negrito" />
+              <WysiwygItalic title="Itálico" />
+              <WysiwygUnderline title="Sublinhado" />
+              <WysiwygSeparator />
+              <WysiwygUnorderedList title="Lista com marcadores" />
+            </WysiwygToolbar>
+            <WysiwygContent placeholder="Escreva aqui…" minHeight="80px" aria-label="Corpo da nota" />
+          </Wysiwyg>
+        </div>
+      ) : (
+        <div
+          className="note__body note__preview"
+          role="button"
+          tabIndex={0}
+          aria-label="Editar corpo da nota"
+          onClick={() => setEditing(true)}
+          onKeyDown={(e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            setEditing(true);
+          }}
+        >
+          {note.body ? (
+            <div dangerouslySetInnerHTML={{ __html: sanitizeNoteBody(note.body) }} />
+          ) : (
+            <span className="note__preview-empty">Escreva aqui…</span>
+          )}
+        </div>
+      )}
 
       <div className="note__foot">
         <div className="tag-list" role="group" aria-labelledby={`${ids}-tags`}>
