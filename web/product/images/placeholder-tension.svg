@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 600" role="img" aria-labelledby="ph-tension-title">
+  <title id="ph-tension-title">Espaço reservado para foto (Pexels): uma mesa com formulários, post-its e um app de configuração aberto — a "taxa de configuração" que o Taskmate evita.</title>
+  <defs>
+    <linearGradient id="ph-tension-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4ede2"/>
+      <stop offset="1" stop-color="#e7d9c4"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="600" rx="20" fill="url(#ph-tension-grad)"/>
+  <rect x="0.5" y="0.5" width="479" height="599" rx="19.5" fill="none" stroke="#d8c6a8" stroke-width="1"/>
+  <g transform="translate(190,250)" stroke="#a3763f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <rect x="0" y="0" width="100" height="76" rx="8"/>
+    <circle cx="26" cy="26" r="10"/>
+    <path d="M0 60 28 34 52 54 72 30 100 58"/>
+  </g>
+  <text x="240" y="372" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" fill="#8a6a3e" letter-spacing="0.4">foto · pexels</text>
+</svg>

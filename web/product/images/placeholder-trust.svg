@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 820" role="img" aria-labelledby="ph-trust-title">
+  <title id="ph-trust-title">Espaço reservado para foto (Pexels): duas telas (celular e notebook) lado a lado, sugerindo sincronização entre dispositivos.</title>
+  <defs>
+    <linearGradient id="ph-trust-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#efe6d6"/>
+      <stop offset="1" stop-color="#dfcdaa"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="820" fill="url(#ph-trust-grad)"/>
+  <g transform="translate(668,304)" stroke="#93733f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <rect x="0" y="0" width="150" height="212" rx="14"/>
+    <line x1="60" y1="192" x2="90" y2="192"/>
+    <rect x="200" y="60" width="264" height="164" rx="10"/>
+    <line x1="200" y1="224" x2="464" y2="224"/>
+    <path d="M150 106 200 106" stroke-dasharray="6 8"/>
+  </g>
+  <text x="800" y="600" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#7a5c30" letter-spacing="0.5">foto · pexels</text>
+</svg>

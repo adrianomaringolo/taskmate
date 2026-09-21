@@ -19,10 +19,10 @@
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ------------------------------------------------------------- chrome --
-  // The fixed top bar's real height, so a pinned act's sticky stage (CSS,
-  // under the "@media (max-width: 860px)" block) can stick just below it
-  // instead of behind it. Measured, not hardcoded: the bar's content (and
-  // so its height) can change with font loading or text reflow.
+  // The fixed top bar's real height, so a pinned act's sticky stage (see
+  // .sc-stage in site.css) can stick just below it instead of behind it.
+  // Measured, not hardcoded: the bar's content (and so its height) can
+  // change with font loading, text reflow, or the 720px nav breakpoint.
   (function railHeight() {
     var rail = document.querySelector('.tm-rail');
     if (!rail) return;

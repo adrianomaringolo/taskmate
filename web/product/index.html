@@ -51,7 +51,6 @@
   </a>
 
   <div class="tm-nav">
-    <p class="tm-nav__label">Visões</p>
     <a href="#hero">Hoje</a>
     <a href="#turn">Entrada</a>
     <a href="#substance">Notas</a>
@@ -105,9 +104,16 @@
     </div>
   </section>
 
-  <!-- 2 · TENSION: flow. Trailing anchor, varied from the hero's leading one. -->
+  <!-- 2 · TENSION: flow. Trailing anchor, varied from the hero's leading one.
+       The photo on the leading side is a placeholder graphic (a Pexels
+       search — free-to-use, no attribution required — could not be fetched
+       from this build environment; images/placeholder-tension.svg is a
+       stand-in for a real photo of a cluttered desk / a setup form, same
+       spot, same aspect ratio). The prose stays trailing-anchored so the
+       pairing reads as offset, not a centered two-column block. -->
   <section class="sc-section">
-    <div class="sc-wrap" style="display:flex; justify-content:flex-end;">
+    <div class="sc-wrap tm-tension">
+      <img class="tm-tension__photo" src="./images/placeholder-tension.svg" width="480" height="600" loading="lazy" alt="Espaço reservado para foto (Pexels): mesa com formulários e post-its — a configuração que a maioria dos apps de tarefas cobra antes de deixar você escrever.">
       <div class="tm-prose sc-stack" data-sc-in data-sc-stagger="70">
         <h2 class="sc-display sc-display--md">Toda ferramenta de tarefas cobra uma decisão antes de deixar você escrever alguma coisa.</h2>
         <p class="sc-body">Qual lista, qual projeto, qual prioridade, se cadastra ou entra com o Google primeiro. É por isso que a maioria para de ser usada em poucas semanas: capturar deveria levar cinco segundos, não um formulário.</p>
@@ -202,9 +208,15 @@
   </section>
 
   <!-- 6 · TRUST: flow, a real number outside any act so it fires once on
-       entry. One eyebrow, the only one on the page. -->
-  <section class="sc-section">
-    <div class="sc-wrap sc-stack" data-sc-in data-sc-stagger="70">
+       entry. One eyebrow, the only one on the page.
+       Background photo is a placeholder graphic (same reason as the tension
+       section above) standing in for a real photo of two devices side by
+       side; kept low-contrast under the scrim so it reads as texture, not
+       a subject. -->
+  <section class="sc-section tm-trust">
+    <img class="tm-trust__photo" src="./images/placeholder-trust.svg" loading="lazy" alt="" aria-hidden="true">
+    <div class="tm-trust__scrim" aria-hidden="true"></div>
+    <div class="sc-wrap sc-stack tm-trust__content" data-sc-in data-sc-stagger="70">
       <p class="sc-label">Verificado, não prometido</p>
       <div class="tm-stat">
         <span class="sc-nums tm-stat__num" data-sc-count="0 21">0</span>

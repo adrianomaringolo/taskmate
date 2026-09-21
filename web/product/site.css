@@ -31,8 +31,6 @@
   --tm-line-strong: oklch(0.845 0.008 255);
   --tm-danger: oklch(0.53 0.2 25);
   --tm-success: oklch(0.53 0.12 152);
-
-  --tm-rail-w: 248px;
 }
 
 body {
@@ -40,21 +38,20 @@ body {
 }
 
 /* ------------------------------------------------------------- chrome --
-   The nav is the app's own sidebar, not a marketing bar — a live surface
-   forbids the wordmark-plus-CTA header this skill defaults to elsewhere.
+   A slim top bar, not a wide fixed sidebar: this is a marketing page, not
+   the app's own screen, and a 248px column reserved on every viewport read
+   like an admin panel rather than a page meant to be read and scrolled.
    Real anchor links, real destinations, present the whole page. */
 .tm-rail {
   position: fixed;
-  inset: 0 auto 0 0;
-  width: var(--tm-rail-w);
-  padding: var(--sc-6) var(--sc-5);
+  inset: 0 0 auto 0;
   display: flex;
-  flex-direction: column;
-  gap: var(--sc-7);
+  align-items: center;
+  gap: var(--sc-5);
+  padding: var(--sc-3) var(--sc-gutter);
   background: var(--sc-surface);
-  border-right: 1px solid var(--tm-line);
+  border-bottom: 1px solid var(--tm-line);
   z-index: var(--sc-z-chrome);
-  overflow-y: auto;
 }
 
 .tm-brand {
@@ -66,6 +63,7 @@ body {
   font-size: var(--sc-t-lg);
   color: var(--sc-ink);
   text-decoration: none;
+  flex: none;
 }
 
 .tm-brand__mark {
@@ -75,23 +73,13 @@ body {
 
 .tm-nav {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: var(--sc-1);
-}
-
-.tm-nav__label {
-  font-family: var(--sc-font-mono);
-  font-size: var(--sc-t-xs);
-  letter-spacing: var(--sc-track-wide);
-  text-transform: uppercase;
-  color: var(--sc-ink-soft);
-  margin: 0 0 var(--sc-2);
 }
 
 .tm-nav a {
   display: block;
   padding: var(--sc-2) var(--sc-3);
-  margin-inline: calc(var(--sc-3) * -1);
   border-radius: var(--sc-r-md);
   color: var(--sc-ink-soft);
   text-decoration: none;
@@ -103,12 +91,10 @@ body {
 .tm-nav a.tm-is-current { background: color-mix(in oklab, var(--sc-accent) 12%, transparent); color: var(--sc-accent-ink); font-weight: 600; }
 
 .tm-rail__foot {
-  margin-top: auto;
+  margin-left: auto;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: var(--sc-2);
-  padding-top: var(--sc-5);
-  border-top: 1px solid var(--tm-line);
 }
 
 .tm-rail__foot a {
@@ -116,7 +102,6 @@ body {
   align-items: center;
   gap: var(--sc-2);
   padding: var(--sc-2) var(--sc-3);
-  margin-inline: calc(var(--sc-3) * -1);
   border-radius: var(--sc-r-md);
   color: var(--sc-ink-soft);
   text-decoration: none;
@@ -132,37 +117,23 @@ body {
 }
 .tm-rail__foot a.tm-cta:hover { background: color-mix(in oklab, var(--sc-accent) 88%, black); }
 
-/* Content sits clear of the fixed rail on desktop; the rail collapses to a
-   slim top bar on phones (below), where fixed side chrome has no room. */
-main { margin-left: var(--tm-rail-w); }
+/* Content sits clear of the fixed top bar; site.js measures its real height
+   into --tm-rail-h rather than assuming one, since the bar's content (and
+   so its height) can shift with font loading or a breakpoint change. */
+main { margin-top: var(--tm-rail-h, 56px); }
 
-@media (max-width: 860px) {
-  .tm-rail {
-    inset: 0 0 auto 0;
-    width: auto;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    padding: var(--sc-3) var(--sc-gutter);
-    gap: var(--sc-4);
-    border-right: none;
-    border-bottom: 1px solid var(--tm-line);
-    overflow: visible;
-  }
-  .tm-nav, .tm-nav__label { display: none; }
-  .tm-rail__foot { margin-top: 0; padding-top: 0; border-top: none; flex-direction: row; }
+/* A pinned act's stage sticks to the viewport's own top edge, which sits
+   under the fixed bar. Without this, a pin's content scrolls up behind the
+   bar instead of stopping below it. */
+.sc-stage {
+  top: var(--tm-rail-h, 56px);
+  height: calc(100vh - var(--tm-rail-h, 56px));
+  height: calc(100svh - var(--tm-rail-h, 56px));
+}
+
+@media (max-width: 720px) {
+  .tm-nav { display: none; }
   .tm-rail__foot a span.tm-label-long { display: none; }
-  main { margin-left: 0; margin-top: var(--tm-rail-h, 56px); }
-
-  /* A pinned act's stage sticks to the viewport's own top edge, which on
-     phones sits under the fixed top bar (site.js measures its real height
-     into --tm-rail-h). Without this, a pin's content scrolls up behind the
-     bar instead of stopping below it. */
-  .sc-stage {
-    top: var(--tm-rail-h, 56px);
-    height: calc(100vh - var(--tm-rail-h, 56px));
-    height: calc(100svh - var(--tm-rail-h, 56px));
-  }
 }
 
 /* ---------------------------------------------------------------- hero -- */
@@ -171,6 +142,7 @@ main { margin-left: var(--tm-rail-w); }
   gap: var(--sc-6);
   width: 100%;
   max-width: 40rem;
+  margin-inline: auto;
   padding-inline: var(--sc-gutter);
 }
 
@@ -247,10 +219,30 @@ main { margin-left: var(--tm-rail-w); }
 }
 
 /* ----------------------------------------------------------- tension --- */
+.tm-tension {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sc-7);
+}
+.tm-tension__photo {
+  flex: none;
+  width: min(18rem, 34vw);
+  aspect-ratio: 4 / 5;
+  height: auto;
+  border-radius: var(--sc-r-lg);
+  box-shadow: var(--sc-e2);
+  object-fit: cover;
+}
 .tm-prose {
   max-width: 46ch;
 }
 .tm-prose > * + * { margin-top: var(--sc-4); }
+
+@media (max-width: 720px) {
+  .tm-tension { flex-direction: column; align-items: stretch; justify-content: flex-start; }
+  .tm-tension__photo { width: 100%; max-width: 20rem; align-self: center; }
+}
 
 /* --------------------------------------------------------------- turn -- */
 .tm-turn {
@@ -356,6 +348,18 @@ main { margin-left: var(--tm-rail-w); }
 .tm-prop p { color: var(--sc-ink-soft); margin: 0; font-size: var(--sc-t-sm); }
 
 /* --------------------------------------------------------------- trust -- */
+.tm-trust { position: relative; overflow: hidden; }
+.tm-trust__photo {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.16;
+}
+.tm-trust__scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, var(--sc-canvas) 0%, color-mix(in oklab, var(--sc-canvas) 88%, transparent) 60%, var(--sc-canvas) 100%);
+}
+.tm-trust__content { position: relative; }
 .tm-stat { display: flex; align-items: baseline; gap: var(--sc-3); }
 .tm-stat__num { font-family: var(--sc-font-display); font-weight: 650; font-size: var(--sc-t-4xl); color: var(--sc-accent-ink); letter-spacing: var(--sc-track-tight); }
 
