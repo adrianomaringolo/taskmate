@@ -1161,9 +1161,32 @@ button {
   opacity: 1;
 }
 
-.note__body {
-  min-height: 44px;
-  max-width: none;
+/*
+ * `react-html-content-editor`'s own theming hook: it reads these custom
+ * properties rather than hardcoding colours, so mapping them once to this
+ * app's tokens is enough — no per-theme override needed, since --brand etc.
+ * already change under the dark-mode blocks in tokens.css.
+ */
+.note__editor {
+  --color-primary: var(--brand);
+  --color-border: var(--line-strong);
+  --color-error: var(--danger);
+  --color-success: var(--success);
+  --bg-primary: var(--bg);
+  --bg-secondary: var(--surface);
+  --bg-muted: var(--surface-2);
+  --text-primary: var(--ink);
+  --text-secondary: var(--ink-2);
+  --text-muted: var(--ink-3);
+  --spacing-1: var(--s-1);
+  --spacing-2: var(--s-2);
+  --spacing-3: var(--s-3);
+  --spacing-4: var(--s-4);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  font-family: var(--font);
+  font-size: var(--t-base);
 }
 
 .note__foot {

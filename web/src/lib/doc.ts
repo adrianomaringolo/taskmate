@@ -63,6 +63,24 @@ interface RawTask extends Omit<Task, 'tags' | 'steps'> {
 const NOTE_LIST_ID = '__note__';
 const isNoteRow = (t: { listId: string }): boolean => t.listId === NOTE_LIST_ID;
 
+/**
+ * A note's body is HTML (see `Guide.tsx`'s Notas section); this is the plain,
+ * single-line summary used wherever a note is named rather than read — the
+ * Lixeira row, an undo toast. Not a real HTML parser, just enough to drop
+ * tags and collapse whitespace; the editor is the only writer of this HTML
+ * and always produces the same small, sanitized tag set.
+ */
+export function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export type Doc = A.Doc<TaskmateDoc>;
 
 export const SCHEMA = 1;
@@ -812,7 +830,7 @@ export function projectTrash(doc: Doc): TrashItem[] {
         ? {
             kind: 'note' as const,
             id: t.id,
-            title: t.title || t.notes,
+            title: t.title || stripHtml(t.notes),
             subtitle: 'Nota',
             deletedAt: t.deletedAt as string,
           }

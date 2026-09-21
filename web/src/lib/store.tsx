@@ -723,7 +723,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const removeNote = useCallback<Store['removeNote']>(
     async (id) => {
       const note = docRef.current?.tasks[id];
-      const title = note?.title || note?.notes || 'Nota';
+      const title = note?.title || (note?.notes ? D.stripHtml(note.notes) : '') || 'Nota';
       mutate((d) => D.removeNote(d, id));
 
       const undo = () => {

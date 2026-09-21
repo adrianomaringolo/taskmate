@@ -56,12 +56,43 @@ export function toMarkdown(data: AppState): string {
     for (const note of data.notes) {
       const meta = note.tags.length > 0 ? ` (${note.tags.join(', ')})` : '';
       out.push(`- **${note.title || 'Sem título'}**${meta}`);
-      if (note.body.trim()) {
-        for (const line of note.body.split('\n')) out.push(`  ${line}`.trimEnd());
+      const body = noteBodyToMarkdown(note.body);
+      if (body) {
+        for (const line of body.split('\n')) out.push(`  ${line}`.trimEnd());
       }
     }
     out.push('');
   }
 
   return `${out.join('\n').trim()}\n`;
+}
+
+/**
+ * A note's body is HTML from the rich-text editor (see NotesView.tsx),
+ * restricted to a small tag set on purpose — this only needs to round-trip
+ * that set to Markdown, not handle arbitrary HTML: `**bold**`, `*italic*`,
+ * `_underline_`, `#`/`##`/`###` headings, `- ` bullets.
+ */
+function noteBodyToMarkdown(html: string): string {
+  return html
+    .replace(/<(h[1-3])>/gi, (_m, tag: string) => `\n${'#'.repeat(Number(tag[1]))} `)
+    .replace(/<\/h[1-3]>/gi, '\n')
+    .replace(/<li>/gi, '- ')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<\/?ul>/gi, '')
+    .replace(/<\/?(p|div)>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/?(b|strong)>/gi, '**')
+    .replace(/<\/?(i|em)>/gi, '*')
+    .replace(/<\/?u>/gi, '_')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .split('\n')
+    .map((line) => line.trim())
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
