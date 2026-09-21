@@ -58,7 +58,7 @@
   </div>
 
   <div class="tm-rail__foot">
-    <a href="https://github.com/adrianomaringolo/taskmate" target="_blank" rel="noopener noreferrer">
+    <a class="tm-github" href="https://github.com/adrianomaringolo/taskmate" target="_blank" rel="noopener noreferrer">
       <span class="tm-label-long">Código aberto</span>
       <span aria-hidden="true">GitHub</span>
     </a>
@@ -69,9 +69,13 @@
 <main id="top">
 
   <!-- 1 · RECOGNITION: pin. The surface already at rest — no title, no claim,
-       the interface's own idiom (labels, a status line). -->
+       the interface's own idiom (labels, a status line). tm-hero--pair sets
+       the card and caption side by side past ~1040px, leading card / trailing
+       caption — the same asymmetry the tension section uses with its photo,
+       so the page has one running rhythm instead of a centered column
+       floating in unused width on wide screens. -->
   <section id="hero" data-sc-act="pin" data-sc-span="2.4">
-    <div data-sc-stage class="tm-hero">
+    <div data-sc-stage class="tm-hero tm-hero--pair">
       <div class="tm-surface">
         <div class="tm-surface__head">
           <div>
@@ -153,7 +157,7 @@
   <!-- 4 · SUBSTANCE: pin. The peak — the one interaction this page asks the
        reader to actually perform before the close does. -->
   <section id="substance" data-sc-act="pin" data-sc-span="2.6">
-    <div data-sc-stage class="tm-hero">
+    <div data-sc-stage class="tm-hero tm-hero--pair">
       <div class="tm-note">
         <p class="tm-note__title">Ideia para o cliente X</p>
         <div class="tm-note__toolbar" role="toolbar" aria-label="Formatação">

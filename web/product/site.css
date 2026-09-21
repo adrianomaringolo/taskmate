@@ -63,6 +63,7 @@ body {
   font-size: var(--sc-t-lg);
   color: var(--sc-ink);
   text-decoration: none;
+  white-space: nowrap;
   flex: none;
 }
 
@@ -74,6 +75,7 @@ body {
 .tm-nav {
   display: flex;
   flex-direction: row;
+  flex: none;
   gap: var(--sc-1);
 }
 
@@ -84,6 +86,7 @@ body {
   color: var(--sc-ink-soft);
   text-decoration: none;
   font-size: var(--sc-t-sm);
+  white-space: nowrap;
   transition: background var(--sc-d-fast) var(--sc-ease-out), color var(--sc-d-fast) var(--sc-ease-out);
 }
 
@@ -92,6 +95,7 @@ body {
 
 .tm-rail__foot {
   margin-left: auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--sc-2);
@@ -107,6 +111,7 @@ body {
   text-decoration: none;
   font-size: var(--sc-t-sm);
 }
+.tm-rail__foot a:not(.tm-cta) { white-space: nowrap; }
 .tm-rail__foot a:hover { background: var(--tm-line); color: var(--sc-ink); }
 
 .tm-rail__foot a.tm-cta {
@@ -131,9 +136,17 @@ main { margin-top: var(--tm-rail-h, 56px); }
   height: calc(100svh - var(--tm-rail-h, 56px));
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1000px) {
   .tm-nav { display: none; }
   .tm-rail__foot a span.tm-label-long { display: none; }
+}
+
+/* At the narrowest supported phones (~320-360px) brand + GitHub + CTA no
+   longer fit on one line even with the CTA free to wrap; the GitHub link
+   is the one link with an equivalent elsewhere on the page (the footer
+   nav), so it is what gives way. */
+@media (max-width: 370px) {
+  .tm-rail__foot a.tm-github { display: none; }
 }
 
 /* ---------------------------------------------------------------- hero -- */
@@ -152,6 +165,20 @@ main { margin-top: var(--tm-rail-h, 56px); }
   max-width: 34ch;
 }
 .tm-hero__caption strong { color: var(--sc-ink); font-weight: 600; }
+
+/* Past ~1040px a single 40rem column leaves roughly half the viewport idle.
+   The card and caption sit side by side instead — leading card, trailing
+   caption, the same asymmetry the tension section's photo/prose pair uses —
+   rather than widening the card past the real app's own 46rem reading
+   column (DESIGN.md), which this section is a faithful recreation of. */
+@media (min-width: 1040px) {
+  .tm-hero--pair {
+    grid-template-columns: minmax(0, 25rem) minmax(0, 20rem);
+    column-gap: var(--sc-8);
+    align-items: center;
+    max-width: 54rem;
+  }
+}
 
 .tm-surface {
   background: var(--sc-canvas);
