@@ -5,6 +5,7 @@ import { Guide } from './components/Guide';
 import { Icon } from './components/Icon';
 import { Menu } from './components/Menu';
 import { Preferences } from './components/Preferences';
+import { ShareIntake } from './components/ShareIntake';
 import { Sidebar } from './components/Sidebar';
 import { SyncPanel } from './components/SyncPanel';
 import { Toasts } from './components/Toasts';
@@ -64,7 +65,7 @@ export default function App() {
 }
 
 function Shell() {
-  const { data, status, addTask, undoLast, notify } = useStore();
+  const { data, status, addTask, addNote, undoLast, notify } = useStore();
   const { choice, setChoice } = useTheme();
   const { vision, setVision } = useA11y();
   const [weekStart, setWeekStartState] = useState<WeekStart>(readWeekStart);
@@ -79,6 +80,7 @@ function Shell() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [prefsOpen, setPrefsOpen] = useState(false);
+  const [pendingShare, setPendingShare] = useState<string | null>(null);
   // Desktop only: the drawer (`drawerOpen`) still drives the phone layout. The
   // two never fight — a media query decides which one is visually in effect.
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => readPref(SIDEBAR_KEY) === '1');
@@ -161,9 +163,10 @@ function Shell() {
   }, []);
 
   // Android share sheet: the PWA is registered as a share target in the
-  // manifest, which hands us the shared text as query params on `/`. Drop it
-  // into the inbox, land on the inbox so the capture is visible, then scrub the
-  // URL so a reload does not re-add it.
+  // manifest, which hands us the shared text (a link, an Instagram post, …)
+  // as query params on `/`. Offer a choice instead of deciding for the user
+  // — a shared link is as often "read later" (a note) as "do something about
+  // this" (a task) — then scrub the URL so a reload does not reopen it.
   const sharedHandled = useRef(false);
   useEffect(() => {
     if (sharedHandled.current || status !== 'ready') return;
@@ -177,12 +180,33 @@ function Shell() {
 
     sharedHandled.current = true;
     history.replaceState(null, '', location.pathname);
-    const inbox = data.lists.find((l) => l.isInbox);
-    if (!inbox) return;
-    void addTask(inbox.id, shared.slice(0, 300));
-    select({ kind: 'list', listId: inbox.id });
-    notify('Adicionado na Entrada.');
-  }, [status, data.lists, addTask, notify, select]);
+    // The share dialog and the first-visit tour are both modal; stacking
+    // them is a broken first impression for someone who has just targeted
+    // the app from a share sheet — they already know what it does.
+    setWelcomeOpen(false);
+    writePref(ONBOARDING_KEY, '1');
+    setPendingShare(shared.slice(0, 2000));
+  }, [status]);
+
+  const saveSharedAsTask = useCallback(
+    (text: string) => {
+      const inbox = data.lists.find((l) => l.isInbox);
+      if (!inbox) return;
+      void addTask(inbox.id, text.slice(0, 300));
+      select({ kind: 'list', listId: inbox.id });
+      notify('Adicionado na Entrada.');
+    },
+    [data.lists, addTask, notify, select]
+  );
+
+  const saveSharedAsNote = useCallback(
+    (text: string) => {
+      void addNote({ title: text });
+      select({ kind: 'notes' });
+      notify('Nota criada.');
+    },
+    [addNote, notify, select]
+  );
 
   // Marking "seen" on close, not on open, means reloading mid-tour on a
   // first visit shows it again instead of losing it to a half-read state.
@@ -394,6 +418,13 @@ function Shell() {
         onVision={setVision}
         weekStart={weekStart}
         onWeekStart={changeWeekStart}
+      />
+      <ShareIntake
+        open={pendingShare !== null}
+        content={pendingShare ?? ''}
+        onSaveAsTask={saveSharedAsTask}
+        onSaveAsNote={saveSharedAsNote}
+        onDismiss={() => setPendingShare(null)}
       />
     </div>
   );
