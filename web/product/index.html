@@ -1,0 +1,251 @@
+<!doctype html>
+<!--
+  Taskmate /product — built with the scroll-craft skill
+  (github.com/nateherkai/scroll-craft, MIT, see SCROLLCRAFT-LICENSE.txt).
+
+  Grammar: live surface (skill references/uniqueness.md §2.3). Taskmate's own
+  pitch is "watch what it does" — local-first, no account, one file on your
+  own Drive — so the page shows the real interface doing real things instead
+  of photography, footage or a generated world. Tokens are tokens.css's own
+  light palette; this is the product's visual language, not a separate site
+  skin.
+
+  Journey: recognition (the surface already at rest) → tension (what
+  configuration-first tools cost you) → turn (scattered thoughts become one
+  list) → substance (the notes editor, live) → range (five honest
+  properties) → trust (a real, verifiable number) → commitment (write your
+  own first task and watch it parse, then go use the app).
+
+  Signature move: the closing capture field runs an actual port of the
+  app's own natural-language rules (web/src/lib/parse.ts) against whatever
+  the visitor types, live — not a canned animation.
+
+  Peak: substance. The notes card is the one moment this page asks the
+  visitor to do something with their hands before the close does — click,
+  and the toolbar is genuinely there, genuinely working.
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Taskmate: o gerenciador de tarefas que já está fazendo alguma coisa</title>
+<meta name="description" content="Um gerenciador de tarefas local-first: sem conta, sem servidor, sincroniza pelo seu próprio Google Drive. Veja funcionando antes de instalar.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23cd8134' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.4 10.4 5.5 12.7 11.6 4.6'/%3E%3Cpath d='M12.9 2.9 13.9 1.6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,650&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./scrollcraft.css">
+<link rel="stylesheet" href="./site.css">
+</head>
+<body>
+
+<span data-sc-progress></span>
+
+<nav class="tm-rail" aria-label="Navegação">
+  <a class="tm-brand" href="#top">
+    <svg class="tm-brand__mark" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3.4 10.4 5.5 12.7 11.6 4.6"/>
+      <path d="M12.9 2.9 13.9 1.6"/>
+    </svg>
+    Taskmate
+  </a>
+
+  <div class="tm-nav">
+    <p class="tm-nav__label">Visões</p>
+    <a href="#hero">Hoje</a>
+    <a href="#turn">Entrada</a>
+    <a href="#substance">Notas</a>
+    <a href="#range">Sobre o app</a>
+  </div>
+
+  <div class="tm-rail__foot">
+    <a href="https://github.com/adrianomaringolo/taskmate" target="_blank" rel="noopener noreferrer">
+      <span class="tm-label-long">Código aberto</span>
+      <span aria-hidden="true">GitHub</span>
+    </a>
+    <a class="tm-cta" href="/">Abrir o Taskmate</a>
+  </div>
+</nav>
+
+<main id="top">
+
+  <!-- 1 · RECOGNITION: pin. The surface already at rest — no title, no claim,
+       the interface's own idiom (labels, a status line). -->
+  <section id="hero" data-sc-act="pin" data-sc-span="2.4">
+    <div data-sc-stage class="tm-hero">
+      <div class="tm-surface">
+        <div class="tm-surface__head">
+          <div>
+            <p class="tm-surface__title">Hoje</p>
+            <p class="tm-surface__sub">Segunda-feira</p>
+          </div>
+        </div>
+        <ul class="tm-tasks">
+          <li class="tm-task" id="hero-task">
+            <span class="tm-check">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.3 4 6 11.3l-3.3-3.3"/></svg>
+            </span>
+            <span class="tm-task__title">Responder o cliente sobre o orçamento</span>
+            <span class="tm-task__meta">hoje</span>
+          </li>
+          <li class="tm-task">
+            <span class="tm-check"></span>
+            <span class="tm-task__title">Levar o carro na revisão</span>
+            <span class="tm-task__meta">amanhã</span>
+          </li>
+        </ul>
+        <div class="tm-quickadd" aria-hidden="true">
+          + Reunião <mark class="tm-mark" data-mark="date">amanhã</mark> <mark class="tm-mark" data-mark="priority">!alta</mark>
+        </div>
+      </div>
+
+      <p class="tm-hero__caption" data-sc-cue="0 1 0 0">
+        <strong>Sem prazo pra decidir nada</strong> antes de escrever. Prazo, prioridade e repetição entram no próprio texto, se você quiser.
+      </p>
+    </div>
+  </section>
+
+  <!-- 2 · TENSION: flow. Trailing anchor, varied from the hero's leading one. -->
+  <section class="sc-section">
+    <div class="sc-wrap" style="display:flex; justify-content:flex-end;">
+      <div class="tm-prose sc-stack" data-sc-in data-sc-stagger="70">
+        <h2 class="sc-display sc-display--md">Toda ferramenta de tarefas cobra uma decisão antes de deixar você escrever alguma coisa.</h2>
+        <p class="sc-body">Qual lista, qual projeto, qual prioridade, se cadastra ou entra com o Google primeiro. É por isso que a maioria para de ser usada em poucas semanas: capturar deveria levar cinco segundos, não um formulário.</p>
+        <p class="sc-body">O Taskmate resolve isso invertendo a ordem: primeiro você escreve, a organização acontece depois, quando você tiver tempo pra ela.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · TURN: flow + reveal. A wipe as change of state. -->
+  <section data-sc-act="flow">
+    <div class="sc-wrap sc-stack" data-sc-in data-sc-stagger="70" style="text-align:center; margin-bottom: var(--sc-7);">
+      <h2 class="sc-display sc-display--md">Escreve. Decide depois.</h2>
+    </div>
+    <div class="sc-wrap tm-turn">
+      <div class="tm-turn__before" aria-hidden="true">
+        <span class="tm-turn__word" style="top:4%; left:2%;">ligar pro dentista</span>
+        <span class="tm-turn__word" style="top:26%; left:48%;">ideia pro cliente X</span>
+        <span class="tm-turn__word" style="top:52%; left:6%;">comprar café</span>
+        <span class="tm-turn__word" style="top:70%; left:44%;">revisar contrato</span>
+        <span class="tm-turn__word" style="top:14%; left:70%;">aniversário da Ana</span>
+      </div>
+      <div class="tm-turn__after" data-sc-reveal="up" data-sc-reveal-at="0.25 0.68">
+        <div class="tm-turn__list">
+          <h3>Entrada</h3>
+          <ul>
+            <li>Ligar pro dentista</li>
+            <li>Ideia pro cliente X</li>
+            <li>Comprar café</li>
+            <li>Revisar contrato</li>
+            <li>Aniversário da Ana</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · SUBSTANCE: pin. The peak — the one interaction this page asks the
+       reader to actually perform before the close does. -->
+  <section id="substance" data-sc-act="pin" data-sc-span="2.6">
+    <div data-sc-stage class="tm-hero">
+      <div class="tm-note">
+        <p class="tm-note__title">Ideia para o cliente X</p>
+        <div class="tm-note__toolbar" role="toolbar" aria-label="Formatação">
+          <button type="button" data-cmd="h2" title="Título">H2</button>
+          <button type="button" data-cmd="bold" title="Negrito"><strong>B</strong></button>
+          <button type="button" data-cmd="italic" title="Itálico"><em>I</em></button>
+          <button type="button" data-cmd="underline" title="Sublinhado"><u>S</u></button>
+          <button type="button" data-cmd="ul" title="Lista com marcadores">•</button>
+        </div>
+        <div class="tm-note__body" tabindex="0" role="button" aria-label="Editar corpo da nota">
+          <p>Clique aqui para escrever. Negrito, itálico, sublinhado, títulos e marcadores. Só isso, de propósito.</p>
+        </div>
+      </div>
+      <p class="tm-hero__caption" data-sc-cue="0.05 1">
+        Notas de verdade, para o que não é tarefa. <strong>Sem lista nem grupo obrigatório.</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- 5 · RANGE: pan. Breadth, not hierarchy — five honest properties. -->
+  <section id="range" data-sc-act="pan" data-sc-span="5.5">
+    <div data-sc-stage>
+      <div class="tm-rail-track" data-sc-pan="0.06">
+        <div class="tm-prop" style="display:flex; flex-direction:column; justify-content:center;">
+          <h2 class="sc-display sc-display--md" style="font-size: var(--sc-t-2xl);">O que o app é, sem rodeio.</h2>
+        </div>
+        <article class="tm-prop">
+          <h3>Local-first</h3>
+          <p>Seus dados moram no aparelho. O app funciona por completo mesmo sem internet nenhuma.</p>
+        </article>
+        <article class="tm-prop">
+          <h3>Sem conta</h3>
+          <p>Nenhum cadastro, nenhuma senha, nenhum e-mail pedido antes de escrever a primeira tarefa.</p>
+        </article>
+        <article class="tm-prop">
+          <h3>O seu Google Drive</h3>
+          <p>Sincronizar entre dispositivos é opcional, por um único arquivo no seu próprio Drive. Sem servidor nosso.</p>
+        </article>
+        <article class="tm-prop">
+          <h3>Código aberto</h3>
+          <p>Todo o código é público. Qualquer pessoa pode ler, copiar ou contribuir.</p>
+        </article>
+        <article class="tm-prop">
+          <h3>Instala e some</h3>
+          <p>Um PWA de verdade: instala como app, funciona offline, sem loja de aplicativos no meio.</p>
+        </article>
+        <div class="tm-prop" style="display:flex; flex-direction:column; justify-content:center; background:none; border:none; box-shadow:none;">
+          <p class="sc-body">Cinco jeitos de dizer a mesma coisa: os dados são seus.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · TRUST: flow, a real number outside any act so it fires once on
+       entry. One eyebrow, the only one on the page. -->
+  <section class="sc-section">
+    <div class="sc-wrap sc-stack" data-sc-in data-sc-stagger="70">
+      <p class="sc-label">Verificado, não prometido</p>
+      <div class="tm-stat">
+        <span class="sc-nums tm-stat__num" data-sc-count="0 21">0</span>
+        <p class="sc-body" style="max-width: 30ch;">cenários de sincronização entre dois dispositivos, testados a cada mudança no código, não só torcendo para funcionar.</p>
+      </div>
+      <p class="sc-body">Um CRDT (Automerge) faz o merge, não a última escrita que chegou por último. Duas pessoas editando offline convergem sem perder nada de nenhum lado.</p>
+    </div>
+  </section>
+
+  <!-- 7 · COMMITMENT: pin. The signature move, and the close. Last element
+       on the page; the last cue holds instead of fading before the end. -->
+  <section id="close" data-sc-act="pin" data-sc-span="1.6">
+    <div data-sc-stage class="tm-hero" style="justify-items:center; text-align:center;">
+      <div class="tm-close" data-sc-cue="0 1 0 0">
+        <h2 class="sc-display sc-display--md">Escreva a sua primeira tarefa.</h2>
+      </div>
+
+      <div class="tm-close" data-sc-cue="0 1 0 0">
+        <div class="tm-capture">
+          <input id="capture-input" type="text" maxlength="120" placeholder="revisar contrato amanhã !alta" aria-label="Escreva uma tarefa">
+          <button type="button" id="capture-add">Adicionar</button>
+        </div>
+        <p class="tm-capture-hint" id="capture-hint" aria-live="polite"></p>
+        <ul class="tm-created" id="capture-list"></ul>
+
+        <div class="tm-close__links">
+          <a class="tm-primary" href="/">Abrir o Taskmate</a>
+          <a href="https://github.com/adrianomaringolo/taskmate" target="_blank" rel="noopener noreferrer">Ver o código no GitHub</a>
+        </div>
+      </div>
+
+      <footer class="tm-foot" data-sc-cue="0 1 0 0">
+        <span>Taskmate. Local-first, sem conta.</span>
+        <span>Feito com <a href="https://github.com/nateherkai/scroll-craft" target="_blank" rel="noopener noreferrer">scroll-craft</a>.</span>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script type="module" src="./scrollcraft.js"></script>
+<script type="module" src="./site.js"></script>
+</body>
+</html>

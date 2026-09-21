@@ -1,0 +1,428 @@
+/*
+ * Taskmate /product — theming and page-specific markup for the scrollcraft
+ * engine (scrollcraft.css/.js, unmodified — see their own header comments).
+ *
+ * Grammar: live surface (see references/uniqueness.md §2.3 in the scroll-craft
+ * skill). The pitch is honest — "watch what it does" — so the page shows the
+ * real interface doing real things instead of photography or footage. No
+ * scrub, no kinetic type, no spotlight: the app is the show.
+ *
+ * Tokens below are not a rebrand — they are literally tokens.css's own light
+ * palette (web/src/styles/tokens.css), the app's actual default theme. The
+ * page is the product's own visual language, extended, not a separate "site
+ * skin" invented for marketing.
+ */
+
+:root {
+  --sc-canvas:     oklch(1 0 0);
+  --sc-surface:    oklch(0.976 0.004 255);
+  --sc-ink:        oklch(0.215 0.012 255);
+  --sc-ink-soft:   oklch(0.44 0.014 255);
+  --sc-accent:     oklch(0.67 0.13 62);
+  --sc-accent-ink: oklch(0.22 0.03 62);
+
+  --sc-font-display: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sc-font-text:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* A second, cooler ink for the app-chrome recreation — matches
+     tokens.css's --ink-3, used for meta text in the real sidebar. */
+  --tm-ink-3: oklch(0.545 0.014 255);
+  --tm-line: oklch(0.905 0.006 255);
+  --tm-line-strong: oklch(0.845 0.008 255);
+  --tm-danger: oklch(0.53 0.2 25);
+  --tm-success: oklch(0.53 0.12 152);
+
+  --tm-rail-w: 248px;
+}
+
+body {
+  background: var(--sc-canvas);
+}
+
+/* ------------------------------------------------------------- chrome --
+   The nav is the app's own sidebar, not a marketing bar — a live surface
+   forbids the wordmark-plus-CTA header this skill defaults to elsewhere.
+   Real anchor links, real destinations, present the whole page. */
+.tm-rail {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--tm-rail-w);
+  padding: var(--sc-6) var(--sc-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sc-7);
+  background: var(--sc-surface);
+  border-right: 1px solid var(--tm-line);
+  z-index: var(--sc-z-chrome);
+  overflow-y: auto;
+}
+
+.tm-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sc-2);
+  font-family: var(--sc-font-display);
+  font-weight: 650;
+  font-size: var(--sc-t-lg);
+  color: var(--sc-ink);
+  text-decoration: none;
+}
+
+.tm-brand__mark {
+  color: var(--sc-accent);
+  flex: none;
+}
+
+.tm-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sc-1);
+}
+
+.tm-nav__label {
+  font-family: var(--sc-font-mono);
+  font-size: var(--sc-t-xs);
+  letter-spacing: var(--sc-track-wide);
+  text-transform: uppercase;
+  color: var(--sc-ink-soft);
+  margin: 0 0 var(--sc-2);
+}
+
+.tm-nav a {
+  display: block;
+  padding: var(--sc-2) var(--sc-3);
+  margin-inline: calc(var(--sc-3) * -1);
+  border-radius: var(--sc-r-md);
+  color: var(--sc-ink-soft);
+  text-decoration: none;
+  font-size: var(--sc-t-sm);
+  transition: background var(--sc-d-fast) var(--sc-ease-out), color var(--sc-d-fast) var(--sc-ease-out);
+}
+
+.tm-nav a:hover { background: var(--tm-line); color: var(--sc-ink); }
+.tm-nav a.tm-is-current { background: color-mix(in oklab, var(--sc-accent) 12%, transparent); color: var(--sc-accent-ink); font-weight: 600; }
+
+.tm-rail__foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sc-2);
+  padding-top: var(--sc-5);
+  border-top: 1px solid var(--tm-line);
+}
+
+.tm-rail__foot a {
+  display: flex;
+  align-items: center;
+  gap: var(--sc-2);
+  padding: var(--sc-2) var(--sc-3);
+  margin-inline: calc(var(--sc-3) * -1);
+  border-radius: var(--sc-r-md);
+  color: var(--sc-ink-soft);
+  text-decoration: none;
+  font-size: var(--sc-t-sm);
+}
+.tm-rail__foot a:hover { background: var(--tm-line); color: var(--sc-ink); }
+
+.tm-rail__foot a.tm-cta {
+  background: var(--sc-accent);
+  color: var(--sc-accent-ink);
+  font-weight: 600;
+  justify-content: center;
+}
+.tm-rail__foot a.tm-cta:hover { background: color-mix(in oklab, var(--sc-accent) 88%, black); }
+
+/* Content sits clear of the fixed rail on desktop; the rail collapses to a
+   slim top bar on phones (below), where fixed side chrome has no room. */
+main { margin-left: var(--tm-rail-w); }
+
+@media (max-width: 860px) {
+  .tm-rail {
+    inset: 0 0 auto 0;
+    width: auto;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    padding: var(--sc-3) var(--sc-gutter);
+    gap: var(--sc-4);
+    border-right: none;
+    border-bottom: 1px solid var(--tm-line);
+    overflow: visible;
+  }
+  .tm-nav, .tm-nav__label { display: none; }
+  .tm-rail__foot { margin-top: 0; padding-top: 0; border-top: none; flex-direction: row; }
+  .tm-rail__foot a span.tm-label-long { display: none; }
+  main { margin-left: 0; margin-top: var(--tm-rail-h, 56px); }
+
+  /* A pinned act's stage sticks to the viewport's own top edge, which on
+     phones sits under the fixed top bar (site.js measures its real height
+     into --tm-rail-h). Without this, a pin's content scrolls up behind the
+     bar instead of stopping below it. */
+  .sc-stage {
+    top: var(--tm-rail-h, 56px);
+    height: calc(100vh - var(--tm-rail-h, 56px));
+    height: calc(100svh - var(--tm-rail-h, 56px));
+  }
+}
+
+/* ---------------------------------------------------------------- hero -- */
+.tm-hero {
+  display: grid;
+  gap: var(--sc-6);
+  width: 100%;
+  max-width: 40rem;
+  padding-inline: var(--sc-gutter);
+}
+
+.tm-hero__caption {
+  font-size: var(--sc-t-lg);
+  color: var(--sc-ink-soft);
+  max-width: 34ch;
+}
+.tm-hero__caption strong { color: var(--sc-ink); font-weight: 600; }
+
+.tm-surface {
+  background: var(--sc-canvas);
+  border: 1px solid var(--tm-line-strong);
+  border-radius: var(--sc-r-lg);
+  box-shadow: var(--sc-e2);
+  overflow: hidden;
+}
+
+.tm-surface__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sc-4) var(--sc-5) var(--sc-2);
+}
+.tm-surface__title { font-family: var(--sc-font-display); font-weight: 650; font-size: var(--sc-t-xl); margin: 0; }
+.tm-surface__sub { font-size: var(--sc-t-sm); color: var(--sc-ink-soft); margin: 0; }
+
+.tm-tasks { list-style: none; margin: 0; padding: 0 var(--sc-5) var(--sc-3); }
+.tm-task {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sc-3);
+  padding: var(--sc-3) 0;
+  border-top: 1px solid var(--tm-line);
+}
+.tm-task:first-child { border-top: none; }
+.tm-check {
+  flex: none;
+  width: 18px; height: 18px;
+  margin-top: 2px;
+  border: 1.5px solid var(--tm-ink-3);
+  border-radius: var(--sc-r-sm);
+  background: var(--sc-canvas);
+  display: grid; place-items: center;
+  transition: background var(--sc-d-fast) var(--sc-ease-out), border-color var(--sc-d-fast) var(--sc-ease-out);
+}
+.tm-task.tm-done .tm-check { background: var(--sc-accent); border-color: var(--sc-accent); }
+.tm-check svg { opacity: 0; transition: opacity var(--sc-d-fast) var(--sc-ease-out); color: var(--sc-accent-ink); }
+.tm-task.tm-done .tm-check svg { opacity: 1; }
+.tm-task__title { flex: 1; font-size: var(--sc-t-base); }
+.tm-task.tm-done .tm-task__title { color: var(--sc-ink-soft); text-decoration: line-through; text-decoration-thickness: 1px; }
+.tm-task__meta { flex: none; font-size: var(--sc-t-xs); color: var(--tm-ink-3); }
+
+.tm-quickadd {
+  margin: 0 var(--sc-5) var(--sc-5);
+  padding: var(--sc-3) var(--sc-4);
+  border: 1px solid var(--tm-line-strong);
+  border-radius: var(--sc-r-md);
+  font-size: var(--sc-t-base);
+  color: var(--sc-ink-soft);
+}
+.tm-quickadd mark {
+  background: none;
+  color: inherit;
+  font-weight: inherit;
+  padding: 1px 3px;
+  border-radius: 4px;
+  transition: background var(--sc-d-base) var(--sc-ease-out), color var(--sc-d-base) var(--sc-ease-out), font-weight var(--sc-d-base) var(--sc-ease-out);
+}
+.tm-quickadd .tm-mark-in {
+  background: color-mix(in oklab, var(--sc-accent) 22%, transparent);
+  color: var(--sc-accent-ink);
+  font-weight: 600;
+}
+
+/* ----------------------------------------------------------- tension --- */
+.tm-prose {
+  max-width: 46ch;
+}
+.tm-prose > * + * { margin-top: var(--sc-4); }
+
+/* --------------------------------------------------------------- turn -- */
+.tm-turn {
+  position: relative;
+  min-height: 22rem;
+  display: grid;
+  place-items: center;
+}
+.tm-turn__before {
+  position: relative;
+  width: 100%;
+  max-width: 30rem;
+  height: 16rem;
+}
+.tm-turn__word {
+  position: absolute;
+  font-size: var(--sc-t-lg);
+  color: var(--sc-ink-soft);
+  white-space: nowrap;
+  padding: var(--sc-2) var(--sc-3);
+  background: var(--sc-surface);
+  border: 1px solid var(--tm-line);
+  border-radius: var(--sc-r-pill);
+}
+.tm-turn__after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.tm-turn__list {
+  width: 100%;
+  max-width: 26rem;
+  background: var(--sc-canvas);
+  border: 1px solid var(--tm-line-strong);
+  border-radius: var(--sc-r-lg);
+  box-shadow: var(--sc-e2);
+  padding: var(--sc-4) var(--sc-5);
+}
+.tm-turn__list h3 { margin: 0 0 var(--sc-3); font-family: var(--sc-font-display); font-size: var(--sc-t-base); font-weight: 650; }
+.tm-turn__list ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sc-2); font-size: var(--sc-t-sm); color: var(--sc-ink); }
+.tm-turn__list li { display: flex; align-items: center; gap: var(--sc-2); }
+.tm-turn__list li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--sc-accent); flex: none; }
+
+/* ------------------------------------------------------------ substance -- */
+.tm-note {
+  width: 100%;
+  max-width: 32rem;
+  background: var(--sc-canvas);
+  border: 1px solid var(--tm-line-strong);
+  border-radius: var(--sc-r-lg);
+  box-shadow: var(--sc-e2);
+  padding: var(--sc-5);
+}
+.tm-note__title { font-family: var(--sc-font-display); font-weight: 650; font-size: var(--sc-t-lg); margin: 0 0 var(--sc-3); }
+.tm-note__toolbar {
+  display: none;
+  gap: var(--sc-1);
+  padding-bottom: var(--sc-3);
+  margin-bottom: var(--sc-3);
+  border-bottom: 1px solid var(--tm-line);
+}
+.tm-note.tm-editing .tm-note__toolbar { display: flex; }
+.tm-note__toolbar button {
+  width: 30px; height: 30px;
+  border: 1px solid var(--tm-line-strong);
+  border-radius: var(--sc-r-sm);
+  background: var(--sc-canvas);
+  color: var(--sc-ink);
+  cursor: pointer;
+  font-family: var(--sc-font-display);
+  font-size: var(--sc-t-sm);
+}
+.tm-note__toolbar button:hover { background: var(--sc-surface); }
+.tm-note__toolbar button.tm-active { background: var(--sc-accent); color: var(--sc-accent-ink); border-color: var(--sc-accent); }
+.tm-note__body {
+  min-height: 5rem;
+  font-size: var(--sc-t-base);
+  line-height: var(--sc-leading-body);
+  cursor: text;
+  border-radius: var(--sc-r-md);
+  padding: var(--sc-2) var(--sc-3);
+  margin-inline: calc(var(--sc-3) * -1);
+}
+.tm-note__body:not(.tm-editing):hover { background: var(--sc-surface); }
+.tm-note__body[contenteditable="true"] { outline: none; background: var(--sc-surface); }
+.tm-note__body h2 { font-family: var(--sc-font-display); font-size: var(--sc-t-lg); font-weight: 650; margin: 0 0 var(--sc-2); }
+.tm-note__body ul { margin: var(--sc-2) 0 0; padding-left: 1.2em; }
+.tm-note__hint { margin-top: var(--sc-3); font-size: var(--sc-t-xs); color: var(--tm-ink-3); }
+
+/* --------------------------------------------------------------- range -- */
+.tm-rail-track { display: flex; gap: var(--sc-5); align-items: stretch; }
+.tm-prop {
+  flex: none;
+  width: clamp(16rem, 24vw, 20rem);
+  padding: var(--sc-6) var(--sc-5);
+  background: var(--sc-canvas);
+  border: 1px solid var(--tm-line-strong);
+  border-radius: var(--sc-r-lg);
+  box-shadow: var(--sc-e1);
+}
+.tm-prop h3 { font-family: var(--sc-font-display); font-weight: 650; font-size: var(--sc-t-lg); margin: 0 0 var(--sc-2); }
+.tm-prop p { color: var(--sc-ink-soft); margin: 0; font-size: var(--sc-t-sm); }
+
+/* --------------------------------------------------------------- trust -- */
+.tm-stat { display: flex; align-items: baseline; gap: var(--sc-3); }
+.tm-stat__num { font-family: var(--sc-font-display); font-weight: 650; font-size: var(--sc-t-4xl); color: var(--sc-accent-ink); letter-spacing: var(--sc-track-tight); }
+
+/* --------------------------------------------------------------- close -- */
+.tm-close { width: 100%; max-width: 34rem; padding-inline: var(--sc-gutter); }
+.tm-capture {
+  display: flex;
+  align-items: center;
+  gap: var(--sc-2);
+  padding: var(--sc-3) var(--sc-4);
+  background: var(--sc-canvas);
+  border: 1px solid var(--tm-line-strong);
+  border-radius: var(--sc-r-md);
+  box-shadow: var(--sc-e1);
+}
+.tm-capture input {
+  flex: 1;
+  border: 0;
+  background: none;
+  font-size: var(--sc-t-base);
+  color: var(--sc-ink);
+}
+.tm-capture input:focus { outline: none; }
+.tm-capture button {
+  flex: none;
+  padding: var(--sc-2) var(--sc-4);
+  background: var(--sc-accent);
+  color: var(--sc-accent-ink);
+  border: 0;
+  border-radius: var(--sc-r-sm);
+  font-weight: 600;
+  font-size: var(--sc-t-sm);
+  cursor: pointer;
+}
+.tm-capture button:hover { background: color-mix(in oklab, var(--sc-accent) 88%, black); }
+.tm-capture-hint { margin-top: var(--sc-2); font-size: var(--sc-t-xs); color: var(--tm-ink-3); min-height: 1.4em; }
+.tm-capture-hint mark { background: none; color: var(--sc-accent-ink); font-weight: 600; }
+
+.tm-created { margin-top: var(--sc-4); display: grid; gap: var(--sc-2); }
+.tm-created .tm-task {
+  border: 1px solid var(--tm-line-strong);
+  border-radius: var(--sc-r-md);
+  padding: var(--sc-3) var(--sc-4);
+  background: var(--sc-canvas);
+  box-shadow: var(--sc-e1);
+  animation: tm-pop 320ms var(--sc-ease-out);
+}
+@keyframes tm-pop {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tm-created .tm-task { animation: none; }
+}
+
+.tm-close__links { margin-top: var(--sc-6); display: flex; gap: var(--sc-4); flex-wrap: wrap; }
+.tm-close__links a { color: var(--sc-ink-soft); text-decoration-thickness: 1px; text-underline-offset: 0.2em; font-size: var(--sc-t-sm); }
+.tm-close__links a:hover { color: var(--sc-ink); }
+.tm-close__links a.tm-primary { color: var(--sc-accent-ink); font-weight: 600; }
+
+.tm-foot {
+  padding: var(--sc-5) var(--sc-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sc-3);
+  font-size: var(--sc-t-xs);
+  color: var(--tm-ink-3);
+  flex-wrap: wrap;
+}

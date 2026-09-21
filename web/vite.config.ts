@@ -86,11 +86,21 @@ export default defineConfig({
         // it the app shell caches but Automerge does not, so it opens offline
         // and then fails to read its own document — worse than not working.
         globPatterns: ['**/*.{js,css,html,wasm,svg,png,ico,woff2}'],
+        // /product is a separate static marketing page (see product/index.html),
+        // not part of the offline app — it has nothing to do with the "funciona
+        // offline" promise this service worker exists for, so it stays out of
+        // the precache entirely rather than riding along by accident. Its own
+        // hashed JS/CSS land in the shared assets/ folder (Vite's default for a
+        // multi-page build), so both the page and its bundle need excluding.
+        globIgnores: ['product/**', 'assets/product-*'],
         // Automerge's wasm is ~3.5 MB and the default ceiling is 2 MiB, which
         // would silently skip it.
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
-        // Single-page app: any in-scope navigation resolves to the shell.
+        // Single-page app: any in-scope navigation resolves to the shell —
+        // except /product, which is its own real page and must not be
+        // swallowed by the app shell once this service worker is installed.
         navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/product/],
         cleanupOutdatedCaches: true,
         // No runtimeCaching on purpose. Drive requests must always hit the
         // network: a cached file listing or a cached document revision would
@@ -112,5 +122,15 @@ export default defineConfig({
     sourcemap: true,
     // The wasm glue relies on top-level await, which needs a modern target.
     target: 'es2022',
+    rollupOptions: {
+      // /product is a second, independent static page (see product/index.html)
+      // — the marketing site, built with the scroll-craft engine rather than
+      // React. It shares nothing with the app's own entry beyond the build
+      // pipeline, so it is a second Rollup input, not a route inside the SPA.
+      input: {
+        main: join(import.meta.dirname, 'index.html'),
+        product: join(import.meta.dirname, 'product/index.html'),
+      },
+    },
   },
 });
