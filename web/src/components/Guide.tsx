@@ -79,8 +79,12 @@ export function Guide({ open, onClose }: Props) {
         </dl>
         <p className="guide__body">
           O que o app não reconhece continua no título — a captura nunca recusa texto puro. Colar um
-          bloco com várias linhas cria uma tarefa por linha. No Android, compartilhar um texto ou
-          link de outro app entrega direto na Entrada.
+          bloco com várias linhas cria uma tarefa por linha.
+        </p>
+        <p className="guide__body">
+          No celular, compartilhar um link, um texto ou um post (do Instagram, do navegador, de
+          qualquer app) com o Taskmate pergunta se ele vira tarefa ou nota, com o texto recebido já
+          pronto para editar antes de salvar.
         </p>
       </section>
 

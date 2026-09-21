@@ -2474,6 +2474,29 @@ button {
   color: var(--ink-3);
 }
 
+/* ---------- share intake ---------- */
+
+.share {
+  width: min(420px, calc(100vw - var(--s-4) * 2));
+  padding: var(--s-5);
+}
+
+.share__text {
+  margin-top: var(--s-4);
+  min-height: 84px;
+}
+
+.share__actions {
+  display: flex;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+
+.share__choice {
+  flex: 1;
+  justify-content: center;
+}
+
 /* ---------- guide (complete reference) ---------- */
 
 .guide {
