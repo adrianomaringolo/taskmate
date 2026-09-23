@@ -265,7 +265,7 @@ const PATHS = {
      the hamburger it sits next to). */
   mark: (
     <>
-      <path d="M3.4 10.4 5.5 12.7 11.6 4.6" />
+      <path d="M3.4 10.4 5.5 12.7 10.8 5.7" />
       <path d="M12.9 2.9 13.9 1.6" />
     </>
   ),

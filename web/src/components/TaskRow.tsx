@@ -3,6 +3,7 @@ import { addDays, daysFromToday, describeDue, describeDueFull, isOverdue, isToda
 import { useStore } from '../lib/store';
 import { PRIORITY_LABELS, RECURRENCE_LABELS, type Task } from '../lib/types';
 import { Icon } from './Icon';
+import { TASK_MIME } from '../lib/taskDrag';
 import { InlineText } from './InlineText';
 import { Menu } from './Menu';
 import { TaskDetail } from './TaskDetail';
@@ -114,11 +115,20 @@ export function TaskRow({
             role="button"
             tabIndex={0}
             aria-label={`Reordenar ${task.title}. Use Alt com as setas para mover.`}
-            title="Arraste, ou Alt + ↑ / ↓"
+            title="Arraste para reordenar ou até uma lista na lateral, ou Alt + ↑ / ↓"
             onDragStart={(e) => {
               e.dataTransfer.effectAllowed = 'move';
               // Firefox refuses to start a drag without payload.
               e.dataTransfer.setData('text/plain', task.id);
+              // Lets a list in the sidebar recognise this as a task and take it.
+              e.dataTransfer.setData(TASK_MIME, task.id);
+              // Drag the whole row, not just the grip, so the sidebar can see
+              // which task is on its way.
+              const row = e.currentTarget.closest('.task');
+              if (row) {
+                const box = row.getBoundingClientRect();
+                e.dataTransfer.setDragImage(row, e.clientX - box.left, e.clientY - box.top);
+              }
               onDragStart?.();
             }}
             onDragEnd={() => onDragEnd?.()}

@@ -134,8 +134,7 @@ body {
   flex: none;
   fill: none;
   stroke: var(--ink);
-  /* Thinner at 32px than at 18px, so the mark keeps the icon set's weight. */
-  stroke-width: 1.4;
+  stroke-width: 2.25;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -547,7 +546,7 @@ body {
 .brand svg {
   fill: none;
   stroke: var(--brand);
-  stroke-width: 1.75;
+  stroke-width: 2.25;
   stroke-linecap: round;
   stroke-linejoin: round;
 }

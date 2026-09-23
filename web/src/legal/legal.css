@@ -71,7 +71,7 @@ a:hover {
 .legal-brand svg {
   fill: none;
   stroke: var(--brand);
-  stroke-width: 1.75;
+  stroke-width: 2.25;
   stroke-linecap: round;
   stroke-linejoin: round;
 }

@@ -109,6 +109,9 @@ button {
 .brand__mark {
   flex: none;
   color: var(--brand);
+  /* The logo is drawn heavier than the 1.5 icon set; where the mark is used
+     as an icon (the "Como usar" menu item), it keeps the icon weight. */
+  stroke-width: 2.25;
 }
 
 .sidebar__scroll {
@@ -176,6 +179,13 @@ button {
   display: grid;
   place-items: center;
   color: var(--ink-3);
+}
+
+/* A task is being held over this list: dropping moves it here. */
+.row[data-drop-target='true'] {
+  background: var(--brand-wash);
+  color: var(--brand-ink);
+  box-shadow: inset 0 0 0 1.5px var(--brand);
 }
 
 .row[aria-current='true'] .row__icon {
@@ -2541,6 +2551,12 @@ button {
   border-radius: var(--r-md);
   background: var(--illo-plate);
   color: var(--illo-line);
+}
+
+/* The first step shows the brand, so it takes the logo's weight, not the
+   1.5 of the icons on the other steps. */
+.welcome__icon[data-mark] svg {
+  stroke-width: 2.25;
 }
 
 .welcome__dots {

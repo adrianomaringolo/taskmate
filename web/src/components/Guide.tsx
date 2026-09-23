@@ -96,7 +96,11 @@ export function Guide({ open, onClose }: Props) {
           excluída.
         </p>
         <ul className="guide__list">
-          <li>Arraste tarefas entre listas, ou use as setas no detalhe da tarefa.</li>
+          <li>
+            Arraste uma tarefa pela alça até uma lista na lateral (a Entrada também vale) para
+            movê-la para lá — um grupo recolhido se abre se você segurar a tarefa em cima dele. Ou
+            use as setas no detalhe da tarefa.
+          </li>
           <li>Grupos e listas são reordenáveis pela lateral, também por arrastar.</li>
           <li>
             Um grupo pode virar um <strong>Quadro</strong>: cada lista vira uma coluna, cada tarefa

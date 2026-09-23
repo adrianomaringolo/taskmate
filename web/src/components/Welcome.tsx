@@ -21,7 +21,7 @@ const STEPS: Step[] = [
   {
     icon: 'folder',
     title: 'Organize quando fizer sentido',
-    body: 'Crie grupos e listas pela lateral quando a Entrada começar a misturar assuntos. Um grupo também pode virar um quadro, com cada lista numa coluna. Arraste tarefas entre listas ou colunas, ou use as setas no detalhe da tarefa.',
+    body: 'Crie grupos e listas pela lateral quando a Entrada começar a misturar assuntos. Um grupo também pode virar um quadro, com cada lista numa coluna. Arraste tarefas entre colunas, ou até uma lista na lateral, ou use as setas no detalhe da tarefa.',
   },
   {
     icon: 'compass',
@@ -97,7 +97,7 @@ export function Welcome({ open, onClose }: Props) {
         <Icon name="x" />
       </button>
 
-      <div className="welcome__icon">
+      <div className="welcome__icon" data-mark={current.icon === 'mark' || undefined}>
         <Icon name={current.icon} size={26} />
       </div>
       <h2 className="dialog__title">{current.title}</h2>

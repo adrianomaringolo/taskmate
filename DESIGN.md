@@ -137,7 +137,14 @@ curva nova inventada por conta própria.
 risquinho solto logo à frente da ponta que lê como faísca/impulso: tarefa feita,
 e em movimento. Uma polilinha reta mais o traço curto, no mesmo grid e traço dos
 outros ícones. Não é uma caixa de seleção (lê como controle de UI) nem três
-barras (lê como o menu-sanduíche ao lado do qual ela aparece). Nos ícones do PWA
+barras (lê como o menu-sanduíche ao lado do qual ela aparece). Como logo, o traço
+é mais grosso que o dos ícones: 2.25 no grid de 16 (barra lateral, página de
+produto, páginas legais e ícones do PWA) e 2.75 no favicon, para sobreviver em
+16px. Quando aparece como ícone entre outros ícones (o item "Como usar" do
+menu), mantém o traço 1.5 do conjunto. O braço longo termina em (10.8, 5.7), não mais
+em (11.6, 4.6): com o traço grosso, as pontas arredondadas do braço e do
+risquinho se tocavam e a marca virava um tique comum. O recuo mantém o
+respiro em todas as espessuras (1.5, 2.25 e 2.75). Nos ícones do PWA
 e no favicon é tinta escura sobre o campo âmbar — latão/marca-texto, não botão
 colorido genérico. `tools/icons.ts` gera os PNGs a partir do mesmo caminho.
 
@@ -283,6 +290,10 @@ está ativo. O que muda é a composição.
   `--surface`, Triar à direita sobre `--bg`. A divisória de 1px é o único
   cromo da página: carrega os rótulos de cada cena e a seta de foco. Sem
   barra de navegação, sem cards de feature.
+- **Marcador de rolagem:** uma linha âmbar de 2px no topo da tela que enche
+  da esquerda para a direita com o scroll da página inteira
+  (`[data-sc-progress]`, desenhada pelo motor). Convive com a seta: o
+  marcador diz quanto falta, a seta diz para onde olhar.
 - **Seta de foco:** um círculo âmbar com a seta do Lucide, fixo na tela
   depois do hero. Na demonstração ela anda pela divisória até a altura da
   demo que está se mexendo e aponta para esse lado (cima/baixo no celular);
@@ -326,8 +337,8 @@ está ativo. O que muda é a composição.
   `[data-vision='low']` (espelho de `tokens.css`; mude lá primeiro). À direita,
   o Markdown que o próprio `toMarkdown()` gera para os dados de exemplo, linha
   a linha, com botão para baixar o `.md`. Rótulos: "Aparência | Seus dados".
-- **Marca no hero:** 1.75rem com o tique a 32px (traço 1.4 para manter o peso
-  do conjunto), e embaixo "Seu companheiro de tarefas". CTA de 52px de altura
+- **Marca no hero:** 1.75rem com o tique a 32px, e embaixo "Seu companheiro
+  de tarefas". CTA de 52px de altura
   e 1.0625rem, igual no hero e no fechamento.
 - **Rolar sozinho:** botão no pé do hero e, depois dele, um botão fixo no
   centro inferior que alterna "Rolar sozinho" / "Parar a rolagem" (pílula
