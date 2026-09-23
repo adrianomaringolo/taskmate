@@ -100,3 +100,24 @@ substituídos porque, mesmo recoloridos, eram arte de outro autor com outro peso
 de traço convivendo com o set de ícones da interface — e o Lucide elimina a
 mistura ao ser o mesmo idioma. A troca também reduziu as marcas de 11.741 para
 2.564 bytes.
+
+## Som ambiente — chuva
+
+`web/src/assets/audio/chuva.mp3` é um trecho de 4 minutos (de 4:00 a 8:08 do
+original) de **"Rain _ Sleep _ Meditation"**, de **HoliznaCC0**, do álbum
+*Space - Sleep - Meditation* (2022), publicado no
+[Free Music Archive](https://freemusicarchive.org/music/holiznacc0/space-sleep-meditation/rain-sleep-meditation/)
+sob **CC0 1.0 Universal** — domínio público, sem exigência de atribuição. O
+crédito fica aqui e na seção "Som ambiente" das Preferências por cortesia.
+
+Os últimos 8 segundos do trecho foram fundidos (crossfade equal-power) sobre o
+início, para o loop não ter emenda; depois reencodado em MP3 96 kbps estéreo
+44,1 kHz. Comando em `ffmpeg`:
+
+```
+ffmpeg -ss 240 -t 248 -i original.mp3 -filter_complex "[0:a]asplit=2[s1][s2];
+  [s1]atrim=start=8:end=248,asetpts=PTS-STARTPTS,afade=t=out:st=232:d=8:curve=qsin[a];
+  [s2]atrim=start=0:end=8,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=8:curve=qsin,adelay=232000|232000[b];
+  [a][b]amix=inputs=2:normalize=0:duration=first,atrim=end=240[o]"
+  -map "[o]" -ac 2 -ar 44100 -c:a libmp3lame -b:a 96k chuva.mp3
+```

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { setAmbient, useAmbient } from '../lib/ambient';
 import { toMarkdown } from '../lib/export';
 import * as Reminder from '../lib/notify';
 import { today } from '../lib/date';
@@ -44,6 +45,7 @@ export function Preferences({
   onWeekStart,
 }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  const ambientOn = useAmbient();
 
   useEffect(() => {
     const dialog = ref.current;
@@ -130,6 +132,21 @@ export function Preferences({
           />
           <span>
             Aumenta o texto, os alvos de toque e o contorno de foco em todo o app.
+          </span>
+        </label>
+      </section>
+
+      <section className="prefs__section">
+        <p className="prefs__label">Som ambiente</p>
+        <label className="prefs__toggle">
+          <input
+            type="checkbox"
+            checked={ambientOn}
+            onChange={(e) => void setAmbient(e.target.checked)}
+          />
+          <span>
+            Chuva suave ao fundo enquanto o app está aberto. Também liga e desliga pelo ícone de nota
+            musical no topo. Trecho de “Rain · Sleep · Meditation”, de HoliznaCC0 (domínio público).
           </span>
         </label>
       </section>

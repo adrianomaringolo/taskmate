@@ -10,6 +10,7 @@ import { Sidebar } from './components/Sidebar';
 import { SyncPanel } from './components/SyncPanel';
 import { Toasts } from './components/Toasts';
 import { Welcome } from './components/Welcome';
+import { resumeAmbientOnGesture, setAmbient, useAmbient } from './lib/ambient';
 import { today } from './lib/date';
 import { parseCapture } from './lib/parse';
 import * as Reminder from './lib/notify';
@@ -157,6 +158,13 @@ function Shell() {
       onReady: () => notify('Pronto para funcionar sem internet.'),
     });
   }, [notify]);
+
+  useEffect(() => resumeAmbientOnGesture(), []);
+  const ambientOn = useAmbient();
+  const toggleAmbient = useCallback(async () => {
+    const ok = await setAmbient(!ambientOn);
+    if (!ok) notify('Não consegui carregar o som de chuva. Confira a conexão.', 'error');
+  }, [ambientOn, notify]);
 
   // Checked on mount, whenever the task list changes, and every minute while
   // the tab stays open — the closest this can get to "at 8h" without a
@@ -373,6 +381,17 @@ function Shell() {
           <span className="topbar__spacer" />
 
           <SyncPanel />
+
+          <button
+            type="button"
+            className="btn btn--icon topbar__ambient"
+            aria-label="Som de chuva"
+            aria-pressed={ambientOn}
+            title={ambientOn ? 'Desligar o som de chuva' : 'Ligar o som de chuva'}
+            onClick={() => void toggleAmbient()}
+          >
+            <Icon name="music" />
+          </button>
 
           <button
             type="button"

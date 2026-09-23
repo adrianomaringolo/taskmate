@@ -153,6 +153,13 @@ const PATHS = {
     </>
   ),
   menu: <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" />,
+  music: (
+    <>
+      <path d="M6 12V3.3l8-1.3v8.7" />
+      <circle cx="4" cy="12" r="2" />
+      <circle cx="12" cy="10.7" r="2" />
+    </>
+  ),
   /* Lucide panel-left, scaled: a framed rectangle with a divider near the left. */
   panelLeft: (
     <>

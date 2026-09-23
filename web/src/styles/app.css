@@ -399,6 +399,12 @@ button {
   color: var(--ink);
 }
 
+.topbar__ambient[aria-pressed='true'],
+.topbar__ambient[aria-pressed='true']:hover:not(:disabled) {
+  color: var(--brand-ink);
+  background: var(--brand-wash);
+}
+
 .btn--add {
   justify-content: flex-start;
   width: 100%;
