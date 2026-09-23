@@ -363,3 +363,14 @@ está ativo. O que muda é a composição.
   por opacidade e nada se desloca.
 - **Celular:** a divisão vira horizontal (Capturar em cima, Triar embaixo) e o
   fechamento leva a divisória até o topo, onde ela vira a barra do app.
+
+## Páginas legais (`/privacidade/`, `/termos/`)
+
+Modo leitura: uma coluna de 44rem, medida de ~68ch, corpo em 17px com
+entrelinha 1.65, seções numeradas com mais espaço acima do título do que
+abaixo, e os tokens do app (tema claro/escuro e âmbar só em links). Sem
+animação e sem nada além do texto. O conteúdo descreve só o que o código faz
+(ver `drive.ts`, `storage.ts`, `notify.ts`); qualquer mudança em dados,
+permissões do Google ou terceiros exige atualizar a política e a data no topo.
+Links no fechamento da página de produto e no painel Sobre do app.
+

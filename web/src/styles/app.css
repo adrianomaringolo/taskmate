@@ -2526,6 +2526,22 @@ button {
   color: var(--ink-3);
 }
 
+.about__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-4);
+  margin-top: var(--s-2);
+  font-size: var(--t-xs);
+}
+
+.about__legal a {
+  color: var(--ink-3);
+}
+
+.about__legal a:hover {
+  color: var(--ink-2);
+}
+
 /* ---------- share intake ---------- */
 
 .share {

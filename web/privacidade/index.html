@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Política de privacidade · Taskmate</title>
+    <meta name="description" content="O que acontece com os seus dados no Taskmate: tudo fica no seu aparelho e, se você quiser, no seu Google Drive. Sem servidor, sem conta, sem rastreamento." />
+    <meta name="color-scheme" content="light dark" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23cd8134' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.4 10.4 5.5 12.7 11.6 4.6'/%3E%3Cpath d='M12.9 2.9 13.9 1.6'/%3E%3C/svg%3E"
+    />
+    <script>
+      try {
+        var t = localStorage.getItem('taskmate:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+    <script type="module" src="/src/legal/legal.ts"></script>
+  </head>
+  <body>
+    <header class="legal-bar">
+      <a class="legal-brand" href="/produto/">
+        <svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true" focusable="false">
+          <path d="M3.4 10.4 5.5 12.7 11.6 4.6" />
+          <path d="M12.9 2.9 13.9 1.6" />
+        </svg>
+        <span>Taskmate</span>
+      </a>
+    </header>
+
+    <main class="legal">
+      <h1>Política de privacidade</h1>
+      <p class="legal__updated">Última atualização: 23 de setembro de 2026</p>
+
+      <p class="legal__lede">
+        O Taskmate foi feito para que as suas tarefas fiquem com você. Não existe servidor do Taskmate guardando dados, não
+        existe conta para criar e não existe rastreamento. Esta página explica, em detalhe, o que acontece com o que você
+        coloca no app.
+      </p>
+
+      <section>
+        <h2>1. Quem é o responsável</h2>
+        <p>
+          O Taskmate é desenvolvido e mantido por Adriano Maringolo, pessoa física. Para qualquer assunto sobre privacidade,
+          escreva para <a href="mailto:adrianomaringolo.dev@gmail.com">adrianomaringolo.dev@gmail.com</a>.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. O que fica no seu aparelho</h2>
+        <p>
+          Tudo o que você cria (grupos, listas, tarefas, notas, etiquetas e checklists) é salvo no próprio navegador, no
+          armazenamento local do dispositivo (IndexedDB).
+        </p>
+        <p>
+          Algumas preferências também ficam guardadas no navegador (localStorage): tema, texto ampliado, primeiro dia da
+          semana, lembrete diário, se você já viu o tour de boas-vindas e um registro de que você já visitou a página de
+          produto, para que o endereço principal abra direto o app nas próximas vezes.
+        </p>
+        <p>Nada disso é enviado para mim ou para terceiros. Eu não tenho acesso a esses dados.</p>
+      </section>
+
+      <section>
+        <h2>3. Sincronização com o Google Drive (opcional)</h2>
+        <p>
+          Se você decidir sincronizar entre dispositivos, o app se conecta à sua conta Google pelo sistema de login do
+          próprio Google. Nesse caso:
+        </p>
+        <ul>
+          <li>
+            As suas tarefas são gravadas num único arquivo, <code>taskmate.automerge</code>, na raiz do seu Google Drive. O
+            arquivo é seu: você pode copiar, mover ou apagar quando quiser.
+          </li>
+          <li>
+            O app pede duas permissões. A primeira, <code>drive.file</code>, dá acesso somente aos arquivos que o próprio
+            Taskmate criou; o resto do seu Drive continua inacessível. A segunda, <code>userinfo.email</code>, serve apenas
+            para lembrar qual conta foi conectada.
+          </li>
+          <li>
+            Esse e-mail fica salvo só no seu navegador. A comunicação acontece diretamente entre o seu navegador e o Google,
+            sem passar por nenhum servidor meu. A autorização de acesso não é guardada: a cada visita, o navegador pede uma
+            nova ao Google.
+          </li>
+          <li>
+            A biblioteca de login do Google só é carregada quando você liga a sincronização. O uso da sua conta Google segue
+            a <a href="https://policies.google.com/privacy?hl=pt-BR" target="_blank" rel="noopener">Política de Privacidade do Google</a>.
+          </li>
+        </ul>
+        <p>
+          Você pode desligar a sincronização a qualquer momento pelo app e revogar o acesso do Taskmate à sua conta em
+          <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">myaccount.google.com/permissions</a>.
+        </p>
+      </section>
+
+      <section>
+        <h2>4. O que eu não faço</h2>
+        <ul>
+          <li>Não uso ferramentas de análise, métricas, anúncios ou rastreamento.</li>
+          <li>Não uso cookies próprios.</li>
+          <li>Não vendo, não alugo e não compartilho dados pessoais, até porque não os recebo.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>5. Hospedagem</h2>
+        <p>
+          O site é hospedado no Firebase Hosting, um serviço do Google. Como acontece com qualquer site, o provedor pode
+          registrar dados técnicos da conexão, como endereço IP, tipo de navegador e horário do acesso, para entregar as
+          páginas e proteger o serviço. Eu não uso esses registros para identificar ninguém.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. Recursos do aparelho</h2>
+        <ul>
+          <li>
+            <strong>Lembrete diário.</strong> Se você ativar, o navegador pede permissão para mostrar notificações. O
+            lembrete é gerado no próprio aparelho.
+          </li>
+          <li>
+            <strong>Compartilhar com o Taskmate</strong> (no Android, com o app instalado). O texto ou link que você
+            compartilha vai direto para o app no seu aparelho.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>7. Como apagar os seus dados</h2>
+        <ul>
+          <li>
+            <strong>No aparelho:</strong> limpe os dados do site nas configurações do navegador ou desinstale o app. Sem
+            sincronização, isso apaga tudo de forma definitiva.
+          </li>
+          <li><strong>No Google Drive:</strong> apague o arquivo <code>taskmate.automerge</code>.</li>
+          <li>Antes, se quiser guardar uma cópia, exporte tudo em Markdown pelas Preferências do app.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>8. Os seus direitos</h2>
+        <p>
+          A Lei Geral de Proteção de Dados (Lei nº 13.709/2018) garante direitos como acesso, correção e eliminação dos seus
+          dados pessoais. Como os dados ficam no seu aparelho e na sua conta Google, você exerce esses direitos diretamente,
+          sem depender de mim. Se tiver qualquer dúvida, escreva para
+          <a href="mailto:adrianomaringolo.dev@gmail.com">adrianomaringolo.dev@gmail.com</a>.
+        </p>
+      </section>
+
+      <section>
+        <h2>9. Mudanças nesta política</h2>
+        <p>Se esta política mudar, a nova versão é publicada nesta página, com a data de atualização no topo.</p>
+      </section>
+    </main>
+
+    <footer class="legal-foot">
+      <a href="/produto/">Conhecer o Taskmate</a>
+      <a href="/termos/">Termos de uso</a>
+      <a href="mailto:adrianomaringolo.dev@gmail.com">adrianomaringolo.dev@gmail.com</a>
+    </footer>
+  </body>
+</html>

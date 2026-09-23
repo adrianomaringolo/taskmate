@@ -79,6 +79,14 @@ export function About({ open, onClose }: Props) {
       </dl>
 
       <p className="about__note">Código aberto — qualquer pessoa pode ler, copiar ou contribuir.</p>
+      <p className="about__legal">
+        <a href="/privacidade/" target="_blank" rel="noopener">
+          Política de privacidade
+        </a>
+        <a href="/termos/" target="_blank" rel="noopener">
+          Termos de uso
+        </a>
+      </p>
     </dialog>
   );
 }

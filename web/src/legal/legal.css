@@ -1,0 +1,168 @@
+/*
+ * Reading pages (política de privacidade, termos de uso). The visitor came to
+ * read: one column at a comfortable measure, the app's tokens for colour and
+ * type, numbered sections that scan, nothing else on the page.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  padding-inline: 20px;
+}
+
+::selection {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+
+:focus-visible {
+  outline: var(--focus-width) solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+a {
+  color: var(--brand-ink);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.legal-bar,
+.legal,
+.legal-foot {
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+.legal-bar {
+  padding-block: 20px;
+}
+
+.legal-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.legal-brand svg {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.legal {
+  padding-block: var(--s-7) var(--s-8);
+}
+
+.legal h1 {
+  margin: 0 0 var(--s-2);
+  font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.legal__updated {
+  margin: 0 0 var(--s-6);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+
+.legal__lede {
+  max-width: 62ch;
+  margin: 0 0 var(--s-7);
+  font-size: 1.1875rem;
+  line-height: 1.55;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.legal section {
+  max-width: 68ch;
+}
+
+/* More space above a heading than below it. */
+.legal h2 {
+  margin: var(--s-7) 0 var(--s-3);
+  font-size: 1.25rem;
+  font-weight: 620;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.legal p,
+.legal ul {
+  margin: 0 0 var(--s-4);
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.legal ul {
+  padding-left: 1.25em;
+}
+
+.legal li + li {
+  margin-top: var(--s-2);
+}
+
+.legal li::marker {
+  color: var(--ink-3);
+}
+
+.legal strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.legal code {
+  padding: 0.05em 0.35em;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.875em;
+  color: var(--ink);
+}
+
+.legal-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
+  padding-block: var(--s-5) var(--s-7);
+  border-top: 1px solid var(--line);
+  font-size: var(--t-sm);
+}
+
+.legal-foot a {
+  color: var(--ink-2);
+}
+
+.legal-foot a:hover {
+  color: var(--ink);
+}

@@ -91,9 +91,9 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         // Single-page app: any in-scope navigation resolves to the shell.
         navigateFallback: 'index.html',
-        // …except the product page, a separate document the SW would otherwise
-        // swap for the app shell once someone has opened the app.
-        navigateFallbackDenylist: [/^\/produto/],
+        // …except the product and legal pages, separate documents the SW would
+        // otherwise swap for the app shell once someone has opened the app.
+        navigateFallbackDenylist: [/^\/produto/, /^\/privacidade/, /^\/termos/],
         cleanupOutdatedCaches: true,
         // No runtimeCaching on purpose. Drive requests must always hit the
         // network: a cached file listing or a cached document revision would
@@ -121,6 +121,8 @@ export default defineConfig({
       input: {
         app: join(import.meta.dirname, 'index.html'),
         produto: join(import.meta.dirname, 'produto/index.html'),
+        privacidade: join(import.meta.dirname, 'privacidade/index.html'),
+        termos: join(import.meta.dirname, 'termos/index.html'),
       },
     },
   },

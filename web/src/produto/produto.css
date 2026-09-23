@@ -2166,6 +2166,23 @@ button.check:hover {
   transform: translate3d(0, 1px, 0);
 }
 
+.legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-4);
+  margin: var(--s-4) 0 0;
+  font-size: var(--t-xs);
+}
+
+.legal-links a {
+  color: var(--ink-3);
+  text-underline-offset: 0.2em;
+}
+
+.legal-links a:hover {
+  color: var(--ink-2);
+}
+
 /* Maker card: a quiet signature under the close, never competing with the
    CTA. Hairline box on --surface, round photo, one sentence and a link. */
 .maker {
