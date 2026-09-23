@@ -2043,6 +2043,115 @@ button.check:hover {
   font-weight: 550;
 }
 
+/* Music scene: a real play button on the left, the app's menu in miniature
+   on the right. */
+.music-play {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 48px;
+  margin-top: var(--s-2);
+  padding: 0 var(--s-5);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--t-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.music-play:hover {
+  background: var(--surface-2);
+}
+
+.music-play:active {
+  transform: translate3d(0, 1px, 0);
+}
+
+.music-play[aria-pressed='true'] {
+  border-color: var(--brand);
+  background: var(--brand-wash);
+  color: var(--brand-ink);
+}
+
+.music-play__icon {
+  display: grid;
+  color: var(--brand-ink);
+}
+
+.music-play__note {
+  margin: var(--s-3) 0 0;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+
+.music-mini {
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg);
+  box-shadow: var(--shadow-popover);
+}
+
+.music-mini__label {
+  margin: 0 0 var(--s-1);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.music-mini__hint {
+  margin: 0 0 var(--s-3);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+
+.music-mini__list {
+  margin: 0;
+  padding: var(--s-2) 0 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.music-mini__track {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  padding: var(--s-2);
+  border-radius: var(--r-sm);
+  transition: background var(--dur) var(--ease);
+}
+
+.music-mini__track[aria-current='true'] {
+  background: var(--brand-wash);
+}
+
+.music-mini__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 1.4em;
+  color: var(--brand-ink);
+}
+
+.music-mini__name {
+  display: block;
+  font-size: var(--t-sm);
+  font-weight: 550;
+}
+
+.music-mini__note {
+  display: block;
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+}
+
 /* -------------------------------------------------------------- the app -- */
 
 .app-side,

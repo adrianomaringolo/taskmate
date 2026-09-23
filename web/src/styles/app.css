@@ -399,8 +399,8 @@ button {
   color: var(--ink);
 }
 
-.topbar__ambient[aria-pressed='true'],
-.topbar__ambient[aria-pressed='true']:hover:not(:disabled) {
+.topbar__ambient.is-on,
+.topbar__ambient.is-on:hover:not(:disabled) {
   color: var(--brand-ink);
   background: var(--brand-wash);
 }
@@ -1463,6 +1463,63 @@ button {
   font-size: var(--t-xs);
   color: var(--ink-3);
   text-wrap: pretty;
+}
+
+/* ---------- ambient music menu ---------- */
+
+.ambient-menu {
+  width: min(20rem, calc(100vw - 16px));
+}
+
+.ambient-menu__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--tap-row);
+  padding: 0 var(--s-2);
+  font-size: var(--t-sm);
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.ambient-menu__toggle > span {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--s-1);
+}
+
+.ambient-menu__track {
+  align-items: flex-start;
+  padding-block: var(--s-2);
+}
+
+.ambient-menu__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 1.3em;
+  color: var(--brand-ink);
+}
+
+.ambient-menu__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ambient-menu__track[aria-checked='true'] .ambient-menu__name {
+  font-weight: 600;
+}
+
+.ambient-menu__note {
+  font-size: var(--t-xs);
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.ambient-menu__foot {
+  padding-top: var(--s-2);
 }
 
 .swatches {
@@ -2744,6 +2801,15 @@ button {
 
 .prefs__action {
   margin-top: var(--s-2);
+}
+
+.prefs__select {
+  margin-top: var(--s-2);
+  width: 100%;
+}
+
+.prefs__toggle--after {
+  margin-top: var(--s-3);
 }
 
 /* ---------- low-vision mode ---------- */

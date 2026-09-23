@@ -138,7 +138,7 @@
         </div>
       </section>
 
-      <section class="split" id="como-funciona" data-sc-act="pin" data-sc-span="26" aria-label="Como o Taskmate funciona">
+      <section class="split" id="como-funciona" data-sc-act="pin" data-sc-span="28" aria-label="Como o Taskmate funciona">
         <div class="split__stage sc-stage" data-sc-stage>
           <div class="ground ground--left" aria-hidden="true"></div>
 
@@ -153,8 +153,8 @@
           <!-- The divider is the page's only chrome: both labels, and the
                progress of the argument as the amber dot travelling down it. -->
           <div class="divider" aria-hidden="true">
-            <span class="divider__label divider__label--left"><span class="divider__word" data-label="">Capturar</span><span class="divider__word" data-label="share">Compartilhar</span><span class="divider__word" data-label="overdue">Atrasadas</span><span class="divider__word" data-label="details">Detalhes</span><span class="divider__word" data-label="trash">Desfazer</span><span class="divider__word" data-label="views">Quadro</span><span class="divider__word" data-label="prefs">Aparência</span><span class="divider__word" data-label="updates">Atualização</span></span>
-            <span class="divider__label divider__label--right"><span class="divider__word" data-label="">Triar</span><span class="divider__word" data-label="share">Tarefa ou nota</span><span class="divider__word" data-label="overdue">A revisar</span><span class="divider__word" data-label="details">Etiquetas</span><span class="divider__word" data-label="trash">Lixeira</span><span class="divider__word" data-label="views">Calendário</span><span class="divider__word" data-label="prefs">Seus dados</span><span class="divider__word" data-label="updates">Versão</span></span>
+            <span class="divider__label divider__label--left"><span class="divider__word" data-label="">Capturar</span><span class="divider__word" data-label="share">Compartilhar</span><span class="divider__word" data-label="overdue">Atrasadas</span><span class="divider__word" data-label="details">Detalhes</span><span class="divider__word" data-label="trash">Desfazer</span><span class="divider__word" data-label="views">Quadro</span><span class="divider__word" data-label="prefs">Aparência</span><span class="divider__word" data-label="updates">Atualização</span><span class="divider__word" data-label="music">Ouvir</span></span>
+            <span class="divider__label divider__label--right"><span class="divider__word" data-label="">Triar</span><span class="divider__word" data-label="share">Tarefa ou nota</span><span class="divider__word" data-label="overdue">A revisar</span><span class="divider__word" data-label="details">Etiquetas</span><span class="divider__word" data-label="trash">Lixeira</span><span class="divider__word" data-label="views">Calendário</span><span class="divider__word" data-label="prefs">Seus dados</span><span class="divider__word" data-label="updates">Versão</span><span class="divider__word" data-label="music">Escolher</span></span>
           </div>
 
           <!-- ============================ CAPTURAR ============================ -->
@@ -224,6 +224,16 @@
               <h2 class="headline">Atualiza quando você quiser.</h2>
               <p class="lede">Quando sai uma versão nova, um aviso aparece no rodapé. É só clicar em Recarregar. O app nunca recarrega sozinho: você pode estar no meio de uma nota.</p>
               <div class="demo" data-demo="update-toast"></div>
+            </div>
+
+            <div class="scene" data-scene="music" data-sc-cue="0">
+              <h2 class="headline">Uma trilha para pensar com calma.</h2>
+              <p class="lede">Deixe uma música relaxante tocando enquanto organiza o dia. Ajuda a organizar os pensamentos, e as tarefas vêm junto.</p>
+              <button type="button" class="music-play" data-music-play aria-pressed="false">
+                <span class="music-play__icon" data-icon="music"></span>
+                <span data-music-label>Ouvir a Chuva</span>
+              </button>
+              <p class="music-play__note">Toca aqui mesmo, baixinho. Clique de novo para parar.</p>
             </div>
 
             <div class="scene scene--quiet" data-scene="quiet" data-sc-cue="0">
@@ -305,6 +315,12 @@
               <h2 class="headline">E sabe qual versão está usando.</h2>
               <p class="lede">O número da versão fica no menu Sobre. A atualização baixa em segundo plano, sem travar o que você está fazendo.</p>
               <div class="demo" data-demo="about"></div>
+            </div>
+
+            <div class="scene" data-scene="music" data-sc-cue="0">
+              <h2 class="headline">Seis músicas, e ele lembra da sua.</h2>
+              <p class="lede">Escolha no ícone de nota musical, no topo do app. Se você deixou tocando, a mesma música volta na próxima vez que abrir.</p>
+              <div class="demo" data-demo="music"></div>
             </div>
 
             <div class="scene scene--quiet" data-scene="quiet" data-sc-cue="0">

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { setAmbient, useAmbient } from '../lib/ambient';
+import { TRACKS } from '../lib/ambient';
+import { setAmbientOn, setAmbientSequenceOn, setAmbientTrack, useAmbient } from '../lib/useAmbient';
 import { toMarkdown } from '../lib/export';
 import * as Reminder from '../lib/notify';
 import { today } from '../lib/date';
@@ -45,7 +46,7 @@ export function Preferences({
   onWeekStart,
 }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
-  const ambientOn = useAmbient();
+  const ambient = useAmbient();
 
   useEffect(() => {
     const dialog = ref.current;
@@ -137,18 +138,39 @@ export function Preferences({
       </section>
 
       <section className="prefs__section">
-        <p className="prefs__label">Som ambiente</p>
+        <p className="prefs__label">Música ambiente</p>
         <label className="prefs__toggle">
           <input
             type="checkbox"
-            checked={ambientOn}
-            onChange={(e) => void setAmbient(e.target.checked)}
+            checked={ambient.on}
+            onChange={(e) => void setAmbientOn(e.target.checked)}
           />
           <span>
-            Chuva suave ao fundo enquanto o app está aberto. Também liga e desliga pelo ícone de nota
-            musical no topo. Trecho de “Rain · Sleep · Meditation”, de HoliznaCC0 (domínio público).
+            Músicas relaxantes ao fundo enquanto o app está aberto, para ajudar a organizar os
+            pensamentos. Também no ícone de nota musical, no topo.
           </span>
         </label>
+        <select
+          className="select prefs__select"
+          aria-label="Música"
+          value={ambient.trackId}
+          onChange={(e) => void setAmbientTrack(e.target.value)}
+        >
+          {TRACKS.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name} — {t.note.toLowerCase()}
+            </option>
+          ))}
+        </select>
+        <label className="prefs__toggle prefs__toggle--after">
+          <input
+            type="checkbox"
+            checked={ambient.sequence}
+            onChange={(e) => setAmbientSequenceOn(e.target.checked)}
+          />
+          <span>Tocar em sequência — ao fim de cada música, passa para a próxima.</span>
+        </label>
+        <p className="prefs__note">Faixas de HoliznaCC0, em domínio público.</p>
       </section>
 
       <section className="prefs__section">

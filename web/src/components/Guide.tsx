@@ -196,6 +196,17 @@ export function Guide({ open, onClose }: Props) {
       </section>
 
       <section className="guide__section">
+        <h3 className="guide__heading">Música ambiente</h3>
+        <p className="guide__body">
+          Seis músicas relaxantes para tocar ao fundo enquanto você organiza o dia — chuva, pads
+          cósmicos, meditações. Deixar ligada ajuda a organizar os pensamentos. Escolha no ícone de
+          nota musical, no topo, ou nas Preferências. Com “Tocar em sequência”, ao fim de cada música
+          passa para a próxima. O app lembra a música e se ela estava tocando, e retoma no primeiro
+          toque da próxima visita.
+        </p>
+      </section>
+
+      <section className="guide__section">
         <h3 className="guide__heading">Nunca perder uma tarefa (ou nota)</h3>
         <p className="guide__body">
           Excluir tem desfazer na hora (<kbd className="kbd">Ctrl</kbd> + <kbd className="kbd">Z</kbd>
@@ -207,8 +218,8 @@ export function Guide({ open, onClose }: Props) {
       <section className="guide__section">
         <h3 className="guide__heading">Preferências</h3>
         <p className="guide__body">
-          Tema (claro, escuro ou seguir o sistema), texto ampliado, início da semana, o lembrete
-          diário e exportar tudo em Markdown legível — tudo na engrenagem, no topo.
+          Tema (claro, escuro ou seguir o sistema), texto ampliado, música ambiente, início da
+          semana, o lembrete diário e exportar tudo em Markdown legível — tudo na engrenagem, no topo.
         </p>
       </section>
 

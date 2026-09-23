@@ -26,6 +26,7 @@ import {
   weekdayShort,
 } from '../lib/date';
 import { parseCapture, stripListMarker, tokenizeCapture, type ParsedCapture } from '../lib/parse';
+import { playAmbient, playingTrack, stopAmbient, subscribeAmbient, TRACKS } from '../lib/ambient';
 import { toMarkdown } from '../lib/export';
 import { writePref } from '../lib/prefs';
 import { PRIORITY_LABELS, RECURRENCE_LABELS, type AppState, type GroupColor } from '../lib/types';
@@ -66,6 +67,7 @@ const PATHS: Record<string, string> = {
   tag: '<path d="M8.4 1.7A1.3 1.3 0 0 0 7.4 1.3H2.7a1.3 1.3 0 0 0-1.3 1.3v4.8a1.3 1.3 0 0 0 .4 .9l5.8 5.8a1.6 1.6 0 0 0 2.3 0l4.4-4.4a1.6 1.6 0 0 0 0-2.3z"/><circle cx="5" cy="5" r=".3" fill="currentColor"/>',
   search: '<path d="m14 14-2.9-2.9"/><circle cx="7.3" cy="7.3" r="5.3"/>',
   // Lucide download, scaled by tools/lucide-scale.mjs.
+  music: '<path d="M6 12V3.3l8-1.3v8.7"/><circle cx="4" cy="12" r="2"/><circle cx="12" cy="10.7" r="2"/>',
   download:
     '<path d="M8 10V2"/><path d="M14 10v2.7a1.3 1.3 0 0 1-1.3 1.3H3.3a1.3 1.3 0 0 1-1.3-1.3v-2.7"/><path d="m4.7 6.7 3.3 3.3 3.3-3.3"/>',
   // Lucide monitor, laptop, tablet, smartphone, shield-check, eye-off and
@@ -229,21 +231,22 @@ const SCENES = {
   // The first scene is already on screen while the hero scrolls away (about a
   // viewport of travel before the pin starts), so its own window is short:
   // that way every scene gets roughly the same time in front of the reader.
-  hero: [0, 0.035],
-  typing: [0.027, 0.111],
-  paste: [0.103, 0.187],
-  share: [0.179, 0.263],
-  today: [0.255, 0.339],
-  overdue: [0.331, 0.414],
-  details: [0.406, 0.490],
-  trash: [0.482, 0.566],
-  views: [0.558, 0.642],
-  prefs: [0.634, 0.718],
-  updates: [0.710, 0.794],
-  quiet: [0.786, 0.870],
+  hero: [0.000, 0.033],
+  typing: [0.025, 0.103],
+  paste: [0.096, 0.174],
+  share: [0.166, 0.244],
+  today: [0.237, 0.315],
+  overdue: [0.307, 0.384],
+  details: [0.377, 0.455],
+  trash: [0.448, 0.526],
+  views: [0.518, 0.596],
+  prefs: [0.589, 0.667],
+  updates: [0.659, 0.737],
+  music: [0.730, 0.808],
+  quiet: [0.800, 0.878],
 } as const satisfies Record<string, readonly [number, number]>;
 /** The divider travels to the sidebar across this range; the app holds after. */
-const COLLAPSE = [0.861, 0.94] as const;
+const COLLAPSE = [0.870, 0.943] as const;
 
 type SceneName = keyof typeof SCENES;
 const inScene = (p: number, name: SceneName) => local(p, SCENES[name][0], SCENES[name][1]);
@@ -912,6 +915,59 @@ if (aboutHost) {
     </div>`;
 }
 
+// Music scene, left: a real button. The page plays only the first track (rain)
+// and remembers nothing — the choice of track, and keeping it on across
+// visits, belong to the app.
+const musicButton = $<HTMLButtonElement>('[data-music-play]');
+const musicLabel = $('[data-music-label]');
+const FIRST = TRACKS[0]!;
+if (musicButton) {
+  const sync = () => {
+    const on = playingTrack() !== null;
+    musicButton.setAttribute('aria-pressed', String(on));
+    if (musicLabel) musicLabel.textContent = on ? `Parar a ${FIRST.name}` : `Ouvir a ${FIRST.name}`;
+  };
+  subscribeAmbient(sync);
+  musicButton.addEventListener('click', () => {
+    if (playingTrack()) {
+      stopAmbient();
+      return;
+    }
+    void playAmbient(FIRST.id).then((ok) => {
+      if (!ok && musicLabel) musicLabel.textContent = 'Sem conexão para tocar agora';
+    });
+  });
+  sync();
+}
+
+// Music scene, right: the app's music menu in miniature, the pick moving down
+// the list as the scene plays.
+const musicPick = (p: number) => {
+  const q = inScene(p, 'music');
+  return q < 0.3 ? 0 : q < 0.55 ? 1 : 2;
+};
+const musicMenu = scene(
+  $('[data-demo="music"]'),
+  (p) => String(musicPick(p)),
+  (p) => {
+    const pick = musicPick(p);
+    const rows = TRACKS.slice(0, 4)
+      .map(
+        (t, i) =>
+          `<li class="music-mini__track"${i === pick ? ' aria-current="true"' : ''}><span class="music-mini__mark">${i === pick ? icon('music') : ''}</span><span><span class="music-mini__name">${esc(t.name)}</span><span class="music-mini__note">${esc(t.note)}</span></span></li>`
+      )
+      .join('');
+    return `
+      <div class="music-mini" aria-hidden="true">
+        <p class="music-mini__label">Música ambiente</p>
+        <p class="music-mini__hint">Deixe as músicas relaxantes ligadas enquanto usa o app: elas ajudam a organizar os pensamentos.</p>
+        <span class="prefs-mini__toggle"><span class="check" aria-checked="true"><svg class="check__tick" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5 6.8 11 12 5.5"/></svg></span>Tocar música</span>
+        <ul class="music-mini__list">${rows}</ul>
+      </div>
+      <p class="sr-only">Exemplo do menu de música do app, com ${esc(TRACKS[pick]!.name)} escolhida.</p>`;
+  }
+);
+
 // Final sidebar tree: the whole structure, the same one scene 3 grew.
 const sideTree = $('[data-demo="side-tree"]');
 if (sideTree) {
@@ -1058,6 +1114,7 @@ function frame() {
   prefs(p);
   markdown(p);
   updateToast(p);
+  musicMenu(p);
 
   // The collapse: the divider travels to where the app's sidebar ends, and the
   // left ground travels with it, so the capture half literally becomes the
@@ -1456,6 +1513,7 @@ const FOCUS: Record<SceneName, [number, Side][]> = {
   views: [[0, 'L'], [0.58, 'R']],
   prefs: [[0, 'L'], [0.64, 'R']],
   updates: [[0, 'L'], [0.62, 'R']],
+  music: [[0, 'L'], [0.28, 'R']],
   quiet: [[0, 'L'], [0.5, 'R']],
 };
 const focusArrow = $('[data-focus-arrow]');

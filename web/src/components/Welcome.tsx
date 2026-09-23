@@ -39,9 +39,14 @@ const STEPS: Step[] = [
     body: 'Sem conectar nada, os dados ficam só neste dispositivo. Pra usar em mais de um, conecte seu Google Drive — sem servidor nosso, sem senha, o arquivo continua seu.',
   },
   {
+    icon: 'music',
+    title: 'Uma trilha para pensar com calma',
+    body: 'O ícone de nota musical, no topo, toca músicas relaxantes ao fundo. Deixe ligado enquanto organiza o dia: ajuda a organizar os pensamentos. São seis faixas — dá para ouvir uma só ou todas em sequência —, e o app lembra qual você escolheu e se ela estava tocando.',
+  },
+  {
     icon: 'keyboard',
     title: 'Atalhos e lembretes',
-    body: 'O ícone de teclado lista os atalhos, e o de sino ativa um aviso diário sobre tarefas vencendo. A engrenagem abre as preferências — tema, lembrete, exportar tudo em Markdown — e a Lixeira, na lateral, guarda o que foi excluído. Este tour fica sempre em "Ajuda".',
+    body: 'O ícone de teclado lista os atalhos, e o de sino ativa um aviso diário sobre tarefas vencendo. A engrenagem abre as preferências — tema, música, lembrete, exportar tudo em Markdown — e a Lixeira, na lateral, guarda o que foi excluído. Este tour fica sempre em "Ajuda".',
   },
 ];
 

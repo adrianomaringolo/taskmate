@@ -336,7 +336,7 @@ está ativo. O que muda é a composição.
   página, no botão, com Esc, ou assim que o visitante rola por conta própria;
   acionado no fim, recomeça do topo.
 - **Ritmo das cenas:** todas as janelas vivem em `SCENES` e têm a mesma
-  largura (~2,1 telas; 11 cenas em 26 telas); a primeira é mais curta porque já aparece enquanto o
+  largura (~2,1 telas; 12 cenas em 28 telas); a primeira é mais curta porque já aparece enquanto o
   hero sai. Medido: 1,7 tela legível por cena, 1,5 na primeira e na calma.
 - **Atrasadas | A revisar** (depois de Hoje): três atrasadas adiadas uma a uma
   com os atalhos reais do app (Amanhã, 3 dias, 1 semana, 1 mês), o escolhido

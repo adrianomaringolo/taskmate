@@ -101,23 +101,49 @@ de traço convivendo com o set de ícones da interface — e o Lucide elimina a
 mistura ao ser o mesmo idioma. A troca também reduziu as marcas de 11.741 para
 2.564 bytes.
 
-## Som ambiente — chuva
+## Música ambiente
 
-`web/src/assets/audio/chuva.mp3` é um trecho de 4 minutos (de 4:00 a 8:08 do
-original) de **"Rain _ Sleep _ Meditation"**, de **HoliznaCC0**, do álbum
-*Space - Sleep - Meditation* (2022), publicado no
-[Free Music Archive](https://freemusicarchive.org/music/holiznacc0/space-sleep-meditation/rain-sleep-meditation/)
+Todas as faixas vêm do álbum *Space - Sleep - Meditation* (2022), de
+**HoliznaCC0**, publicado no
+[Free Music Archive](https://freemusicarchive.org/music/holiznacc0/space-sleep-meditation/)
 sob **CC0 1.0 Universal** — domínio público, sem exigência de atribuição. O
-crédito fica aqui e na seção "Som ambiente" das Preferências por cortesia.
+crédito fica aqui, no menu de música e nas Preferências por cortesia.
 
-Os últimos 8 segundos do trecho foram fundidos (crossfade equal-power) sobre o
-início, para o loop não ter emenda; depois reencodado em MP3 96 kbps estéreo
-44,1 kHz. Comando em `ffmpeg`:
+Arquivos em `web/src/assets/audio/`, todos MP3 96 kbps estéreo 44,1 kHz e
+nivelados em **-20 LUFS** (`volume` calculado com `ebur128` + `alimiter` a 0,95),
+para trocar de música não mudar o volume:
+
+| No app | Faixa original | Arquivos | Trechos (início no original) |
+|---|---|---|---|
+| Chuva | Rain _ Sleep _ Meditation | `chuva.mp3` | 4:00, 4 min, loop contínuo |
+| Ondas cósmicas | Cosmic Waves | `cosmos-1..3.mp3` | 5:00 · 15:00 · 25:00, 3 min cada |
+| Paisagem de sonho | DreamScape | `sonho-1..3.mp3` | 2:00 · 9:00 · 16:00 |
+| Um tempo breve | Too Brief A Time To Be Anything | `breve-1..3.mp3` | 10:00 · 25:00 · 38:20 |
+| Meditação 12 | 20 Minute Meditation 12 | `medit12-1..3.mp3` | 1:00 · 9:40 · 18:20 |
+| Meditação 1 | 20 Minute Meditation 1 | `medit1-1..3.mp3` | 1:00 · 8:00 · 15:00 |
+
+Os trechos de 3 minutos são cortes simples; a transição entre eles (e do
+último de volta ao primeiro) é um crossfade de 6 s feito em tempo de execução
+por `web/src/lib/ambient.ts`. Corte de cada um:
 
 ```
-ffmpeg -ss 240 -t 248 -i original.mp3 -filter_complex "[0:a]asplit=2[s1][s2];
+ffmpeg -ss <início> -t 180 -i original.mp3 -af "volume=<ganho>dB,alimiter=limit=0.95:level=false" \
+  -ac 2 -ar 44100 -c:a libmp3lame -b:a 96k <nome>-<n>.mp3
+```
+
+A Chuva é um trecho só, de 4:00 a 8:08 do original, com os últimos 8 segundos
+fundidos (crossfade equal-power) sobre o início para o loop não ter emenda:
+
+```
+ffmpeg -ss 240 -t 248 -i original.mp3 -filter_complex "[0:a]volume=-5.1dB,asplit=2[s1][s2];
   [s1]atrim=start=8:end=248,asetpts=PTS-STARTPTS,afade=t=out:st=232:d=8:curve=qsin[a];
   [s2]atrim=start=0:end=8,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=8:curve=qsin,adelay=232000|232000[b];
-  [a][b]amix=inputs=2:normalize=0:duration=first,atrim=end=240[o]"
+  [a][b]amix=inputs=2:normalize=0:duration=first,atrim=end=240,alimiter=limit=0.95:level=false[o]"
   -map "[o]" -ac 2 -ar 44100 -c:a libmp3lame -b:a 96k chuva.mp3
 ```
+
+Várias faixas desse álbum são, por dentro, um loop curto repetido: a Chuva
+repete a cada 64 s e a Meditação 1 também, então os três trechos dela soam
+iguais. Ondas cósmicas, Um tempo breve e Paisagem de sonho não se repetem, e a
+Meditação 12 tem ciclo de ~5,6 min — nelas os três trechos são de fato
+diferentes.

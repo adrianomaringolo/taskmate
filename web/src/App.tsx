@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { About } from './components/About';
+import { AmbientMenu } from './components/AmbientMenu';
 import { ContentView } from './components/ContentView';
 import { Guide } from './components/Guide';
 import { Icon } from './components/Icon';
@@ -10,10 +11,10 @@ import { Sidebar } from './components/Sidebar';
 import { SyncPanel } from './components/SyncPanel';
 import { Toasts } from './components/Toasts';
 import { Welcome } from './components/Welcome';
-import { resumeAmbientOnGesture, setAmbient, useAmbient } from './lib/ambient';
 import { today } from './lib/date';
 import { parseCapture } from './lib/parse';
 import * as Reminder from './lib/notify';
+import { resumeAmbientOnGesture } from './lib/useAmbient';
 import { readPref, writePref } from './lib/prefs';
 import { initPwa } from './lib/pwa';
 import { StoreProvider, useStore } from './lib/store';
@@ -160,11 +161,10 @@ function Shell() {
   }, [notify]);
 
   useEffect(() => resumeAmbientOnGesture(), []);
-  const ambientOn = useAmbient();
-  const toggleAmbient = useCallback(async () => {
-    const ok = await setAmbient(!ambientOn);
-    if (!ok) notify('Não consegui carregar o som de chuva. Confira a conexão.', 'error');
-  }, [ambientOn, notify]);
+  const ambientFailed = useCallback(
+    () => notify('Não consegui carregar a música. Confira a conexão.', 'error'),
+    [notify]
+  );
 
   // Checked on mount, whenever the task list changes, and every minute while
   // the tab stays open — the closest this can get to "at 8h" without a
@@ -382,16 +382,7 @@ function Shell() {
 
           <SyncPanel />
 
-          <button
-            type="button"
-            className="btn btn--icon topbar__ambient"
-            aria-label="Som de chuva"
-            aria-pressed={ambientOn}
-            title={ambientOn ? 'Desligar o som de chuva' : 'Ligar o som de chuva'}
-            onClick={() => void toggleAmbient()}
-          >
-            <Icon name="music" />
-          </button>
+          <AmbientMenu onError={ambientFailed} />
 
           <button
             type="button"
