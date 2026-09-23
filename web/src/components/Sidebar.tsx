@@ -267,6 +267,18 @@ export function Sidebar({
                 <Icon name="bookOpen" />
                 Todas as funcionalidades
               </button>
+              {/* New tab: installed as a PWA, same-tab navigation would leave
+                  the app with no way back. */}
+              <a
+                className="menu__item"
+                href="/produto/"
+                target="_blank"
+                rel="noopener"
+                onClick={close}
+              >
+                <Icon name="compass" />
+                Página do produto
+              </a>
               <button
                 type="button"
                 className="menu__item"

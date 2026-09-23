@@ -67,6 +67,31 @@ eliminar, ou simplificados de propósito para legibilidade em 16px).
 `tools/icons.ts` a partir da marca do próprio projeto (checkbox com tique, âmbar
 `#cc7d2a`). Nenhuma arte de terceiros. Regenera com `npm run icons`.
 
+## Motor de scroll da página de produto
+
+`web/src/produto/scrollcraft.js` e `scrollcraft.css` são o motor do
+[scroll-craft](https://github.com/nateherkai/scroll-craft), copiados sem
+alteração. Licença MIT, Copyright (c) 2026 Nate Herk; o aviso completo está em
+`assets/scrollcraft-LICENSE.txt`. Só a página `/produto/` carrega esses arquivos,
+nunca o app.
+
+## Vídeo do hero da página de produto
+
+`web/public/produto/hero.mp4` e `hero-poster.webp` vêm do vídeo 6963729 do
+Pexels, de **Cup of Couple** (https://www.pexels.com/video/6963729/), sob a
+licença do Pexels (uso livre, atribuição não obrigatória). O crédito aparece
+no canto do hero mesmo assim. Tratamento: arquivo HD 1920×1080 (a maior
+versão disponível), loop sem emenda (o último 0,8 s funde com o começo),
+desacelerado para 0,6× com interpolação de movimento a 30 fps, sem áudio,
+H.264 CRF 20; `hero-720.mp4` é a mesma coisa em 1280×720, CRF 23, servida
+só em telas de até 860px. O pôster é o primeiro quadro em WebP.
+
+## Foto do autor na página de produto
+
+`web/public/produto/adriano.webp` é um recorte quadrado (320×320) do retrato
+`about-profile-photo.jpeg` do site pessoal do autor (adrianomaringolo.dev),
+usado com a autorização dele.
+
 ## Histórico
 
 Antes do Lucide, os estados vazios usaram cinco vetores de domínio público de

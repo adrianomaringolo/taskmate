@@ -18,6 +18,35 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23cd8134' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.4 10.4 5.5 12.7 11.6 4.6'/%3E%3Cpath d='M12.9 2.9 13.9 1.6'/%3E%3C/svg%3E"
     />
     <script>
+      // First visit on this device goes to the product page. "Visited" is the
+      // flag the product page's links to the app set (produto/main.ts), or any
+      // preference an earlier app session left behind (so existing users are
+      // never bounced), or a URL that came in with a purpose (?capturar=,
+      // the Android share sheet's ?title=/?text=). Runs before anything else
+      // on the page can write to storage. Blocked storage means no way to
+      // remember the visit, so no redirect either: that would be a loop.
+      (function () {
+        try {
+          var ls = localStorage;
+          if (ls.getItem('taskmate:visited')) return;
+          var used = false;
+          for (var i = 0; i < ls.length; i++) {
+            var k = ls.key(i) || '';
+            if (k.indexOf('taskmate:') === 0 || k.indexOf('trellis:') === 0) {
+              used = true;
+              break;
+            }
+          }
+          if (used || location.search.length > 1) {
+            ls.setItem('taskmate:visited', '1');
+            return;
+          }
+          window.__taskmateRedirecting = true;
+          location.replace('/produto/');
+        } catch (e) {}
+      })();
+    </script>
+    <script>
       // Applies the saved theme before first paint so there is no flash of the
       // wrong theme on load. Kept inline and tiny for exactly that reason.
       try {

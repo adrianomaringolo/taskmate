@@ -1422,6 +1422,8 @@ button {
   border-radius: var(--r-sm);
   font-size: var(--t-sm);
   text-align: left;
+  color: inherit;
+  text-decoration: none;
 }
 
 .menu__item:hover {

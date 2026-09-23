@@ -91,6 +91,9 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         // Single-page app: any in-scope navigation resolves to the shell.
         navigateFallback: 'index.html',
+        // …except the product page, a separate document the SW would otherwise
+        // swap for the app shell once someone has opened the app.
+        navigateFallbackDenylist: [/^\/produto/],
         cleanupOutdatedCaches: true,
         // No runtimeCaching on purpose. Drive requests must always hit the
         // network: a cached file listing or a cached document revision would
@@ -112,5 +115,13 @@ export default defineConfig({
     sourcemap: true,
     // The wasm glue relies on top-level await, which needs a modern target.
     target: 'es2022',
+    // Two pages: the app at `/` and the product page at `/produto/`. The
+    // product page imports only parse.ts/date.ts, never Automerge.
+    rollupOptions: {
+      input: {
+        app: join(import.meta.dirname, 'index.html'),
+        produto: join(import.meta.dirname, 'produto/index.html'),
+      },
+    },
   },
 });

@@ -11,6 +11,7 @@ import { SyncPanel } from './components/SyncPanel';
 import { Toasts } from './components/Toasts';
 import { Welcome } from './components/Welcome';
 import { today } from './lib/date';
+import { parseCapture } from './lib/parse';
 import * as Reminder from './lib/notify';
 import { readPref, writePref } from './lib/prefs';
 import { initPwa } from './lib/pwa';
@@ -85,7 +86,7 @@ export default function App() {
 }
 
 function Shell() {
-  const { data, status, addTask, addNote, undoLast, notify } = useStore();
+  const { data, status, addTask, addTasks, addNote, undoLast, notify } = useStore();
   const { choice, setChoice } = useTheme();
   const { vision, setVision } = useA11y();
   const [weekStart, setWeekStartState] = useState<WeekStart>(readWeekStart);
@@ -203,6 +204,36 @@ function Shell() {
     writePref(ONBOARDING_KEY, '1');
     setPendingShare(shared.slice(0, 2000));
   }, [status]);
+
+  // Hand-off from the product page (`/produto/`): what the visitor typed there
+  // arrives as `?capturar=`, one per task. Unlike a share-sheet payload it is
+  // already known to be a task, so it skips the "tarefa ou nota?" dialog and
+  // goes through the same parser as the capture field, straight to the Entrada.
+  const capturedHandled = useRef(false);
+  useEffect(() => {
+    if (capturedHandled.current || status !== 'ready') return;
+    const params = new URLSearchParams(location.search);
+    const lines = params
+      .getAll('capturar')
+      .map((line) => line.trim().slice(0, 300))
+      .filter(Boolean)
+      .slice(0, 20);
+    if (!lines.length) return;
+    const inbox = data.lists.find((l) => l.isInbox);
+    if (!inbox) return;
+
+    capturedHandled.current = true;
+    history.replaceState(null, '', location.pathname);
+    void addTasks(
+      inbox.id,
+      lines.map((line) => {
+        const { title, dueDate, priority, recurrence } = parseCapture(line);
+        return { title, dueDate: dueDate ?? null, priority, recurrence };
+      })
+    );
+    select({ kind: 'list', listId: inbox.id });
+    notify(lines.length === 1 ? 'Adicionado na Entrada.' : `${lines.length} tarefas adicionadas na Entrada.`);
+  }, [status, data.lists, addTasks, select, notify]);
 
   const saveSharedAsTask = useCallback(
     (text: string) => {

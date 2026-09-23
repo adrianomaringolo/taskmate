@@ -11,3 +11,9 @@ tools/shots/
 .impeccable/
 .DS_Store
 *.log
+
+# here.now publish state (claim tokens, slugs): local only
+.herenow/
+
+# Firebase CLI deploy cache
+.firebase/

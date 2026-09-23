@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Taskmate · anote em segundos, decida o dia com calma</title>
+    <meta
+      name="description"
+      content="Gerenciador de tarefas pessoal com grupos, listas e atividades. Captura em uma tecla, sem conta e sem servidor, funciona offline e sincroniza pelo seu Google Drive se você quiser."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0c0f12" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23cd8134' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.4 10.4 5.5 12.7 11.6 4.6'/%3E%3Cpath d='M12.9 2.9 13.9 1.6'/%3E%3C/svg%3E"
+    />
+    <script>
+      // Same theme key as the app, applied before first paint.
+      try {
+        var t = localStorage.getItem('taskmate:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+    <noscript>
+      <style>
+        [data-sc-cue] { opacity: 1 !important; }
+      </style>
+    </noscript>
+  </head>
+  <body>
+    <!--
+      THESIS: a página é o app partido ao meio. Capturar à esquerda, Triar à
+      direita; o scroll equilibra as duas até a divisória virar a borda da barra
+      lateral e a página inteira virar o Taskmate. Recusa o hero com manchete +
+      screenshot + grade de três features.
+      OWN-WORLD: mesa escandinava às 15h. Branco frio (--bg) e neutro azulado
+      (--surface) como os dois chãos, fio de 1px como única cromia estrutural,
+      âmbar latão só para o que está ativo. UI real do app (linhas, checkbox,
+      chips, campo de captura com o parser real).
+      STORY: entende que capturar e organizar são dois momentos; acredita que
+      nada se perde; digita uma tarefa e abre o app com ela na Entrada.
+      FIRST VIEWPORT: hero de vídeo (parede lisa, uma poça de luz de janela,
+      vaso e aparador embaixo à esquerda). Marca, manchete, uma frase e a ação
+      primária na metade direita, sobre a parede lisa, sem scrim. Abaixo, o
+      split 50/50: Capturar | Triar.
+      FORM: split stage, 1º na tirada (4º da minha lista). Seed d0afb49d.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+    -->
+    <main>
+      <!-- Hero: a quiet wall at three in the afternoon, one pool of light. The
+           copy sits on the plain right half of the frame, where the wall is
+           even, so it needs no scrim. Video: Cup of Couple on Pexels. -->
+      <header class="hero">
+        <video
+          class="hero__video"
+          muted
+          loop
+          playsinline
+          preload="auto"
+          poster="/produto/hero-poster.webp"
+          aria-hidden="true"
+          data-hero-video
+        >
+          <!-- Phones show the clip in the lower half only: 720p is plenty there. -->
+          <source src="/produto/hero-720.mp4" type="video/mp4" media="(max-width: 860px)" />
+          <source src="/produto/hero.mp4" type="video/mp4" />
+        </video>
+
+        <div class="hero__copy">
+          <a class="hero__brand" href="/">
+            <svg viewBox="0 0 16 16" width="32" height="32" aria-hidden="true" focusable="false">
+              <path d="M3.4 10.4 5.5 12.7 11.6 4.6" />
+              <path d="M12.9 2.9 13.9 1.6" />
+            </svg>
+            <span>Taskmate</span>
+          </a>
+          <p class="hero__tagline">Seu companheiro de tarefas</p>
+          <h1 class="hero__title"><span>Suas tarefas,</span> <span>num lugar calmo.</span></h1>
+          <p class="hero__sub">Um gerenciador de tarefas pessoal, com grupos, listas e atividades. Sem conta, sem servidor, funciona até sem internet.</p>
+          <a class="cta" href="/">Abrir o Taskmate</a>
+        </div>
+
+        <!-- Asked for explicitly: a real link to the demo, not decoration, and
+             a way to watch the whole page go by without touching anything. -->
+        <div class="hero__actions" data-hero-more>
+          <a class="hero__more" href="#como-funciona">
+            <span>Ver como funciona</span>
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+              <path d="M8 3.3v9.3" />
+              <path d="m12.7 8-4.7 4.7-4.7-4.7" />
+            </svg>
+          </a>
+          <button type="button" class="hero__more hero__auto" data-autoscroll-start>
+            <svg class="hero__auto-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+              <path d="M3.3 3.3a1.3 1.3 0 0 1 2-1.2l8 4.7a1.3 1.3 0 0 1 .1 2.3l-8 4.7A1.3 1.3 0 0 1 3.3 12.7z" />
+            </svg>
+            <span>Rolar sozinho</span>
+          </button>
+        </div>
+
+        <p class="hero__credit">Vídeo: Cup of Couple, Pexels</p>
+      </header>
+
+      <!-- The problem, before the product: a mind full of loose items, then
+           the same items dumped into one Entrada, then sorted into groups.
+           One set of elements travels through all three states. -->
+      <section class="problem" data-sc-act="pin" data-sc-span="6.5" aria-labelledby="problem-title">
+        <div class="problem__stage sc-stage" data-sc-stage>
+          <div class="problem__copy">
+            <div class="problem__step" data-sc-cue="0 0.26 0 0.2">
+              <h2 class="headline" data-sc-kinetic="lines" id="problem-title">Sua cabeça não é lugar de guardar tarefa.</h2>
+              <p class="lede">Contas, respostas que ficaram devendo, decisões do projeto, o presente de aniversário. Tudo o que você tenta lembrar disputa a mesma atenção, e o que importa agora divide espaço com todo o resto.</p>
+            </div>
+            <div class="problem__step" data-sc-cue="0.23 0.51 0.15 0.15">
+              <h2 class="headline" data-sc-kinetic="lines">Primeiro, tire tudo dela.</h2>
+              <p class="lede">Um lugar seguro para despejar o que aparece, do jeito que aparece, sem decidir nada ainda. Como nada se perde, a cabeça pode soltar.</p>
+            </div>
+            <div class="problem__step" data-sc-cue="0.48 0.76 0.15 0.15">
+              <h2 class="headline" data-sc-kinetic="lines">Depois, organize do seu jeito.</h2>
+              <p class="lede">Com calma, cada coisa ganha um lugar: grupos para os contextos da sua vida, listas para as frentes de cada um. Um sistema que se adapta à sua realidade, e não o contrário.</p>
+            </div>
+            <div class="problem__step" data-sc-cue="0.73 1 0.15 0">
+              <h2 class="headline" data-sc-kinetic="lines">E dê a cada coisa o seu quando.</h2>
+              <p class="lede">Prazos e prioridades dizem o que é para hoje e o que pode esperar. Basta escrever “amanhã” ou “!alta” na própria tarefa, e o Hoje junta o que vence, de todos os grupos.</p>
+            </div>
+          </div>
+
+          <div class="problem__arena" aria-hidden="true" data-arena>
+            <div class="pb-layout pb-layout--inbox">
+              <p class="pb-head" data-pb-head="inbox"><span data-icon="inbox"></span>Entrada<span class="pb-head__count" data-pb-count></span></p>
+              <div class="pb-grid" data-pb-slots="inbox"></div>
+            </div>
+            <div class="pb-layout pb-layout--groups" data-pb-groups></div>
+            <div class="pb-items" data-pb-items></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="split" id="como-funciona" data-sc-act="pin" data-sc-span="26" aria-label="Como o Taskmate funciona">
+        <div class="split__stage sc-stage" data-sc-stage>
+          <div class="ground ground--left" aria-hidden="true"></div>
+
+          <a class="brand" href="/" aria-label="Taskmate, abrir o app">
+            <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false">
+              <path d="M3.4 10.4 5.5 12.7 11.6 4.6" />
+              <path d="M12.9 2.9 13.9 1.6" />
+            </svg>
+            <span>Taskmate</span>
+          </a>
+
+          <!-- The divider is the page's only chrome: both labels, and the
+               progress of the argument as the amber dot travelling down it. -->
+          <div class="divider" aria-hidden="true">
+            <span class="divider__label divider__label--left"><span class="divider__word" data-label="">Capturar</span><span class="divider__word" data-label="share">Compartilhar</span><span class="divider__word" data-label="overdue">Atrasadas</span><span class="divider__word" data-label="details">Detalhes</span><span class="divider__word" data-label="trash">Desfazer</span><span class="divider__word" data-label="views">Quadro</span><span class="divider__word" data-label="prefs">Aparência</span><span class="divider__word" data-label="updates">Atualização</span></span>
+            <span class="divider__label divider__label--right"><span class="divider__word" data-label="">Triar</span><span class="divider__word" data-label="share">Tarefa ou nota</span><span class="divider__word" data-label="overdue">A revisar</span><span class="divider__word" data-label="details">Etiquetas</span><span class="divider__word" data-label="trash">Lixeira</span><span class="divider__word" data-label="views">Calendário</span><span class="divider__word" data-label="prefs">Seus dados</span><span class="divider__word" data-label="updates">Versão</span></span>
+          </div>
+
+          <!-- ============================ CAPTURAR ============================ -->
+          <div class="pane pane--left">
+            <div class="scene" data-scene="hero" data-sc-cue="0">
+              <h2 class="headline">Tire da cabeça em cinco segundos.</h2>
+              <p class="lede">A tecla <kbd class="kbd">N</kbd> abre a captura em qualquer tela. Nada de escolher grupo ou lista agora.</p>
+              <div class="demo" data-demo="hero-capture"></div>
+            </div>
+
+            <div class="scene" data-scene="typing" data-sc-cue="0">
+              <h2 class="headline">Escreva do jeito que fala.</h2>
+              <p class="lede">Prazo, prioridade e repetição saem do próprio texto. O que ele não entende fica no título, intacto.</p>
+              <div class="demo" data-demo="typing"></div>
+            </div>
+
+            <div class="scene" data-scene="paste" data-sc-cue="0">
+              <h2 class="headline">Uma lista colada vira várias tarefas.</h2>
+              <p class="lede">Cole do e-mail, das notas ou do chat: cada linha vira uma tarefa, já com as datas e prioridades entendidas.</p>
+              <div class="demo" data-demo="paste"></div>
+            </div>
+
+            <div class="scene" data-scene="share" data-sc-cue="0">
+              <h2 class="headline">Compartilhe de qualquer app.</h2>
+              <p class="lede">Um link no navegador, um post no Instagram: toque em Compartilhar, escolha o Taskmate e decida ali se aquilo vira tarefa ou nota.</p>
+              <div class="demo" data-demo="share"></div>
+              <p class="demo-note">No Android, com o app instalado.</p>
+            </div>
+
+            <div class="scene" data-scene="today" data-sc-cue="0">
+              <h2 class="headline">Nem tudo é tarefa.</h2>
+              <p class="lede">Ideias, links e referências viram notas com etiquetas. Sem prazo, sem caixinha para marcar.</p>
+              <div class="demo" data-demo="note"></div>
+            </div>
+
+            <div class="scene" data-scene="overdue" data-sc-cue="0">
+              <h2 class="headline">Atrasou? Remarque num toque.</h2>
+              <p class="lede">Toda tarefa atrasada ganha atalhos para adiar: amanhã, em 3 dias, em 1 semana ou em 1 mês. Sem abrir a tarefa, sem procurar data no calendário.</p>
+              <div class="demo" data-demo="overdue"></div>
+            </div>
+
+            <div class="scene" data-scene="details" data-sc-cue="0">
+              <h2 class="headline">Cada tarefa guarda os seus detalhes.</h2>
+              <p class="lede">Notas, prazo, início, repetição, prioridade e um checklist para quebrar o trabalho em passos. A própria linha mostra quanto já foi feito.</p>
+              <div class="demo" data-demo="detail"></div>
+            </div>
+
+            <div class="scene" data-scene="trash" data-sc-cue="0">
+              <h2 class="headline">Excluiu sem querer? Desfaça.</h2>
+              <p class="lede">Excluir não pede confirmação, e o desfazer aparece na hora. <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Z</kbd> faz o mesmo.</p>
+              <div class="demo" data-demo="undo"></div>
+            </div>
+
+            <div class="scene" data-scene="views" data-sc-cue="0">
+              <h2 class="headline">Um grupo inteiro como quadro.</h2>
+              <p class="lede">Cada lista vira uma coluna, cada tarefa um card. Quando o trabalho muda de frente, arraste o card para a outra lista.</p>
+              <div class="demo demo--wide" data-demo="board"></div>
+            </div>
+
+            <div class="scene" data-scene="prefs" data-sc-cue="0">
+              <h2 class="headline">Do seu jeito.</h2>
+              <p class="lede">Claro, escuro ou seguindo o sistema. E texto ampliado, que aumenta as letras, os alvos de toque e o contorno de foco em todo o app.</p>
+              <div class="demo" data-demo="prefs"></div>
+            </div>
+
+            <div class="scene" data-scene="updates" data-sc-cue="0">
+              <h2 class="headline">Atualiza quando você quiser.</h2>
+              <p class="lede">Quando sai uma versão nova, um aviso aparece no rodapé. É só clicar em Recarregar. O app nunca recarrega sozinho: você pode estar no meio de uma nota.</p>
+              <div class="demo" data-demo="update-toast"></div>
+            </div>
+
+            <div class="scene scene--quiet" data-scene="quiet" data-sc-cue="0">
+              <h2 class="headline headline--quiet">Fica neste aparelho.</h2>
+              <p class="lede">Abre e funciona, inclusive sem internet. As tarefas ficam guardadas no aparelho que você está usando.</p>
+              <ul class="devices" aria-label="Funciona em">
+                <li><span data-icon="monitor"></span>Computador</li>
+                <li><span data-icon="laptop"></span>Notebook</li>
+                <li><span data-icon="tablet"></span>Tablet</li>
+                <li><span data-icon="smartphone"></span>Celular</li>
+              </ul>
+              <p class="devices__note">No navegador ou instalado como app.</p>
+            </div>
+          </div>
+
+          <!-- ============================== TRIAR ============================== -->
+          <div class="pane pane--right">
+            <div class="scene" data-scene="hero" data-sc-cue="0">
+              <h2 class="headline">Decida o dia com calma, depois.</h2>
+              <p class="lede">Uma ou duas vezes por dia, você olha tudo de uma vez e escolhe o que é hoje.</p>
+              <div class="demo" data-demo="hero-inbox"></div>
+            </div>
+
+            <div class="scene" data-scene="typing" data-sc-cue="0">
+              <h2 class="headline">Tudo cai na Entrada.</h2>
+              <p class="lede">Nada pede um lugar no momento em que você anota. O endereço vem depois.</p>
+              <div class="demo" data-demo="inbox"></div>
+            </div>
+
+            <div class="scene" data-scene="paste" data-sc-cue="0">
+              <h2 class="headline">Grupos para a vida, listas para as frentes.</h2>
+              <p class="lede">A estrutura aparece quando faz falta. E a Entrada também é um lugar: nem tudo precisa de endereço.</p>
+              <div class="demo" data-demo="tree"></div>
+            </div>
+
+            <div class="scene" data-scene="share" data-sc-cue="0">
+              <h2 class="headline">Vira tarefa ou nota, você decide.</h2>
+              <p class="lede">Algo para fazer vai para a Entrada como tarefa. Algo para ler ou guardar vira nota, com o link junto. Dá para ajustar o texto antes de salvar.</p>
+              <div class="demo" data-demo="shared"></div>
+            </div>
+
+            <div class="scene" data-scene="today" data-sc-cue="0">
+              <h2 class="headline">Hoje, de todos os grupos.</h2>
+              <p class="lede">Cliente e casa no mesmo dia, sem abrir pasta por pasta. Concluir não pede confirmação. Atrasou, adie num toque.</p>
+              <div class="demo" data-demo="today"></div>
+            </div>
+
+            <div class="scene" data-scene="overdue" data-sc-cue="0">
+              <h2 class="headline">E o que não tem prazo ganha um.</h2>
+              <p class="lede">Tarefas sem prazo, de qualquer lista, esperam em A revisar com três atalhos: hoje, amanhã ou em 1 semana.</p>
+              <div class="demo" data-demo="review"></div>
+            </div>
+
+            <div class="scene" data-scene="details" data-sc-cue="0">
+              <h2 class="headline">Uma só lista de etiquetas.</h2>
+              <p class="lede">Tarefas e notas usam as mesmas etiquetas, com sugestões enquanto você digita. Busque por uma e as duas aparecem juntas.</p>
+              <div class="demo" data-demo="tags"></div>
+            </div>
+
+            <div class="scene" data-scene="trash" data-sc-cue="0">
+              <h2 class="headline">Nada é apagado de verdade.</h2>
+              <p class="lede">Tarefas e notas excluídas ficam na Lixeira até você restaurar. Restaurar uma tarefa traz de volta a lista e o grupo dela, se foram excluídos junto.</p>
+              <div class="demo" data-demo="trash"></div>
+            </div>
+
+            <div class="scene" data-scene="views" data-sc-cue="0">
+              <h2 class="headline">O mês inteiro, de todos os grupos.</h2>
+              <p class="lede">Cada prazo no seu dia, com a cor do grupo. Mês, semana ou dia, a um clique.</p>
+              <div class="demo demo--wide" data-demo="calendar"></div>
+            </div>
+
+            <div class="scene" data-scene="prefs" data-sc-cue="0">
+              <h2 class="headline">Leve tudo em Markdown.</h2>
+              <p class="lede">Grupos, listas, tarefas e notas num outline de texto puro, com prazos e prioridades. Abre em qualquer editor e dá para versionar.</p>
+              <div class="demo" data-demo="markdown"></div>
+            </div>
+
+            <div class="scene" data-scene="updates" data-sc-cue="0">
+              <h2 class="headline">E sabe qual versão está usando.</h2>
+              <p class="lede">O número da versão fica no menu Sobre. A atualização baixa em segundo plano, sem travar o que você está fazendo.</p>
+              <div class="demo" data-demo="about"></div>
+            </div>
+
+            <div class="scene scene--quiet" data-scene="quiet" data-sc-cue="0">
+              <h2 class="headline headline--quiet">Sincroniza pelo seu Drive, se quiser.</h2>
+              <p class="lede">Um único arquivo, <span class="file">taskmate.automerge</span>, na sua própria conta.</p>
+              <ul class="facts">
+                <li>
+                  <span class="facts__icon" data-icon="shieldCheck"></span>
+                  <span><strong>Acesso restrito.</strong> <span class="facts__detail">A permissão do Google cobre só o arquivo que o app criou. O resto do seu Drive fica fora de alcance.</span></span>
+                </li>
+                <li>
+                  <span class="facts__icon" data-icon="eyeOff"></span>
+                  <span><strong>Sem intermediário.</strong> <span class="facts__detail">Não existe servidor nosso: as tarefas vão do aparelho direto para o seu Drive. Sem conta, sem senha.</span></span>
+                </li>
+                <li>
+                  <span class="facts__icon" data-icon="fileLock"></span>
+                  <span><strong>Propriedade total.</strong> <span class="facts__detail">O arquivo é seu: copie, versione ou apague quando quiser, sem passar pelo app.</span></span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- ============================ O APP =============================
+               The collapse: the left ground has become the sidebar, the right
+               side is the app's content column, and the close is a real input. -->
+          <nav class="app-side" aria-label="Visões do app (demonstração)" data-scene="final" data-sc-cue="0">
+            <ul class="app-side__nav">
+              <li><span class="row row--current"><span class="row__icon" data-icon="today"></span><span class="row__label">Hoje</span><span class="row__count" data-count="today"></span></span></li>
+              <li><span class="row"><span class="row__icon" data-icon="upcoming"></span><span class="row__label">Próximos 7 dias</span></span></li>
+              <li><span class="row"><span class="row__icon" data-icon="calendar"></span><span class="row__label">Calendário</span></span></li>
+              <li><span class="row"><span class="row__icon" data-icon="inbox"></span><span class="row__label">Entrada</span><span class="row__count" data-count="inbox"></span></span></li>
+              <li><span class="row"><span class="row__icon" data-icon="list"></span><span class="row__label">Notas</span></span></li>
+            </ul>
+            <div class="app-side__tree" data-demo="side-tree"></div>
+          </nav>
+
+          <div class="app-main" data-scene="final" data-sc-cue="0">
+            <div class="app-main__col">
+              <header class="app-main__head">
+                <h2 class="app-main__title">Hoje</h2>
+                <p class="app-main__date" data-today-label></p>
+              </header>
+
+              <form class="quick-add" data-capture-form autocomplete="off">
+                <div class="quick-add__field">
+                  <span class="quick-add__plus" data-icon="plus" aria-hidden="true"></span>
+                  <div class="quick-add__editor">
+                    <div class="quick-add__mirror" aria-hidden="true"></div>
+                    <label class="sr-only" for="capture">Nova tarefa</label>
+                    <input
+                      id="capture"
+                      class="quick-add__input"
+                      name="capture"
+                      maxlength="300"
+                      placeholder="Ex.: pagar a luz amanhã !alta"
+                      enterkeyhint="done"
+                    />
+                  </div>
+                  <span class="quick-add__hint" aria-hidden="true"><kbd class="kbd">Enter</kbd></span>
+                </div>
+                <p class="quick-add__parsed" aria-live="polite"></p>
+              </form>
+
+              <ul class="tasks" data-demo="final-list" aria-label="Tarefas de hoje"></ul>
+
+              <div class="close">
+                <a class="cta" href="/" data-open-app>Abrir o Taskmate</a>
+                <p class="close__note" data-close-note>No navegador, sem conta. Instala como app e funciona sem internet.</p>
+              </div>
+
+              <aside class="maker" aria-label="Sobre quem fez o Taskmate">
+                <img class="maker__photo" src="/produto/adriano.webp" width="160" height="160" alt="Adriano Maringolo" loading="lazy" decoding="async" />
+                <p class="maker__text">
+                  Criado com
+                  <svg class="maker__heart" viewBox="0 0 16 16" width="15" height="15" role="img" aria-label="carinho">
+                    <path d="M1.3 6.3a3.7 3.7 0 0 1 6.4-2.5 .4 .4 0 0 0 .5 0A3.7 3.7 0 0 1 14.7 6.3c0 1.5-1 2.7-2 3.7l-3.7 3.5a1.3 1.3 0 0 1-2 .1L3.3 10c-1-1-2-2.1-2-3.7" />
+                  </svg>
+                  por <strong>Adriano Maringolo</strong>.
+                  <span class="maker__more">Veja este e outros projetos em <a href="https://adrianomaringolo.dev" target="_blank" rel="noopener">adrianomaringolo.dev</a>.</span>
+                </p>
+              </aside>
+            </div>
+          </div>
+
+          <p class="sample-note" aria-hidden="true">Tarefas de exemplo</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Focus arrow: where to look right now. It lives on the divider in the
+         demo, points at whichever side is moving, and follows the page to the
+         close. Decorative: the copy already says what each side shows. -->
+    <div class="focus-arrow" aria-hidden="true" data-focus-arrow>
+      <svg viewBox="0 0 16 16" width="18" height="18" focusable="false">
+        <path d="M3.3 8h9.3" />
+        <path d="m8 3.3 4.7 4.7-4.7 4.7" />
+      </svg>
+    </div>
+
+    <!-- Auto-scroll toggle, fixed at the bottom centre once the hero's own
+         button has scrolled away: start it or stop it at any point. -->
+    <button type="button" class="autoscroll-toggle" data-autoscroll-toggle aria-pressed="false">
+      <svg class="autoscroll-toggle__play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+        <path d="M3.3 3.3a1.3 1.3 0 0 1 2-1.2l8 4.7a1.3 1.3 0 0 1 .1 2.3l-8 4.7A1.3 1.3 0 0 1 3.3 12.7z" />
+      </svg>
+      <svg class="autoscroll-toggle__pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+        <rect x="9.3" y="2" width="3.3" height="12" rx=".7" />
+        <rect x="3.3" y="2" width="3.3" height="12" rx=".7" />
+      </svg>
+      <span data-autoscroll-label>Rolar sozinho</span>
+    </button>
+
+    <script type="module" src="/src/produto/main.ts"></script>
+  </body>
+</html>

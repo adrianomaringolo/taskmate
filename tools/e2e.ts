@@ -20,6 +20,8 @@ const check = (label: string, ok: boolean, detail = '') => {
 /** Fresh context each time: isolated storage, so no cleanup step can go stale. */
 async function freshPage(browser: Browser, seeded = false): Promise<{ page: Page; errors: string[] }> {
   const ctx = await browser.newContext({ viewport: { width: 1400, height: 1000 }, locale: 'pt-BR' });
+  // The app's root sends a first visit to /produto/; these runs test the app.
+  await ctx.addInitScript(() => localStorage.setItem('taskmate:visited', '1'));
   const page = await ctx.newPage();
   const errors: string[] = [];
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
