@@ -1,7 +1,7 @@
 {
   "name": "taskmate",
   "private": true,
-  "version": "0.16.1",
+  "version": "0.21.0",
   "type": "module",
   "workspaces": [
     "web"
@@ -20,7 +20,8 @@
     "shots": "tsx tools/shoot.ts",
     "seed:regen": "node tools/gen-seed.mjs",
     "icons": "tsx tools/icons.ts",
-    "illustrations": "node tools/illustrations.mjs"
+    "illustrations": "node tools/illustrations.mjs",
+    "deploy": "npm run build && firebase deploy --only hosting"
   },
   "devDependencies": {
     "lucide-static": "^1.31.0",

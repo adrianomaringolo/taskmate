@@ -137,7 +137,14 @@ curva nova inventada por conta própria.
 risquinho solto logo à frente da ponta que lê como faísca/impulso: tarefa feita,
 e em movimento. Uma polilinha reta mais o traço curto, no mesmo grid e traço dos
 outros ícones. Não é uma caixa de seleção (lê como controle de UI) nem três
-barras (lê como o menu-sanduíche ao lado do qual ela aparece). Nos ícones do PWA
+barras (lê como o menu-sanduíche ao lado do qual ela aparece). Como logo, o traço
+é mais grosso que o dos ícones: 2.25 no grid de 16 (barra lateral, página de
+produto, páginas legais e ícones do PWA) e 2.75 no favicon, para sobreviver em
+16px. Quando aparece como ícone entre outros ícones (o item "Como usar" do
+menu), mantém o traço 1.5 do conjunto. O braço longo termina em (10.8, 5.7), não mais
+em (11.6, 4.6): com o traço grosso, as pontas arredondadas do braço e do
+risquinho se tocavam e a marca virava um tique comum. O recuo mantém o
+respiro em todas as espessuras (1.5, 2.25 e 2.75). Nos ícones do PWA
 e no favicon é tinta escura sobre o campo âmbar — latão/marca-texto, não botão
 colorido genérico. `tools/icons.ts` gera os PNGs a partir do mesmo caminho.
 
@@ -233,3 +240,148 @@ infinitivo; contadores dizem o número, não "itens". Datas relativas humanas
 Mensagem de erro diz o que aconteceu e o que fazer, na mesma frase, sem código:
 "Não consegui salvar — o servidor não respondeu. Sua alteração continua aqui;
 tentar de novo."
+
+## Página de produto (`/produto/`)
+
+A única superfície de persuasão do projeto, e ela **não troca de mundo**: mesmos
+tokens (`tokens.css` importado direto), mesma família, mesmo âmbar só para o que
+está ativo. O que muda é a composição.
+
+- **Primeiro acesso vai para a página de produto.** Um script no `<head>`
+  do `index.html` do app, antes de qualquer coisa gravar no storage, manda
+  para `/produto/` quem ainda não tem `taskmate:visited`. Contam como visita:
+  essa chave (gravada por qualquer link da página de produto para `/`),
+  qualquer preferência `taskmate:`/`trellis:` de uma sessão anterior (quem já
+  usa o app nunca é desviado) e URLs com propósito (`?capturar=`, o
+  compartilhamento do Android). Storage bloqueado: sem redirecionamento, para
+  não prender ninguém num laço. Enquanto redireciona, o `main.tsx` não monta o
+  app. Os testes em `tools/` gravam a chave antes de abrir a página.
+- **Hero de vídeo** antes do split: uma parede lisa às três da tarde, uma
+  poça de luz de janela, vaso e aparador (vídeo do Pexels, ver
+  `ATTRIBUTION.md`). É a frase da paleta em imagem. O texto fica na metade
+  direita, sobre a parede lisa, sem scrim; como a parede é cinza médio, todo
+  texto do hero usa `--ink`, nunca `--ink-2`. No escuro o vídeo é escurecido
+  (`brightness(.42)`) e `--ink` vira claro. No celular o vídeo desce para a
+  metade de baixo com máscara em gradiente e o texto fica sobre `--surface`.
+  O vídeo só toca visível e nunca com `prefers-reduced-motion` (fica o
+  pôster). A lentidão (0,6×, a luz no ritmo de uma tarde) vem embutida no
+  arquivo, com quadros interpolados a 30 fps; desacelerar no navegador
+  deixava a imagem em ~15 quadros por segundo, truncada. Ao
+  rolar, o vídeo anda a 0,35× da página e o texto a 1×; parallax nunca no
+  texto, e desligado com movimento reduzido.
+- **Indicação de scroll:** pedida explicitamente, então é um link de verdade
+  ("Ver como funciona", âncora para `#como-funciona`), não enfeite. A seta
+  desce 4px e descansa (2,4s), parada com movimento reduzido, e o link some ao
+  longo do primeiro terço do hero rolado.
+- **O problema** (logo depois do hero, ato fixo de 6,5 telas): quatro passos de
+  texto à esquerda, com manchetes entrando linha a linha. À direita, os
+  mesmos cartões de tarefa atravessam três arranjos medidos de slots reais
+  (CSS, não números no JS): nuvem espalhada que tremula mais conforme enche
+  ("Sua cabeça não é lugar de guardar tarefa."), todos caindo numa Entrada
+  com contador ("Primeiro, tire tudo dela."), redistribuídos em grupos
+  ("Depois, organize do seu jeito.") e, por fim, ganhando prazo e barras de
+  prioridade no canto do cartão ("E dê a cada coisa o seu quando."), com as
+  cores do app: "hoje" em `--brand-ink`, prioridade alta em `--danger`. O nome
+  só cede espaço quando o prazo chega; no celular ficam só os prazos. Posição é função do progresso; o
+  tremor é o único movimento por tempo e para quando o cartão é capturado.
+  Com movimento reduzido: sem tremor e troca de arranjo instantânea. No
+  celular: 12 cartões com rótulo curto.
+- **Split stage.** A tela é o app partido ao meio: Capturar à esquerda sobre
+  `--surface`, Triar à direita sobre `--bg`. A divisória de 1px é o único
+  cromo da página: carrega os rótulos de cada cena e a seta de foco. Sem
+  barra de navegação, sem cards de feature.
+- **Marcador de rolagem:** uma linha âmbar de 2px no topo da tela que enche
+  da esquerda para a direita com o scroll da página inteira
+  (`[data-sc-progress]`, desenhada pelo motor). Convive com a seta: o
+  marcador diz quanto falta, a seta diz para onde olhar.
+- **Seta de foco:** um círculo âmbar com a seta do Lucide, fixo na tela
+  depois do hero. Na demonstração ela anda pela divisória até a altura da
+  demo que está se mexendo e aponta para esse lado (cima/baixo no celular);
+  no problema aponta para os cartões; no fechamento sai da borda da barra
+  lateral para o campo de captura. Cada cena tem sua sequência em `FOCUS`
+  (`main.ts`), e as demos são temporizadas para que um lado se mexa de cada
+  vez. Desliza e gira pelo caminho mais curto, com um pulso curto ao mudar de
+  direção; com movimento reduzido, pula direto. Escondida no hero.
+- **O fechamento é o app.** No fim do scroll a divisória desliza até 264px e o
+  chão da esquerda vai junto, virando exatamente a barra lateral; a direita
+  vira a coluna de conteúdo com um campo de captura real. O que o visitante
+  digita ali vai para `/?capturar=` e cai na Entrada do app, já interpretado.
+- **Nada pintado.** Toda linha, chip e destaque nas colunas é marcação gerada
+  por `parse.ts` e `date.ts` sobre tarefas de exemplo (rotuladas como tal).
+  Cada cena é função pura do progresso do scroll, então rolar para trás desfaz.
+- **Cena calma (antes do fechamento):** à esquerda, quatro aparelhos
+  (computador, notebook, tablet, celular) em ícones Lucide de traço fino e
+  "No navegador ou instalado como app"; à direita, três fatos verificáveis
+  (acesso restrito pelo escopo `drive.file`, sem servidor nosso, arquivo do
+  usuário). Ícones em cinza, sem âmbar: nada ali é estado. Nenhuma promessa
+  de criptografia, porque o app não criptografa.
+- **Compartilhar | Tarefa ou nota** (depois de "cole uma lista"): um post
+  de outro app (desenhado de propósito simples, sem copiar a interface do
+  Instagram) com o botão Compartilhar, depois o diálogo real do app
+  ("Compartilhado com o Taskmate / Guardar como tarefa ou como nota?",
+  botões Tarefa e Nota) com Nota escolhida; à direita a nota chega em Notas
+  com o toast "Nota criada.". A página avisa "No Android, com o app
+  instalado", porque o Web Share Target só existe lá.
+- **Detalhes | Etiquetas** (depois de Atrasadas): uma tarefa aberta com
+  notas, prazo, prioridade, etiqueta e checklist sendo marcado, e o progresso
+  "3/4" na própria linha; à direita a busca por "viagem" traz duas tarefas e
+  uma nota, no formato da busca do app. As etiquetas são uma lista só porque
+  a nota é uma tarefa por dentro (`allTags` em `doc.ts`).
+- **Lixeira** (cena logo depois de Hoje): à esquerda uma tarefa é excluída e
+  aparece o toast real do app (`"…" foi excluída.` + Desfazer), depois
+  desfeita; à direita a Lixeira recebe o item e o devolve. Rótulos da
+  divisória: "Desfazer | Lixeira".
+- **Preferências** (depois de Quadro/Calendário): à esquerda uma miniatura do
+  painel que passa de Claro para Escuro e liga o Texto ampliado sozinha, sem
+  mexer no tema da página. Ela carrega cópia dos tokens do tema escuro e de
+  `[data-vision='low']` (espelho de `tokens.css`; mude lá primeiro). À direita,
+  o Markdown que o próprio `toMarkdown()` gera para os dados de exemplo, linha
+  a linha, com botão para baixar o `.md`. Rótulos: "Aparência | Seus dados".
+- **Marca no hero:** 1.75rem com o tique a 32px, e embaixo "Seu companheiro
+  de tarefas". CTA de 52px de altura
+  e 1.0625rem, igual no hero e no fechamento.
+- **Rolar sozinho:** botão no pé do hero e, depois dele, um botão fixo no
+  centro inferior que alterna "Rolar sozinho" / "Parar a rolagem" (pílula
+  neutra, não âmbar). A página desce a 0,15 altura de tela por segundo (cerca
+  de 14 s por cena, ~3,5 min a página toda), medido em tempo real. Para no fim da
+  página, no botão, com Esc, ou assim que o visitante rola por conta própria;
+  acionado no fim, recomeça do topo.
+- **Ritmo das cenas:** todas as janelas vivem em `SCENES` e têm a mesma
+  largura (~2,1 telas; 12 cenas em 28 telas); a primeira é mais curta porque já aparece enquanto o
+  hero sai. Medido: 1,7 tela legível por cena, 1,5 na primeira e na calma.
+- **Atrasadas | A revisar** (depois de Hoje): três atrasadas adiadas uma a uma
+  com os atalhos reais do app (Amanhã, 3 dias, 1 semana, 1 mês), o escolhido
+  em âmbar, até "Nada atrasado."; à direita, "A revisar" com "Dar prazo"
+  (Hoje, Amanhã, Em 1 semana). Atrasada é ícone + texto em `--danger`.
+- **Atualização | Versão** (depois de Preferências): o toast real ("Uma versão
+  nova do Taskmate está pronta." + Recarregar; o app nunca recarrega sozinho)
+  e uma miniatura do Sobre com a versão e a data de compilação reais do build.
+- **Assinatura no fechamento:** abaixo do CTA, um quadro discreto (fio de
+  1px sobre `--surface`) com a foto do autor (quadrada, raio de 8px), "Criado com ♥ por Adriano
+  Maringolo" e o link para adrianomaringolo.dev. O coração é o `heart` do
+  Lucide em âmbar. A foto é um recorte do retrato real do portfólio, não a
+  versão gerada por IA que também existe lá.
+- **Quadro e Calendário** dividem uma cena: o quadro de um grupo à esquerda,
+  o mês à direita, e a divisória troca os rótulos para "Quadro | Calendário".
+  Na coluna do quadro, que fica sobre `--surface`, as colunas invertem para
+  `--bg`. As janelas de todas as cenas vivem numa tabela só (`SCENES` em
+  `web/src/produto/main.ts`); o HTML não tem números de progresso.
+- **Tipografia de manchete** é a única exceção à escala fixa: `clamp()` entre
+  1.9rem e 2.9rem, peso 640, tracking -0.032em. Só nas manchetes da página de
+  produto; o app continua sem `clamp()`.
+- **Motor:** scroll-craft (MIT, ver `ATTRIBUTION.md`), sem edição. Movimento
+  só em `transform` e `opacity`; com `prefers-reduced-motion` as cenas trocam
+  por opacidade e nada se desloca.
+- **Celular:** a divisão vira horizontal (Capturar em cima, Triar embaixo) e o
+  fechamento leva a divisória até o topo, onde ela vira a barra do app.
+
+## Páginas legais (`/privacidade/`, `/termos/`)
+
+Modo leitura: uma coluna de 44rem, medida de ~68ch, corpo em 17px com
+entrelinha 1.65, seções numeradas com mais espaço acima do título do que
+abaixo, e os tokens do app (tema claro/escuro e âmbar só em links). Sem
+animação e sem nada além do texto. O conteúdo descreve só o que o código faz
+(ver `drive.ts`, `storage.ts`, `notify.ts`); qualquer mudança em dados,
+permissões do Google ou terceiros exige atualizar a política e a data no topo.
+Links no fechamento da página de produto e no painel Sobre do app.
+

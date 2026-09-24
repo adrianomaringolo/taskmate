@@ -17,7 +17,7 @@ const BRAND = '#cd8134';
 const INK = '#25170b';
 
 const mark = (weight: number) => `
-  <path d="M3.4 10.4 5.5 12.7 11.6 4.6"
+  <path d="M3.4 10.4 5.5 12.7 10.8 5.7"
         fill="none" stroke="${INK}" stroke-width="${weight}"
         stroke-linecap="round" stroke-linejoin="round" />
   <path d="M12.9 2.9 13.9 1.6"
@@ -65,7 +65,7 @@ async function main() {
         display:grid;place-items:center;
       }
       svg{width:${glyph};height:${glyph};display:block}
-    </style><div class="tile"><svg viewBox="0 0 16 16">${mark(1.5)}</svg></div>`);
+    </style><div class="tile"><svg viewBox="0 0 16 16">${mark(2.25)}</svg></div>`);
 
     await page.screenshot({
       path: `${OUT}${spec.file}`,

@@ -4,6 +4,7 @@ import { useStore } from '../lib/store';
 import { GROUP_COLORS, type View } from '../lib/types';
 import { GroupNode } from './GroupNode';
 import { Icon } from './Icon';
+import { ListRowButton } from './ListRowButton';
 import { InlineCreate } from './InlineCreate';
 import { Menu } from './Menu';
 
@@ -124,18 +125,14 @@ export function Sidebar({
           </button>
 
           {inbox && (
-            <button
-              type="button"
-              className="row"
-              aria-current={view.kind === 'list' && view.listId === inbox.id}
+            <ListRowButton
+              listId={inbox.id}
+              name={inbox.name}
+              current={view.kind === 'list' && view.listId === inbox.id}
+              pending={inboxPending}
+              icon={<Icon name="inbox" />}
               onClick={() => onSelect({ kind: 'list', listId: inbox.id })}
-            >
-              <span className="row__icon">
-                <Icon name="inbox" />
-              </span>
-              <span className="row__label">{inbox.name}</span>
-              {inboxPending > 0 && <span className="row__count">{inboxPending}</span>}
-            </button>
+            />
           )}
 
           <button
@@ -267,6 +264,18 @@ export function Sidebar({
                 <Icon name="bookOpen" />
                 Todas as funcionalidades
               </button>
+              {/* New tab: installed as a PWA, same-tab navigation would leave
+                  the app with no way back. */}
+              <a
+                className="menu__item"
+                href="/produto/"
+                target="_blank"
+                rel="noopener"
+                onClick={close}
+              >
+                <Icon name="compass" />
+                Página do produto
+              </a>
               <button
                 type="button"
                 className="menu__item"

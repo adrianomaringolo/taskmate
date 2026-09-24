@@ -109,6 +109,9 @@ button {
 .brand__mark {
   flex: none;
   color: var(--brand);
+  /* The logo is drawn heavier than the 1.5 icon set; where the mark is used
+     as an icon (the "Como usar" menu item), it keeps the icon weight. */
+  stroke-width: 2.25;
 }
 
 .sidebar__scroll {
@@ -176,6 +179,13 @@ button {
   display: grid;
   place-items: center;
   color: var(--ink-3);
+}
+
+/* A task is being held over this list: dropping moves it here. */
+.row[data-drop-target='true'] {
+  background: var(--brand-wash);
+  color: var(--brand-ink);
+  box-shadow: inset 0 0 0 1.5px var(--brand);
 }
 
 .row[aria-current='true'] .row__icon {
@@ -397,6 +407,12 @@ button {
 .btn--icon:hover:not(:disabled) {
   background: var(--surface-3);
   color: var(--ink);
+}
+
+.topbar__ambient.is-on,
+.topbar__ambient.is-on:hover:not(:disabled) {
+  color: var(--brand-ink);
+  background: var(--brand-wash);
 }
 
 .btn--add {
@@ -1422,6 +1438,8 @@ button {
   border-radius: var(--r-sm);
   font-size: var(--t-sm);
   text-align: left;
+  color: inherit;
+  text-decoration: none;
 }
 
 .menu__item:hover {
@@ -1455,6 +1473,63 @@ button {
   font-size: var(--t-xs);
   color: var(--ink-3);
   text-wrap: pretty;
+}
+
+/* ---------- ambient music menu ---------- */
+
+.ambient-menu {
+  width: min(20rem, calc(100vw - 16px));
+}
+
+.ambient-menu__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--tap-row);
+  padding: 0 var(--s-2);
+  font-size: var(--t-sm);
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.ambient-menu__toggle > span {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--s-1);
+}
+
+.ambient-menu__track {
+  align-items: flex-start;
+  padding-block: var(--s-2);
+}
+
+.ambient-menu__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 1.3em;
+  color: var(--brand-ink);
+}
+
+.ambient-menu__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ambient-menu__track[aria-checked='true'] .ambient-menu__name {
+  font-weight: 600;
+}
+
+.ambient-menu__note {
+  font-size: var(--t-xs);
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.ambient-menu__foot {
+  padding-top: var(--s-2);
 }
 
 .swatches {
@@ -2478,6 +2553,12 @@ button {
   color: var(--illo-line);
 }
 
+/* The first step shows the brand, so it takes the logo's weight, not the
+   1.5 of the icons on the other steps. */
+.welcome__icon[data-mark] svg {
+  stroke-width: 2.25;
+}
+
 .welcome__dots {
   display: flex;
   gap: var(--s-2);
@@ -2522,6 +2603,22 @@ button {
   margin-top: var(--s-4);
   font-size: var(--t-xs);
   color: var(--ink-3);
+}
+
+.about__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-4);
+  margin-top: var(--s-2);
+  font-size: var(--t-xs);
+}
+
+.about__legal a {
+  color: var(--ink-3);
+}
+
+.about__legal a:hover {
+  color: var(--ink-2);
 }
 
 /* ---------- share intake ---------- */
@@ -2720,6 +2817,15 @@ button {
 
 .prefs__action {
   margin-top: var(--s-2);
+}
+
+.prefs__select {
+  margin-top: var(--s-2);
+  width: 100%;
+}
+
+.prefs__toggle--after {
+  margin-top: var(--s-3);
 }
 
 /* ---------- low-vision mode ---------- */

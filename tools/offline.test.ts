@@ -33,6 +33,8 @@ const swState = (page: Page) =>
 async function run() {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: 'pt-BR' });
+  // The app's root sends a first visit to /produto/; these runs test the app.
+  await ctx.addInitScript(() => localStorage.setItem('taskmate:visited', '1'));
   const page = await ctx.newPage();
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(String(e)));

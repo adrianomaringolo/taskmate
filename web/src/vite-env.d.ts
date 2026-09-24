@@ -3,3 +3,8 @@
 /** Stamped by `define` in vite.config.ts at build (or dev-server-start) time. */
 declare const __APP_VERSION__: string;
 declare const __BUILD_DATE__: string;
+
+interface Window {
+  /** Set by index.html's inline script while it redirects a first visit to /produto/. */
+  __taskmateRedirecting?: boolean;
+}

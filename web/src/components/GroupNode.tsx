@@ -1,7 +1,9 @@
 import { useState, type CSSProperties } from 'react';
 import { useStore } from '../lib/store';
+import { useOpenOnTaskHover } from '../lib/taskDrag';
 import { GROUP_COLOR_LABELS, GROUP_COLORS, type Group, type List, type View } from '../lib/types';
 import { Icon } from './Icon';
+import { ListRowButton } from './ListRowButton';
 import { InlineCreate } from './InlineCreate';
 import { InlineText } from './InlineText';
 import { Menu } from './Menu';
@@ -30,6 +32,8 @@ export function GroupNode({ group, lists, index, total, view, onSelect }: Props)
   const [renaming, setRenaming] = useState(false);
 
   const open = !collapsed.has(group.id);
+  // A task dragged toward a folded group: open it so its lists can take the drop.
+  const openOnHover = useOpenOnTaskHover(() => toggleCollapsed(group.id), open);
   const bodyId = `group-body-${group.id}`;
 
   const pendingIn = (listId: string) =>
@@ -57,6 +61,7 @@ export function GroupNode({ group, lists, index, total, view, onSelect }: Props)
             aria-expanded={open}
             aria-controls={bodyId}
             onClick={() => toggleCollapsed(group.id)}
+            {...openOnHover}
           >
             <Icon name="chevron" size={12} className="group__chevron" />
             <span className="group__dot" />
@@ -109,15 +114,13 @@ export function GroupNode({ group, lists, index, total, view, onSelect }: Props)
               const current = view.kind === 'list' && view.listId === list.id;
               return (
                 <div key={list.id} className="list-row">
-                  <button
-                    type="button"
-                    className="row"
-                    aria-current={current}
+                  <ListRowButton
+                    listId={list.id}
+                    name={list.name}
+                    current={current}
+                    pending={pending}
                     onClick={() => onSelect({ kind: 'list', listId: list.id })}
-                  >
-                    <span className="row__label">{list.name}</span>
-                    {pending > 0 && <span className="row__count">{pending}</span>}
-                  </button>
+                  />
                   <Menu
                     label={`Ações da lista ${list.name}`}
                     triggerContent={<Icon name="more" />}

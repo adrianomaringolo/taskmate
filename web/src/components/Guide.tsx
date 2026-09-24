@@ -96,7 +96,11 @@ export function Guide({ open, onClose }: Props) {
           excluída.
         </p>
         <ul className="guide__list">
-          <li>Arraste tarefas entre listas, ou use as setas no detalhe da tarefa.</li>
+          <li>
+            Arraste uma tarefa pela alça até uma lista na lateral (a Entrada também vale) para
+            movê-la para lá — um grupo recolhido se abre se você segurar a tarefa em cima dele. Ou
+            use as setas no detalhe da tarefa.
+          </li>
           <li>Grupos e listas são reordenáveis pela lateral, também por arrastar.</li>
           <li>
             Um grupo pode virar um <strong>Quadro</strong>: cada lista vira uma coluna, cada tarefa
@@ -196,6 +200,17 @@ export function Guide({ open, onClose }: Props) {
       </section>
 
       <section className="guide__section">
+        <h3 className="guide__heading">Música ambiente</h3>
+        <p className="guide__body">
+          Seis músicas relaxantes para tocar ao fundo enquanto você organiza o dia — chuva, pads
+          cósmicos, meditações. Deixar ligada ajuda a organizar os pensamentos. Escolha no ícone de
+          nota musical, no topo, ou nas Preferências. Com “Tocar em sequência”, ao fim de cada música
+          passa para a próxima. O app lembra a música e se ela estava tocando, e retoma no primeiro
+          toque da próxima visita.
+        </p>
+      </section>
+
+      <section className="guide__section">
         <h3 className="guide__heading">Nunca perder uma tarefa (ou nota)</h3>
         <p className="guide__body">
           Excluir tem desfazer na hora (<kbd className="kbd">Ctrl</kbd> + <kbd className="kbd">Z</kbd>
@@ -207,8 +222,8 @@ export function Guide({ open, onClose }: Props) {
       <section className="guide__section">
         <h3 className="guide__heading">Preferências</h3>
         <p className="guide__body">
-          Tema (claro, escuro ou seguir o sistema), texto ampliado, início da semana, o lembrete
-          diário e exportar tudo em Markdown legível — tudo na engrenagem, no topo.
+          Tema (claro, escuro ou seguir o sistema), texto ampliado, música ambiente, início da
+          semana, o lembrete diário e exportar tudo em Markdown legível — tudo na engrenagem, no topo.
         </p>
       </section>
 

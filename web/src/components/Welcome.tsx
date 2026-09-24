@@ -21,7 +21,7 @@ const STEPS: Step[] = [
   {
     icon: 'folder',
     title: 'Organize quando fizer sentido',
-    body: 'Crie grupos e listas pela lateral quando a Entrada começar a misturar assuntos. Um grupo também pode virar um quadro, com cada lista numa coluna. Arraste tarefas entre listas ou colunas, ou use as setas no detalhe da tarefa.',
+    body: 'Crie grupos e listas pela lateral quando a Entrada começar a misturar assuntos. Um grupo também pode virar um quadro, com cada lista numa coluna. Arraste tarefas entre colunas, ou até uma lista na lateral, ou use as setas no detalhe da tarefa.',
   },
   {
     icon: 'compass',
@@ -39,9 +39,14 @@ const STEPS: Step[] = [
     body: 'Sem conectar nada, os dados ficam só neste dispositivo. Pra usar em mais de um, conecte seu Google Drive — sem servidor nosso, sem senha, o arquivo continua seu.',
   },
   {
+    icon: 'music',
+    title: 'Uma trilha para pensar com calma',
+    body: 'O ícone de nota musical, no topo, toca músicas relaxantes ao fundo. Deixe ligado enquanto organiza o dia: ajuda a organizar os pensamentos. São seis faixas — dá para ouvir uma só ou todas em sequência —, e o app lembra qual você escolheu e se ela estava tocando.',
+  },
+  {
     icon: 'keyboard',
     title: 'Atalhos e lembretes',
-    body: 'O ícone de teclado lista os atalhos, e o de sino ativa um aviso diário sobre tarefas vencendo. A engrenagem abre as preferências — tema, lembrete, exportar tudo em Markdown — e a Lixeira, na lateral, guarda o que foi excluído. Este tour fica sempre em "Ajuda".',
+    body: 'O ícone de teclado lista os atalhos, e o de sino ativa um aviso diário sobre tarefas vencendo. A engrenagem abre as preferências — tema, música, lembrete, exportar tudo em Markdown — e a Lixeira, na lateral, guarda o que foi excluído. Este tour fica sempre em "Ajuda".',
   },
 ];
 
@@ -92,7 +97,7 @@ export function Welcome({ open, onClose }: Props) {
         <Icon name="x" />
       </button>
 
-      <div className="welcome__icon">
+      <div className="welcome__icon" data-mark={current.icon === 'mark' || undefined}>
         <Icon name={current.icon} size={26} />
       </div>
       <h2 className="dialog__title">{current.title}</h2>
