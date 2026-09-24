@@ -231,22 +231,17 @@ const SCENES = {
   // The first scene is already on screen while the hero scrolls away (about a
   // viewport of travel before the pin starts), so its own window is short:
   // that way every scene gets roughly the same time in front of the reader.
-  hero: [0.000, 0.033],
-  typing: [0.025, 0.103],
-  paste: [0.096, 0.174],
-  share: [0.166, 0.244],
-  today: [0.237, 0.315],
-  overdue: [0.307, 0.384],
-  details: [0.377, 0.455],
-  trash: [0.448, 0.526],
-  views: [0.518, 0.596],
-  prefs: [0.589, 0.667],
-  updates: [0.659, 0.737],
-  music: [0.730, 0.808],
-  quiet: [0.800, 0.878],
+  // About two viewports of scroll per scene (the act's span is 16).
+  hero: [0.000, 0.058],
+  typing: [0.044, 0.180],
+  paste: [0.168, 0.304],
+  share: [0.293, 0.429],
+  today: [0.417, 0.553],
+  views: [0.541, 0.678],
+  quiet: [0.666, 0.802],
 } as const satisfies Record<string, readonly [number, number]>;
 /** The divider travels to the sidebar across this range; the app holds after. */
-const COLLAPSE = [0.870, 0.943] as const;
+const COLLAPSE = [0.788, 0.916] as const;
 
 type SceneName = keyof typeof SCENES;
 const inScene = (p: number, name: SceneName) => local(p, SCENES[name][0], SCENES[name][1]);
@@ -383,26 +378,16 @@ const tree = scene(
   }
 );
 
-// Scene 4, left: a note, which is not a task.
-const note = $('[data-demo="note"]');
-if (note) {
-  note.innerHTML = `
-    <article class="note">
-      <h3 class="note__title">Artigo sobre CRDTs para ler</h3>
-      <p class="note__body">O link que o Paulo mandou. Ver a parte sobre exclusão com tombstones.</p>
-      <p class="note__tags"><span class="tag">leitura</span><span class="tag">sync</span></p>
-    </article>`;
-}
-
-// Scene 4, right: today across groups. Two get done, the overdue one moves.
+// Today scene, right: today across groups. Two get done, the overdue one
+// moves; it plays once the late ones on the left are sorted.
 function todayState(p: number) {
   const q = inScene(p, 'today');
   return {
-    doneA: q > 0.3,
-    goneA: q > 0.44,
-    doneB: q > 0.56,
-    goneB: q > 0.7,
-    postponed: q > 0.84,
+    doneA: q > 0.52,
+    goneA: q > 0.6,
+    doneB: q > 0.68,
+    goneB: q > 0.76,
+    postponed: q > 0.86,
   };
 }
 const todayView = scene(
@@ -551,7 +536,7 @@ function snoozeHTML(picked?: string, label = 'Adiar:', options: readonly string[
     .join('')}</span>`;
 }
 
-// Overdue scene, left: three late tasks, each postponed in turn with a
+// Today scene, left: three late tasks, each postponed in turn with a
 // different shortcut, until the list says so in one sentence.
 const OVERDUE: { task: DemoTask; pick: (typeof SNOOZE)[number] }[] = [
   { task: { title: 'Enviar nota fiscal de setembro', where: [0, 2], overdueDays: 2 }, pick: 'Amanhã' },
@@ -559,7 +544,7 @@ const OVERDUE: { task: DemoTask; pick: (typeof SNOOZE)[number] }[] = [
   { task: { title: 'Ler capítulo 3 de Rust', where: [2, 0], overdueDays: 1 }, pick: '3 dias' },
 ];
 function overdueState(p: number) {
-  const q = inScene(p, 'overdue');
+  const q = inScene(p, 'today');
   // Per row: picked at its first mark, gone at its second.
   const marks = [0.1, 0.17, 0.24, 0.31, 0.38, 0.46];
   return OVERDUE.map((_, i) => (q >= marks[i * 2 + 1]! ? 'gone' : q >= marks[i * 2]! ? 'picked' : 'late'));
@@ -585,16 +570,19 @@ const overdue = scene(
   }
 );
 
-// Overdue scene, right: A revisar, the undated tasks of every list. Two get a
-// date with "Dar prazo" and leave the view; one stays, because it can.
+// The demos from here to the music menu live in "E mais", the carousel after
+// the split. They take the slide's own clock (0..1, see "e mais" below), not
+// the scroll.
+
+// A revisar: the undated tasks of every list. Two get a date with "Dar prazo"
+// and leave the view; one stays, because it can.
 const REVIEW: { task: DemoTask; list: string; pick?: (typeof GIVE_DUE)[number] }[] = [
   { task: { title: 'Ligar para o contador', where: null }, list: 'Entrada', pick: 'Amanhã' },
   { task: { title: 'Ajustar o escopo da home', where: null }, list: 'Cliente Norte › Execução', pick: 'Em 1 semana' },
   { task: { title: 'Trocar a lâmpada da varanda', where: null }, list: 'Casa › Reparos' },
 ];
-function reviewState(p: number) {
-  const q = inScene(p, 'overdue');
-  const marks = [0.56, 0.66, 0.74, 0.84];
+function reviewState(q: number) {
+  const marks = [0.15, 0.3, 0.45, 0.6];
   return REVIEW.map((r, i) => (!r.pick ? 'open' : q >= marks[i * 2 + 1]! ? 'gone' : q >= marks[i * 2]! ? 'picked' : 'open'));
 }
 const review = scene(
@@ -670,12 +658,11 @@ const shared = scene(
   }
 );
 
-// Details scene, left: one task opened, the way the list shows it inline, with
+// Details: one task opened, the way the list shows it inline, with
 // its checklist being worked through; the row's progress count follows.
 const STEPS = ['Reservar o hotel', 'Comprar as passagens', 'Separar os documentos', 'Fazer a mala'];
-function stepsDone(p: number) {
-  const q = inScene(p, 'details');
-  return q < 0.2 ? 0 : q < 0.32 ? 1 : q < 0.44 ? 2 : 3;
+function stepsDone(q: number) {
+  return q < 0.15 ? 0 : q < 0.35 ? 1 : q < 0.55 ? 2 : 3;
 }
 const tick = `<svg class="check__tick" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5 6.8 11 12 5.5"/></svg>`;
 const detail = scene(
@@ -713,11 +700,11 @@ const detail = scene(
   }
 );
 
-// Details scene, right: search by a tag; tasks and notes come back together,
+// Tags: search by a tag; tasks and notes come back together,
 // in the app's search layout (quoted query, count, tasks, then notes).
 const TAG_QUERY = 'viagem';
-function tagChars(p: number) {
-  return Math.round(clamp01(local(inScene(p, 'details'), 0.6, 0.85)) * TAG_QUERY.length);
+function tagChars(q: number) {
+  return Math.round(local(q, 0.1, 0.45) * TAG_QUERY.length);
 }
 const tags = scene(
   $('[data-demo="tags"]'),
@@ -744,16 +731,15 @@ const tags = scene(
   }
 );
 
-// Trash scene, left: a task is deleted, the app's own toast offers Desfazer,
+// Undo: a task is deleted, the app's own toast offers Desfazer,
 // then Desfazer is taken and the row comes back.
 const UNDO_ROWS: DemoTask[] = [
   { ...parsedCaptures[1]!, where: [1, 0] },
   { ...parsedCaptures[2]!, where: [1, 1] },
   { title: 'Consertar a torneira da cozinha', dueDate: today(), where: [1, 2] },
 ];
-function undoState(p: number) {
-  const q = inScene(p, 'trash');
-  return q < 0.3 ? 'rest' : q < 0.64 ? 'deleted' : 'undone';
+function undoState(q: number) {
+  return q < 0.25 ? 'rest' : q < 0.65 ? 'deleted' : 'undone';
 }
 const truncate = (s: string) => (s.length > 40 ? `${s.slice(0, 39)}…` : s);
 const undo = scene($('[data-demo="undo"]'), undoState, (p) => {
@@ -772,7 +758,7 @@ const undo = scene($('[data-demo="undo"]'), undoState, (p) => {
   return `${viewHead('list', 'Casa', null)}<ul class="tasks">${rows}</ul>${toast}`;
 });
 
-// Trash scene, right: the Lixeira. The deleted task lands here, then leaves
+// Trash: the Lixeira. The deleted task lands here, then leaves
 // again when it is undone.
 const HOUR = 3_600_000;
 const TRASH_ITEMS = [
@@ -794,12 +780,11 @@ const trashView = scene($('[data-demo="trash"]'), undoState, (p) => {
   return `${viewHead('trash', 'Lixeira', items.length)}<ul class="trash">${rows}</ul>`;
 });
 
-// Prefs scene, left: a miniature of Preferências. Scroll moves the theme from
+// Prefs: a miniature of Preferências. The clock moves the theme from
 // Claro to Escuro, then turns Texto ampliado on; the sample row under it
 // changes with it, scoped to the panel (the page itself keeps your theme).
-function prefsState(p: number) {
-  const q = inScene(p, 'prefs');
-  return { dark: q >= 0.32, vision: q >= 0.62 };
+function prefsState(q: number) {
+  return { dark: q >= 0.3, vision: q >= 0.6 };
 }
 const prefs = scene(
   $('[data-demo="prefs"]'),
@@ -827,7 +812,7 @@ const prefs = scene(
   }
 );
 
-// Prefs scene, right: the Markdown the app's own exporter (export.ts) writes
+// Markdown: the Markdown the app's own exporter (export.ts) writes
 // for this page's sample data, revealed line by line, and downloadable.
 const STAMP = new Date().toISOString();
 const base = { order: 'a0', createdAt: STAMP, updatedAt: STAMP, deletedAt: null };
@@ -860,7 +845,7 @@ const SAMPLE: AppState = {
 const MD = toMarkdown(SAMPLE);
 // The preview drops blank lines to fit; the download keeps the file as written.
 const MD_LINES = MD.trimEnd().split('\n').filter((line) => line.trim() !== '');
-const mdCount = (p: number) => Math.min(MD_LINES.length, Math.ceil(local(inScene(p, 'prefs'), 0.62, 0.95) * MD_LINES.length));
+const mdCount = (q: number) => Math.min(MD_LINES.length, Math.ceil(local(q, 0.05, 0.8) * MD_LINES.length));
 const mdHost = $('[data-demo="markdown"]');
 if (mdHost) {
   mdHost.innerHTML = `
@@ -880,43 +865,8 @@ const markdown = scene(
 );
 
 
-// Updates scene, left: the app's own update toast arrives over a list, with
-// the label the app really uses (Recarregar), and stays until clicked.
-function updateState(p: number) {
-  const q = inScene(p, 'updates');
-  return q < 0.25 ? 'idle' : q < 0.7 ? 'toast' : 'reloaded';
-}
-const updateToast = scene($('[data-demo="update-toast"]'), updateState, (p) => {
-  const state = updateState(p);
-  const rows = TODAY_TASKS.slice(0, 2)
-    .map((t) => taskHTML(t, { showWhere: true }))
-    .join('');
-  const toast =
-    state === 'toast'
-      ? `<div class="toast"><span class="toast__text">Uma versão nova do Taskmate está pronta.</span><span class="toast__action">Recarregar</span></div>`
-      : state === 'reloaded'
-        ? `<p class="update-note">Recarregado. Tudo continua onde estava.</p>`
-        : '';
-  return `${viewHead('today', 'Hoje', 2)}<ul class="tasks">${rows}</ul>${toast}`;
-});
-
-// Updates scene, right: a miniature of Sobre with this build's real version
-// and build date (the same `define` values the app's About panel reads).
-const aboutHost = $('[data-demo="about"]');
-if (aboutHost) {
-  const built = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' }).format(new Date(__BUILD_DATE__));
-  aboutHost.innerHTML = `
-    <div class="about-mini">
-      <p class="about-mini__title">Sobre o Taskmate</p>
-      <dl class="about-mini__list">
-        <div><dt>Versão</dt><dd>${esc(__APP_VERSION__)}</dd></div>
-        <div><dt>Compilado em</dt><dd>${esc(built)}</dd></div>
-      </dl>
-    </div>`;
-}
-
-// Music scene, left: a real button. The page plays only the first track (rain)
-// and remembers nothing — the choice of track, and keeping it on across
+// Music, under the menu: a real button. The page plays only the first track
+// (rain) and remembers nothing — the choice of track, and keeping it on across
 // visits, belong to the app.
 const musicButton = $<HTMLButtonElement>('[data-music-play]');
 const musicLabel = $('[data-music-label]');
@@ -940,12 +890,9 @@ if (musicButton) {
   sync();
 }
 
-// Music scene, right: the app's music menu in miniature, the pick moving down
-// the list as the scene plays.
-const musicPick = (p: number) => {
-  const q = inScene(p, 'music');
-  return q < 0.3 ? 0 : q < 0.55 ? 1 : 2;
-};
+// Music: the app's music menu in miniature, the pick moving down the list as
+// the slide plays.
+const musicPick = (q: number) => (q < 0.3 ? 0 : q < 0.55 ? 1 : 2);
 const musicMenu = scene(
   $('[data-demo="music"]'),
   (p) => String(musicPick(p)),
@@ -960,7 +907,6 @@ const musicMenu = scene(
     return `
       <div class="music-mini" aria-hidden="true">
         <p class="music-mini__label">Música ambiente</p>
-        <p class="music-mini__hint">Deixe as músicas relaxantes ligadas enquanto usa o app: elas ajudam a organizar os pensamentos.</p>
         <span class="prefs-mini__toggle"><span class="check" aria-checked="true"><svg class="check__tick" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5 6.8 11 12 5.5"/></svg></span>Tocar música</span>
         <ul class="music-mini__list">${rows}</ul>
       </div>
@@ -1102,19 +1048,10 @@ function frame() {
   tree(p);
   todayView(p);
   overdue(p);
-  review(p);
   share(p);
   shared(p);
-  detail(p);
-  tags(p);
   board(p);
   calendar(p);
-  undo(p);
-  trashView(p);
-  prefs(p);
-  markdown(p);
-  updateToast(p);
-  musicMenu(p);
 
   // The collapse: the divider travels to where the app's sidebar ends, and the
   // left ground travels with it, so the capture half literally becomes the
@@ -1249,9 +1186,10 @@ function renderToggle() {
 }
 
 // At rest the fixed toggle waits until the hero's own button has faded, so the
-// first screen never shows two of them; while running it is always there.
+// first screen never shows two of them, and steps aside in E mais, which has
+// its own; while running it is always there.
 function syncToggleVisibility() {
-  autoToggle?.classList.toggle('is-visible', autoOn || scrollY > innerHeight * 0.35);
+  autoToggle?.classList.toggle('is-visible', autoOn || (scrollY > innerHeight * 0.35 && !moreInView()));
 }
 addEventListener('scroll', syncToggleVisibility, { passive: true });
 
@@ -1264,6 +1202,8 @@ function autoStep(now: number) {
   scrollTo({ top: autoY, behavior: 'instant' });
   if (autoY >= max) {
     stopAuto();
+    // The page has run out, E mais has not: hand over to its own run.
+    if (moreInView()) startMore();
     return;
   }
   autoFrame = requestAnimationFrame(autoStep);
@@ -1298,6 +1238,155 @@ function stopAuto() {
 autoStart?.addEventListener('click', startAuto);
 autoToggle?.addEventListener('click', () => (autoOn ? stopAuto() : startAuto()));
 renderToggle();
+
+/* ------------------------------------------------------------- e mais -- */
+
+// The features the split leaves out, one per slide on a horizontal track
+// (scroll snap, so a swipe or the arrows move it natively). The slide in front
+// plays its demo on its own clock: MORE_PLAY_MS from the moment it arrives,
+// then it holds. "Passar pelos recursos" moves on by itself after each hold
+// and stops on the last slide; any hand on the track takes over from it.
+const MORE_PLAY_MS = 6500;
+const MORE_HOLD_MS = 2200;
+const MORE_DEMOS: Record<string, (q: number) => void> = {
+  review,
+  details: detail,
+  tags,
+  undo,
+  trash: trashView,
+  prefs,
+  markdown,
+  music: musicMenu,
+};
+const moreSection = $('.more');
+const moreTrack = $<HTMLElement>('[data-more-track]');
+const moreSlides = [...document.querySelectorAll<HTMLElement>('[data-more]')];
+const morePlayBtn = $<HTMLButtonElement>('[data-more-play]');
+const morePlayLabel = $('[data-more-play-label]');
+const moreCount = $('[data-more-count]');
+const morePrev = $<HTMLButtonElement>('[data-more-prev]');
+const moreNext = $<HTMLButtonElement>('[data-more-next]');
+let moreIndex = 0;
+let moreSince = performance.now();
+let morePlaying = false;
+let moreVisible = false;
+let moreFrameId = 0;
+
+// Every demo starts at rest, so a slide swiped into view plays from the top.
+moreSlides.forEach((el) => MORE_DEMOS[el.dataset.more!]?.(0));
+
+// Also read by the auto-scroll toggle, which is set up before this section.
+function moreInView() {
+  const r = document.querySelector('.more')?.getBoundingClientRect();
+  return !!r && r.top < innerHeight * 0.6 && r.bottom > innerHeight * 0.4;
+}
+
+function renderMore() {
+  const last = moreIndex === moreSlides.length - 1;
+  if (moreCount) moreCount.textContent = `${moreIndex + 1} de ${moreSlides.length}`;
+  if (morePrev) morePrev.disabled = moreIndex === 0;
+  if (moreNext) moreNext.disabled = last;
+  morePlayBtn?.setAttribute('aria-pressed', String(morePlaying));
+  morePlayBtn?.classList.toggle('is-on', morePlaying);
+  if (morePlayLabel) {
+    morePlayLabel.textContent = morePlaying ? 'Pausar' : last && moreSince + MORE_PLAY_MS < performance.now() ? 'Ver de novo' : 'Passar pelos recursos';
+  }
+  moreSlides.forEach((el, i) => el.toggleAttribute('inert', i !== moreIndex));
+}
+
+function goMore(i: number) {
+  if (!moreTrack) return;
+  const next = Math.max(0, Math.min(moreSlides.length - 1, i));
+  moreTrack.scrollTo({ left: next * moreTrack.clientWidth, behavior: reduce.matches ? 'instant' : 'smooth' });
+}
+
+// The slide in front is read from the track, so a swipe, the arrows and the
+// run all go through the same place.
+moreTrack?.addEventListener(
+  'scroll',
+  () => {
+    const i = Math.round(moreTrack.scrollLeft / Math.max(1, moreTrack.clientWidth));
+    if (i === moreIndex) return;
+    moreIndex = i;
+    moreSince = performance.now();
+    renderMore();
+  },
+  { passive: true }
+);
+
+function moreFrame(now: number) {
+  moreFrameId = 0;
+  if (!moreVisible) return;
+  moreFrameId = requestAnimationFrame(moreFrame);
+  const slide = moreSlides[moreIndex];
+  if (!slide) return;
+  const q = reduce.matches ? 1 : clamp01((now - moreSince) / MORE_PLAY_MS);
+  MORE_DEMOS[slide.dataset.more!]?.(q);
+  if (!morePlaying || now - moreSince < MORE_PLAY_MS + MORE_HOLD_MS) return;
+  if (moreIndex < moreSlides.length - 1) {
+    goMore(moreIndex + 1);
+    // Wait for the snap to land before counting again.
+    moreSince = Infinity;
+  } else {
+    morePlaying = false;
+    renderMore();
+  }
+}
+
+function wakeMore() {
+  if (moreVisible && !moreFrameId) moreFrameId = requestAnimationFrame(moreFrame);
+}
+if (moreSection) {
+  new IntersectionObserver(([e]) => {
+    moreVisible = !!e?.isIntersecting;
+    // Scrolled away mid-run: pause, and the slide replays on return.
+    if (!moreVisible && morePlaying) {
+      morePlaying = false;
+      renderMore();
+    }
+    if (moreVisible) moreSince = performance.now();
+    wakeMore();
+  }).observe(moreSection);
+}
+
+function startMore() {
+  // From the end, the run starts over; the first slide plays from the top.
+  if (moreIndex === moreSlides.length - 1) goMore(0);
+  moreSince = performance.now();
+  morePlaying = true;
+  renderMore();
+  $('.more__head')?.scrollIntoView({ block: 'start', behavior: reduce.matches ? 'instant' : 'smooth' });
+  wakeMore();
+}
+
+function stopMore() {
+  if (!morePlaying) return;
+  morePlaying = false;
+  renderMore();
+}
+
+morePlayBtn?.addEventListener('click', () => (morePlaying ? stopMore() : startMore()));
+morePrev?.addEventListener('click', () => {
+  stopMore();
+  goMore(moreIndex - 1);
+});
+moreNext?.addEventListener('click', () => {
+  stopMore();
+  goMore(moreIndex + 1);
+});
+// A hand on the track wins over the run. Vertical wheel passes through to the
+// page, so only a sideways one counts.
+moreTrack?.addEventListener('pointerdown', stopMore, { passive: true });
+moreTrack?.addEventListener('keydown', stopMore);
+moreTrack?.addEventListener(
+  'wheel',
+  (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) stopMore();
+  },
+  { passive: true }
+);
+addEventListener('resize', () => goMore(moreIndex));
+renderMore();
 
 /* ------------------------------------------------------ the problem -- */
 
@@ -1506,14 +1595,8 @@ const FOCUS: Record<SceneName, [number, Side][]> = {
   typing: [[0, 'L'], [0.6, 'R']],
   paste: [[0, 'L'], [0.55, 'R']],
   share: [[0, 'L'], [0.58, 'R']],
-  today: [[0, 'L'], [0.22, 'R']],
-  overdue: [[0, 'L'], [0.5, 'R']],
-  details: [[0, 'L'], [0.56, 'R']],
-  trash: [[0, 'L'], [0.42, 'R']],
+  today: [[0, 'L'], [0.5, 'R']],
   views: [[0, 'L'], [0.58, 'R']],
-  prefs: [[0, 'L'], [0.64, 'R']],
-  updates: [[0, 'L'], [0.62, 'R']],
-  music: [[0, 'L'], [0.28, 'R']],
   quiet: [[0, 'L'], [0.5, 'R']],
 };
 const focusArrow = $('[data-focus-arrow]');
@@ -1556,6 +1639,8 @@ function arrowTarget(): { x: number; y: number; a: number; o: number } | null {
     return { x: r.left - 40, y: clampY(r.top + Math.min(r.height, 360) / 2), a: 0, o: 1 };
   }
   if (!splitAct || !dividerEl) return null;
+  // Past the app, in E mais: one column, nothing to choose between.
+  if (splitAct.getBoundingClientRect().bottom < vh * 0.5) return { ...arrowNow, o: 0 };
   const p = parseFloat(splitAct.style.getPropertyValue('--sc-p')) || 0;
   const d = dividerEl.getBoundingClientRect();
   // The close: from the sidebar's edge to the one real input.

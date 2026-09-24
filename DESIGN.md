@@ -322,41 +322,38 @@ está ativo. O que muda é a composição.
   botões Tarefa e Nota) com Nota escolhida; à direita a nota chega em Notas
   com o toast "Nota criada.". A página avisa "No Android, com o app
   instalado", porque o Web Share Target só existe lá.
-- **Detalhes | Etiquetas** (depois de Atrasadas): uma tarefa aberta com
-  notas, prazo, prioridade, etiqueta e checklist sendo marcado, e o progresso
-  "3/4" na própria linha; à direita a busca por "viagem" traz duas tarefas e
-  uma nota, no formato da busca do app. As etiquetas são uma lista só porque
-  a nota é uma tarefa por dentro (`allTags` em `doc.ts`).
-- **Lixeira** (cena logo depois de Hoje): à esquerda uma tarefa é excluída e
-  aparece o toast real do app (`"…" foi excluída.` + Desfazer), depois
-  desfeita; à direita a Lixeira recebe o item e o devolve. Rótulos da
-  divisória: "Desfazer | Lixeira".
-- **Preferências** (depois de Quadro/Calendário): à esquerda uma miniatura do
-  painel que passa de Claro para Escuro e liga o Texto ampliado sozinha, sem
-  mexer no tema da página. Ela carrega cópia dos tokens do tema escuro e de
-  `[data-vision='low']` (espelho de `tokens.css`; mude lá primeiro). À direita,
-  o Markdown que o próprio `toMarkdown()` gera para os dados de exemplo, linha
-  a linha, com botão para baixar o `.md`. Rótulos: "Aparência | Seus dados".
 - **Marca no hero:** 1.75rem com o tique a 32px, e embaixo "Seu companheiro
   de tarefas". CTA de 52px de altura
   e 1.0625rem, igual no hero e no fechamento.
 - **Rolar sozinho:** botão no pé do hero e, depois dele, um botão fixo no
   centro inferior que alterna "Rolar sozinho" / "Parar a rolagem" (pílula
   neutra, não âmbar). A página desce a 0,15 altura de tela por segundo (cerca
-  de 14 s por cena, ~3,5 min a página toda), medido em tempo real. Para no fim da
+  de 14 s por cena, ~3 min a página toda), medido em tempo real. Para no fim da
   página, no botão, com Esc, ou assim que o visitante rola por conta própria;
   acionado no fim, recomeça do topo.
 - **Ritmo das cenas:** todas as janelas vivem em `SCENES` e têm a mesma
-  largura (~2,1 telas; 12 cenas em 28 telas); a primeira é mais curta porque já aparece enquanto o
-  hero sai. Medido: 1,7 tela legível por cena, 1,5 na primeira e na calma.
-- **Atrasadas | A revisar** (depois de Hoje): três atrasadas adiadas uma a uma
-  com os atalhos reais do app (Amanhã, 3 dias, 1 semana, 1 mês), o escolhido
-  em âmbar, até "Nada atrasado."; à direita, "A revisar" com "Dar prazo"
-  (Hoje, Amanhã, Em 1 semana). Atrasada é ícone + texto em `--danger`.
-- **Atualização | Versão** (depois de Preferências): o toast real ("Uma versão
-  nova do Taskmate está pronta." + Recarregar; o app nunca recarrega sozinho)
-  e uma miniatura do Sobre com a versão e a data de compilação reais do build.
-- **Assinatura no fechamento:** abaixo do CTA, um quadro discreto (fio de
+  largura (~2,1 telas; 6 cenas em 16 telas); a primeira é mais curta porque já aparece enquanto o
+  hero sai. O split conta só o método (capturar, triar, hoje, quadro,
+  aparelho/Drive); o resto vai para "E mais…", para a página não passar de
+  ~25 telas.
+- **E mais…** (depois do app, fora do split): uma coluna só, centrada, um
+  recurso por vez numa trilha horizontal com scroll snap: A revisar,
+  Detalhes, Etiquetas, Desfazer, Lixeira, Aparência (miniatura que passa de
+  Claro para Escuro e liga o Texto ampliado, com cópia dos tokens de
+  `tokens.css`; mude lá primeiro), Markdown (o que o próprio `toMarkdown()`
+  gera, com botão para baixar o `.md`) e Música (miniatura do menu e o botão
+  real que toca a Chuva). Cada demo roda num relógio próprio de 6,5 s quando
+  o slide chega, não no scroll. "Passar pelos recursos" avança sozinho depois
+  de cada demo (+2,2 s) e para no último ("Ver de novo"); setas, arraste ou
+  roda lateral assumem o controle. Os slides vizinhos ficam `inert` e
+  apagados. O botão fixo "Rolar sozinho" sai de cena ali; se ele chega ao fim
+  da página, entrega para a volta do carrossel.
+- **Atrasadas | Hoje** (depois de Compartilhar): três atrasadas adiadas uma a
+  uma com os atalhos reais do app (Amanhã, 3 dias, 1 semana, 1 mês), o
+  escolhido em âmbar, até "Nada atrasado."; na segunda metade da cena, à
+  direita, o Hoje de todos os grupos conclui duas e adia a atrasada.
+  Atrasada é ícone + texto em `--danger`.
+- **Assinatura no rodapé:** depois do E mais, um quadro discreto (fio de
   1px sobre `--surface`) com a foto do autor (quadrada, raio de 8px), "Criado com ♥ por Adriano
   Maringolo" e o link para adrianomaringolo.dev. O coração é o `heart` do
   Lucide em âmbar. A foto é um recorte do retrato real do portfólio, não a
@@ -383,5 +380,5 @@ abaixo, e os tokens do app (tema claro/escuro e âmbar só em links). Sem
 animação e sem nada além do texto. O conteúdo descreve só o que o código faz
 (ver `drive.ts`, `storage.ts`, `notify.ts`); qualquer mudança em dados,
 permissões do Google ou terceiros exige atualizar a política e a data no topo.
-Links no fechamento da página de produto e no painel Sobre do app.
+Links no rodapé da página de produto e no painel Sobre do app.
 

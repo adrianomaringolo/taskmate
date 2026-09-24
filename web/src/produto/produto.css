@@ -1998,52 +1998,7 @@ button.check:hover {
   transform: translate3d(0, 1px, 0);
 }
 
-.update-note {
-  margin: var(--s-4) 0 0;
-  font-size: var(--t-sm);
-  color: var(--ink-3);
-  animation: pp-land var(--dur-slow) var(--ease) both;
-}
-
-.about-mini {
-  padding: var(--s-4) var(--s-5);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  background: var(--bg);
-  box-shadow: var(--shadow-popover);
-}
-
-.about-mini__title {
-  margin: 0 0 var(--s-3);
-  font-size: var(--t-md);
-  font-weight: 600;
-}
-
-.about-mini__list {
-  margin: 0;
-}
-
-.about-mini__list div {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--s-4);
-  padding: var(--s-2) 0;
-  border-top: 1px solid var(--line);
-  font-size: var(--t-sm);
-}
-
-.about-mini__list dt {
-  color: var(--ink-3);
-}
-
-.about-mini__list dd {
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-  font-weight: 550;
-}
-
-/* Music scene: a real play button on the left, the app's menu in miniature
-   on the right. */
+/* Music slide: the app's menu in miniature, a real play button under it. */
 .music-play {
   display: inline-flex;
   align-items: center;
@@ -2083,12 +2038,6 @@ button.check:hover {
   color: var(--brand-ink);
 }
 
-.music-play__note {
-  margin: var(--s-3) 0 0;
-  font-size: var(--t-sm);
-  color: var(--ink-3);
-}
-
 .music-mini {
   padding: var(--s-4);
   border: 1px solid var(--line);
@@ -2102,12 +2051,6 @@ button.check:hover {
   font-size: var(--t-xs);
   font-weight: 600;
   color: var(--ink-3);
-}
-
-.music-mini__hint {
-  margin: 0 0 var(--s-3);
-  font-size: var(--t-sm);
-  color: var(--ink-2);
 }
 
 .music-mini__list {
@@ -2355,6 +2298,220 @@ button.check:hover {
   max-width: 34ch;
   font-size: var(--t-sm);
   color: var(--ink-2);
+}
+
+/* ------------------------------------------------------------- e mais -- */
+
+/* After the app: the features the split leaves out, one at a time on a
+   horizontal track, centred. Not pinned; the track scrolls sideways (snap),
+   and main.ts runs it from the button. The slides either side of the one in
+   front are inert and dimmed, so the eye has one place to be. */
+.more {
+  padding-block: clamp(80px, 14vh, 160px) var(--s-7);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+
+.more__head {
+  scroll-margin-top: var(--s-7);
+  display: grid;
+  justify-items: center;
+  gap: var(--s-3);
+  padding-inline: var(--pp-pad);
+  text-align: center;
+}
+
+.more__eyebrow {
+  margin: 0;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--brand-ink);
+}
+
+.more__title {
+  margin: 0;
+  max-width: 20ch;
+  font-size: clamp(1.45rem, 1rem + 1vw, 1.95rem);
+  font-weight: 560;
+  line-height: 1.15;
+  letter-spacing: -0.024em;
+  text-wrap: balance;
+}
+
+.more__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Wide enough for its longest label, so the arrows never shift. */
+  min-width: 14.5rem;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: 0 var(--s-5);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  font: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.more__play:hover {
+  background: var(--surface-2);
+}
+
+.more__play svg {
+  fill: var(--brand);
+}
+
+.more__play .more__pause-icon,
+.more__play.is-on .more__play-icon {
+  display: none;
+}
+
+.more__play.is-on .more__pause-icon {
+  display: block;
+}
+
+.more__play.is-on {
+  border-color: var(--brand);
+  background: var(--brand-wash);
+  color: var(--brand-ink);
+}
+
+.more__track {
+  display: flex;
+  margin: var(--s-6) 0 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.more__track::-webkit-scrollbar {
+  display: none;
+}
+
+.more__track:focus-visible {
+  outline-offset: -4px;
+}
+
+.more__slide {
+  display: grid;
+  flex: 0 0 100%;
+  justify-items: center;
+  align-content: start;
+  box-sizing: border-box;
+  padding-inline: var(--pp-pad);
+  text-align: center;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  transition: opacity var(--dur-slow) var(--ease);
+}
+
+.more__slide[inert] {
+  opacity: 0.25;
+}
+
+.more__slide .headline {
+  max-width: 18ch;
+}
+
+.more__slide .demo {
+  max-width: 28rem;
+  text-align: left;
+}
+
+.more__slide .music-play {
+  margin-top: var(--s-4);
+}
+
+.more__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  margin-top: var(--s-3);
+}
+
+.more__step {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.more__step svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.more__step:hover:not(:disabled) {
+  background: var(--surface);
+}
+
+.more__step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.more__count {
+  min-width: 7ch;
+  margin: 0;
+  font-size: var(--t-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+.more__close {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--s-7);
+}
+
+/* The signature and the legal links close the page, clear of the fixed
+   auto-scroll toggle. */
+.page-foot {
+  display: grid;
+  justify-items: center;
+  padding: var(--s-7) var(--pp-pad) calc(96px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+}
+
+.page-foot .maker {
+  margin-top: 0;
+}
+
+.page-foot .legal-links {
+  justify-content: center;
+}
+
+@media (max-width: 860px) {
+  .more__slide {
+    padding-inline: 20px;
+  }
+
+  /* A whole screen here, not half of one: every row of the demo shows. */
+  .more .demo .tasks > .task:nth-child(n + 3) {
+    display: block;
+  }
 }
 
 /* ------------------------------------------------------------- phones -- */

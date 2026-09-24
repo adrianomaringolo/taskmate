@@ -138,7 +138,7 @@
         </div>
       </section>
 
-      <section class="split" id="como-funciona" data-sc-act="pin" data-sc-span="28" aria-label="Como o Taskmate funciona">
+      <section class="split" id="como-funciona" data-sc-act="pin" data-sc-span="16" aria-label="Como o Taskmate funciona">
         <div class="split__stage sc-stage" data-sc-stage>
           <div class="ground ground--left" aria-hidden="true"></div>
 
@@ -153,8 +153,8 @@
           <!-- The divider is the page's only chrome: both labels, and the
                progress of the argument as the amber dot travelling down it. -->
           <div class="divider" aria-hidden="true">
-            <span class="divider__label divider__label--left"><span class="divider__word" data-label="">Capturar</span><span class="divider__word" data-label="share">Compartilhar</span><span class="divider__word" data-label="overdue">Atrasadas</span><span class="divider__word" data-label="details">Detalhes</span><span class="divider__word" data-label="trash">Desfazer</span><span class="divider__word" data-label="views">Quadro</span><span class="divider__word" data-label="prefs">Aparência</span><span class="divider__word" data-label="updates">Atualização</span><span class="divider__word" data-label="music">Ouvir</span></span>
-            <span class="divider__label divider__label--right"><span class="divider__word" data-label="">Triar</span><span class="divider__word" data-label="share">Tarefa ou nota</span><span class="divider__word" data-label="overdue">A revisar</span><span class="divider__word" data-label="details">Etiquetas</span><span class="divider__word" data-label="trash">Lixeira</span><span class="divider__word" data-label="views">Calendário</span><span class="divider__word" data-label="prefs">Seus dados</span><span class="divider__word" data-label="updates">Versão</span><span class="divider__word" data-label="music">Escolher</span></span>
+            <span class="divider__label divider__label--left"><span class="divider__word" data-label="">Capturar</span><span class="divider__word" data-label="share">Compartilhar</span><span class="divider__word" data-label="today">Atrasadas</span><span class="divider__word" data-label="views">Quadro</span></span>
+            <span class="divider__label divider__label--right"><span class="divider__word" data-label="">Triar</span><span class="divider__word" data-label="share">Tarefa ou nota</span><span class="divider__word" data-label="today">Hoje</span><span class="divider__word" data-label="views">Calendário</span></span>
           </div>
 
           <!-- ============================ CAPTURAR ============================ -->
@@ -185,55 +185,15 @@
             </div>
 
             <div class="scene" data-scene="today" data-sc-cue="0">
-              <h2 class="headline">Nem tudo é tarefa.</h2>
-              <p class="lede">Ideias, links e referências viram notas com etiquetas. Sem prazo, sem caixinha para marcar.</p>
-              <div class="demo" data-demo="note"></div>
-            </div>
-
-            <div class="scene" data-scene="overdue" data-sc-cue="0">
               <h2 class="headline">Atrasou? Remarque num toque.</h2>
               <p class="lede">Toda tarefa atrasada ganha atalhos para adiar: amanhã, em 3 dias, em 1 semana ou em 1 mês. Sem abrir a tarefa, sem procurar data no calendário.</p>
               <div class="demo" data-demo="overdue"></div>
-            </div>
-
-            <div class="scene" data-scene="details" data-sc-cue="0">
-              <h2 class="headline">Cada tarefa guarda os seus detalhes.</h2>
-              <p class="lede">Notas, prazo, início, repetição, prioridade e um checklist para quebrar o trabalho em passos. A própria linha mostra quanto já foi feito.</p>
-              <div class="demo" data-demo="detail"></div>
-            </div>
-
-            <div class="scene" data-scene="trash" data-sc-cue="0">
-              <h2 class="headline">Excluiu sem querer? Desfaça.</h2>
-              <p class="lede">Excluir não pede confirmação, e o desfazer aparece na hora. <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Z</kbd> faz o mesmo.</p>
-              <div class="demo" data-demo="undo"></div>
             </div>
 
             <div class="scene" data-scene="views" data-sc-cue="0">
               <h2 class="headline">Um grupo inteiro como quadro.</h2>
               <p class="lede">Cada lista vira uma coluna, cada tarefa um card. Quando o trabalho muda de frente, arraste o card para a outra lista.</p>
               <div class="demo demo--wide" data-demo="board"></div>
-            </div>
-
-            <div class="scene" data-scene="prefs" data-sc-cue="0">
-              <h2 class="headline">Do seu jeito.</h2>
-              <p class="lede">Claro, escuro ou seguindo o sistema. E texto ampliado, que aumenta as letras, os alvos de toque e o contorno de foco em todo o app.</p>
-              <div class="demo" data-demo="prefs"></div>
-            </div>
-
-            <div class="scene" data-scene="updates" data-sc-cue="0">
-              <h2 class="headline">Atualiza quando você quiser.</h2>
-              <p class="lede">Quando sai uma versão nova, um aviso aparece no rodapé. É só clicar em Recarregar. O app nunca recarrega sozinho: você pode estar no meio de uma nota.</p>
-              <div class="demo" data-demo="update-toast"></div>
-            </div>
-
-            <div class="scene" data-scene="music" data-sc-cue="0">
-              <h2 class="headline">Uma trilha para pensar com calma.</h2>
-              <p class="lede">Deixe uma música relaxante tocando enquanto organiza o dia. Ajuda a organizar os pensamentos, e as tarefas vêm junto.</p>
-              <button type="button" class="music-play" data-music-play aria-pressed="false">
-                <span class="music-play__icon" data-icon="music"></span>
-                <span data-music-label>Ouvir a Chuva</span>
-              </button>
-              <p class="music-play__note">Toca aqui mesmo, baixinho. Clique de novo para parar.</p>
             </div>
 
             <div class="scene scene--quiet" data-scene="quiet" data-sc-cue="0">
@@ -277,50 +237,14 @@
 
             <div class="scene" data-scene="today" data-sc-cue="0">
               <h2 class="headline">Hoje, de todos os grupos.</h2>
-              <p class="lede">Cliente e casa no mesmo dia, sem abrir pasta por pasta. Concluir não pede confirmação. Atrasou, adie num toque.</p>
+              <p class="lede">Cliente e casa no mesmo dia, sem abrir pasta por pasta. Concluir não pede confirmação.</p>
               <div class="demo" data-demo="today"></div>
-            </div>
-
-            <div class="scene" data-scene="overdue" data-sc-cue="0">
-              <h2 class="headline">E o que não tem prazo ganha um.</h2>
-              <p class="lede">Tarefas sem prazo, de qualquer lista, esperam em A revisar com três atalhos: hoje, amanhã ou em 1 semana.</p>
-              <div class="demo" data-demo="review"></div>
-            </div>
-
-            <div class="scene" data-scene="details" data-sc-cue="0">
-              <h2 class="headline">Uma só lista de etiquetas.</h2>
-              <p class="lede">Tarefas e notas usam as mesmas etiquetas, com sugestões enquanto você digita. Busque por uma e as duas aparecem juntas.</p>
-              <div class="demo" data-demo="tags"></div>
-            </div>
-
-            <div class="scene" data-scene="trash" data-sc-cue="0">
-              <h2 class="headline">Nada é apagado de verdade.</h2>
-              <p class="lede">Tarefas e notas excluídas ficam na Lixeira até você restaurar. Restaurar uma tarefa traz de volta a lista e o grupo dela, se foram excluídos junto.</p>
-              <div class="demo" data-demo="trash"></div>
             </div>
 
             <div class="scene" data-scene="views" data-sc-cue="0">
               <h2 class="headline">O mês inteiro, de todos os grupos.</h2>
               <p class="lede">Cada prazo no seu dia, com a cor do grupo. Mês, semana ou dia, a um clique.</p>
               <div class="demo demo--wide" data-demo="calendar"></div>
-            </div>
-
-            <div class="scene" data-scene="prefs" data-sc-cue="0">
-              <h2 class="headline">Leve tudo em Markdown.</h2>
-              <p class="lede">Grupos, listas, tarefas e notas num outline de texto puro, com prazos e prioridades. Abre em qualquer editor e dá para versionar.</p>
-              <div class="demo" data-demo="markdown"></div>
-            </div>
-
-            <div class="scene" data-scene="updates" data-sc-cue="0">
-              <h2 class="headline">E sabe qual versão está usando.</h2>
-              <p class="lede">O número da versão fica no menu Sobre. A atualização baixa em segundo plano, sem travar o que você está fazendo.</p>
-              <div class="demo" data-demo="about"></div>
-            </div>
-
-            <div class="scene" data-scene="music" data-sc-cue="0">
-              <h2 class="headline">Seis músicas, e ele lembra da sua.</h2>
-              <p class="lede">Escolha no ícone de nota musical, no topo do app. Se você deixou tocando, a mesma música volta na próxima vez que abrir.</p>
-              <div class="demo" data-demo="music"></div>
             </div>
 
             <div class="scene scene--quiet" data-scene="quiet" data-sc-cue="0">
@@ -390,29 +314,112 @@
                 <a class="cta" href="/" data-open-app>Abrir o Taskmate</a>
                 <p class="close__note" data-close-note>No navegador, sem conta. Instala como app e funciona sem internet.</p>
               </div>
-
-              <aside class="maker" aria-label="Sobre quem fez o Taskmate">
-                <img class="maker__photo" src="/produto/adriano.webp" width="160" height="160" alt="Adriano Maringolo" loading="lazy" decoding="async" />
-                <p class="maker__text">
-                  Criado com
-                  <svg class="maker__heart" viewBox="0 0 16 16" width="15" height="15" role="img" aria-label="carinho">
-                    <path d="M1.3 6.3a3.7 3.7 0 0 1 6.4-2.5 .4 .4 0 0 0 .5 0A3.7 3.7 0 0 1 14.7 6.3c0 1.5-1 2.7-2 3.7l-3.7 3.5a1.3 1.3 0 0 1-2 .1L3.3 10c-1-1-2-2.1-2-3.7" />
-                  </svg>
-                  por <strong>Adriano Maringolo</strong>.
-                  <span class="maker__more">Veja este e outros projetos em <a href="https://adrianomaringolo.dev" target="_blank" rel="noopener">adrianomaringolo.dev</a>.</span>
-                </p>
-              </aside>
-
-              <p class="legal-links">
-                <a href="/privacidade/">Política de privacidade</a>
-                <a href="/termos/">Termos de uso</a>
-              </p>
             </div>
           </div>
 
           <p class="sample-note" aria-hidden="true">Tarefas de exemplo</p>
         </div>
       </section>
+
+      <!-- E mais: what the argument above left out, one feature at a time and
+           centred. Not a pinned act: a horizontal track the visitor swipes,
+           or lets run on its own from the button. Each slide's demo plays on
+           a clock when the slide arrives (main.ts, "e mais"). -->
+      <section class="more" id="e-mais" aria-labelledby="more-title">
+        <div class="more__head">
+          <p class="more__eyebrow">E mais…</p>
+          <h2 class="more__title" id="more-title">Os detalhes que aparecem no dia a dia.</h2>
+          <div class="more__controls">
+            <button type="button" class="more__step" data-more-prev aria-label="Recurso anterior" aria-controls="more-track">
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M12.7 8H3.3" /><path d="M8 3.3 3.3 8 8 12.7" /></svg>
+            </button>
+            <button type="button" class="more__play" data-more-play aria-pressed="false" aria-controls="more-track">
+              <svg class="more__play-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+                <path d="M3.3 3.3a1.3 1.3 0 0 1 2-1.2l8 4.7a1.3 1.3 0 0 1 .1 2.3l-8 4.7A1.3 1.3 0 0 1 3.3 12.7z" />
+              </svg>
+              <svg class="more__pause-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+                <rect x="9.3" y="2" width="3.3" height="12" rx=".7" />
+                <rect x="3.3" y="2" width="3.3" height="12" rx=".7" />
+              </svg>
+              <span data-more-play-label>Passar pelos recursos</span>
+            </button>
+            <button type="button" class="more__step" data-more-next aria-label="Próximo recurso" aria-controls="more-track">
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3.3 8h9.3" /><path d="m8 3.3 4.7 4.7-4.7 4.7" /></svg>
+            </button>
+          </div>
+          <p class="more__count" data-more-count aria-live="polite">1 de 8</p>
+        </div>
+
+        <ol class="more__track" id="more-track" data-more-track tabindex="0" aria-label="Outros recursos, um por vez">
+          <li class="more__slide" data-more="review">
+            <h3 class="headline">O que não tem prazo ganha um.</h3>
+            <p class="lede">Tarefas sem prazo, de qualquer lista, esperam em A revisar com três atalhos: hoje, amanhã ou em 1 semana.</p>
+            <div class="demo" data-demo="review"></div>
+          </li>
+          <li class="more__slide" data-more="details">
+            <h3 class="headline">Cada tarefa guarda os seus detalhes.</h3>
+            <p class="lede">Notas, prazo, início, repetição, prioridade e um checklist para quebrar o trabalho em passos. A própria linha mostra quanto já foi feito.</p>
+            <div class="demo" data-demo="detail"></div>
+          </li>
+          <li class="more__slide" data-more="tags">
+            <h3 class="headline">Uma só lista de etiquetas.</h3>
+            <p class="lede">Tarefas e notas usam as mesmas etiquetas, com sugestões enquanto você digita. Busque por uma e as duas aparecem juntas.</p>
+            <div class="demo" data-demo="tags"></div>
+          </li>
+          <li class="more__slide" data-more="undo">
+            <h3 class="headline">Excluiu sem querer? Desfaça.</h3>
+            <p class="lede">Excluir não pede confirmação, e o desfazer aparece na hora. <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Z</kbd> faz o mesmo.</p>
+            <div class="demo" data-demo="undo"></div>
+          </li>
+          <li class="more__slide" data-more="trash">
+            <h3 class="headline">Nada é apagado de verdade.</h3>
+            <p class="lede">Tarefas e notas excluídas ficam na Lixeira até você restaurar. Restaurar uma tarefa traz de volta a lista e o grupo dela, se foram excluídos junto.</p>
+            <div class="demo" data-demo="trash"></div>
+          </li>
+          <li class="more__slide" data-more="prefs">
+            <h3 class="headline">Do seu jeito.</h3>
+            <p class="lede">Claro, escuro ou seguindo o sistema. E texto ampliado, que aumenta as letras, os alvos de toque e o contorno de foco em todo o app.</p>
+            <div class="demo" data-demo="prefs"></div>
+          </li>
+          <li class="more__slide" data-more="markdown">
+            <h3 class="headline">Leve tudo em Markdown.</h3>
+            <p class="lede">Grupos, listas, tarefas e notas num outline de texto puro, com prazos e prioridades. Abre em qualquer editor e dá para versionar.</p>
+            <div class="demo" data-demo="markdown"></div>
+          </li>
+          <li class="more__slide" data-more="music">
+            <h3 class="headline">Uma trilha para pensar com calma.</h3>
+            <p class="lede">Seis músicas relaxantes, no ícone de nota musical do topo do app. Se você deixou tocando, a mesma volta na próxima vez que abrir.</p>
+            <div class="demo" data-demo="music"></div>
+            <button type="button" class="music-play" data-music-play aria-pressed="false">
+              <span class="music-play__icon" data-icon="music"></span>
+              <span data-music-label>Ouvir a Chuva</span>
+            </button>
+          </li>
+        </ol>
+
+        <div class="more__close">
+          <a class="cta" href="/">Abrir o Taskmate</a>
+        </div>
+      </section>
+
+      <footer class="page-foot">
+        <aside class="maker" aria-label="Sobre quem fez o Taskmate">
+          <img class="maker__photo" src="/produto/adriano.webp" width="160" height="160" alt="Adriano Maringolo" loading="lazy" decoding="async" />
+          <p class="maker__text">
+            Criado com
+            <svg class="maker__heart" viewBox="0 0 16 16" width="15" height="15" role="img" aria-label="carinho">
+              <path d="M1.3 6.3a3.7 3.7 0 0 1 6.4-2.5 .4 .4 0 0 0 .5 0A3.7 3.7 0 0 1 14.7 6.3c0 1.5-1 2.7-2 3.7l-3.7 3.5a1.3 1.3 0 0 1-2 .1L3.3 10c-1-1-2-2.1-2-3.7" />
+            </svg>
+            por <strong>Adriano Maringolo</strong>.
+            <span class="maker__more">Veja este e outros projetos em <a href="https://adrianomaringolo.dev" target="_blank" rel="noopener">adrianomaringolo.dev</a>.</span>
+          </p>
+        </aside>
+
+        <p class="legal-links">
+          <a href="/privacidade/">Política de privacidade</a>
+          <a href="/termos/">Termos de uso</a>
+        </p>
+      </footer>
     </main>
 
     <!-- Scroll marker: a 2px amber line along the top that fills with the
