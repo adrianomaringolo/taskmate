@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { describeStamp } from '../lib/date';
+import { INBOX_ID } from '../lib/doc';
+import { parseCapture } from '../lib/parse';
 import { useStore } from '../lib/store';
 import type { Plan } from '../lib/types';
 import { EmptyState } from './EmptyState';
 import { Icon } from './Icon';
+import { InlineCreate } from './InlineCreate';
 import { InlineText } from './InlineText';
 import { NoteCard } from './NotesView';
 import { TaskRow } from './TaskRow';
@@ -125,7 +128,7 @@ function DonePlans({ plans }: { plans: Plan[] }) {
 }
 
 export function PlanCard({ plan }: { plan: Plan }) {
-  const { data, patchPlan, removePlan } = useStore();
+  const { data, addTask, patchPlan, removePlan } = useStore();
   const [description, setDescription] = useState(plan.description);
 
   useEffect(() => setDescription(plan.description), [plan.id, plan.description]);
@@ -153,18 +156,6 @@ export function PlanCard({ plan }: { plan: Plan }) {
   return (
     <li className="plan" data-done={plan.done}>
       <div className="plan__head">
-        <button
-          type="button"
-          className="check"
-          role="checkbox"
-          aria-checked={plan.done}
-          aria-label={plan.done ? `Reabrir ${plan.title || 'plano'}` : `Concluir ${plan.title || 'plano'}`}
-          onClick={() => void patchPlan(plan.id, { done: !plan.done })}
-        >
-          <svg className="check__tick" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-            <path d="M4 9.2l3.1 3.1L14 5.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
         <InlineText
           className="title-input plan__title"
           value={plan.title}
@@ -192,6 +183,20 @@ export function PlanCard({ plan }: { plan: Plan }) {
         onChange={(e) => setDescription(e.target.value)}
         onBlur={commitDescription}
       />
+
+      {/* A task written here is still an ordinary task: it lands in the
+          Entrada like any capture, already pointing at this plan. */}
+      <div className="plan__add">
+        <InlineCreate
+          label="Adicionar tarefa"
+          placeholder="Nova tarefa, vai para a Entrada…"
+          maxLength={300}
+          onCreate={(text) => {
+            const { title, dueDate, priority, recurrence } = parseCapture(text);
+            return addTask(INBOX_ID, title, { dueDate: dueDate ?? null, priority, recurrence, planId: plan.id });
+          }}
+        />
+      </div>
 
       {(tasks.length > 0 || notes.length > 0) && (
         <div className="plan__attached">
@@ -222,9 +227,21 @@ export function PlanCard({ plan }: { plan: Plan }) {
         </div>
       )}
 
-      <p className="plan__stamp">
-        {plan.done && plan.doneAt ? `Concluído em ${describeStamp(plan.doneAt)}` : `Criado em ${describeStamp(plan.createdAt)}`}
-      </p>
+      {/* Concluding is a deliberate step at the foot of the card, not a
+          checkbox beside the title — a plan should not read as one more task. */}
+      <div className="plan__foot">
+        <p className="plan__stamp">
+          {plan.done && plan.doneAt ? `Concluído em ${describeStamp(plan.doneAt)}` : `Criado em ${describeStamp(plan.createdAt)}`}
+        </p>
+        <button
+          type="button"
+          className="btn btn--sm btn--ghost plan__conclude"
+          onClick={() => void patchPlan(plan.id, { done: !plan.done })}
+        >
+          <Icon name={plan.done ? 'undo' : 'check'} size={14} />
+          {plan.done ? 'Reabrir plano' : 'Concluir plano'}
+        </button>
+      </div>
     </li>
   );
 }

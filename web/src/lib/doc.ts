@@ -485,6 +485,8 @@ export interface NewTask {
   startDate?: string | null;
   priority?: Priority;
   recurrence?: Recurrence | null;
+  /** Created from a Plano's card — see `Task.planId`. */
+  planId?: string | null;
 }
 
 /** A repetition needs a date to advance from; anchor to today when none was given. */
@@ -509,7 +511,7 @@ export function addTask(doc: Doc, input: NewTask & { listId: string }): [Doc, st
       recurrence: input.recurrence ?? null,
       tags: {},
       steps: {},
-      planId: null,
+      planId: input.planId ?? null,
       order,
       createdAt: ts,
       updatedAt: ts,
@@ -546,7 +548,7 @@ export function addTasks(doc: Doc, listId: string, items: NewTask[]): [Doc, stri
         recurrence: item.recurrence ?? null,
         tags: {},
         steps: {},
-        planId: null,
+        planId: item.planId ?? null,
         order: orders[i]!,
         createdAt: ts,
         updatedAt: ts,

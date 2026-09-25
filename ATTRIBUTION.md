@@ -121,6 +121,11 @@ para trocar de música não mudar o volume:
 | Um tempo breve | Too Brief A Time To Be Anything | `breve-1..3.mp3` | 10:00 · 25:00 · 38:20 |
 | Meditação 12 | 20 Minute Meditation 12 | `medit12-1..3.mp3` | 1:00 · 9:40 · 18:20 |
 | Meditação 1 | 20 Minute Meditation 1 | `medit1-1..3.mp3` | 1:00 · 8:00 · 15:00 |
+| Meditação 5 | 20 Minute Meditation 5 | `medit5-1..3.mp3` | 1:00 · 8:40 · 16:20 |
+| Meditação 6 | 20 Minute Meditation 6 | `medit6-1..3.mp3` | 1:00 · 8:40 · 16:20 |
+| Meditação 7 | 20 Minute Meditation 7 | `medit7-1..3.mp3` | 1:00 · 10:20 · 15:40 |
+| Meditação 10 | 20 Minute Meditation 10 | `medit10-1..3.mp3` | 6:20 · 11:40 · 17:00 |
+| Meditação 11 | 20 Minute Meditation 11 | `medit11-1..3.mp3` | 1:00 · 10:20 · 15:40 |
 
 Os trechos de 3 minutos são cortes simples; a transição entre eles (e do
 último de volta ao primeiro) é um crossfade de 6 s feito em tempo de execução
@@ -147,3 +152,12 @@ repete a cada 64 s e a Meditação 1 também, então os três trechos dela soam
 iguais. Ondas cósmicas, Um tempo breve e Paisagem de sonho não se repetem, e a
 Meditação 12 tem ciclo de ~5,6 min — nelas os três trechos são de fato
 diferentes.
+
+As Meditações 2 a 11 também são loops (medidos por autocorrelação do
+espectro). As 2, 3, 4, 8 e 9 repetem um ciclo de 48 s e mudam pouco ao longo
+da faixa, e ficaram de fora. As 7 e 11 têm ciclo de 4 min e a 10, de 8 min:
+os trechos começam em pontos diferentes do ciclo (80 s de distância um do
+outro nas 7 e 11, 160 s na 10), então não soam iguais, embora se sobreponham
+em parte. As 5 e 6 também repetem a cada 48 s, mas o timbre muda devagar ao
+longo dos 20 minutos. Por isso os trechos delas vêm do começo, do meio e do
+fim.

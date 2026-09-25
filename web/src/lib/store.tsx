@@ -151,6 +151,7 @@ export interface CaptureOpts {
   dueDate?: string | null;
   priority?: Priority;
   recurrence?: RecurrenceUnit | null;
+  planId?: string | null;
 }
 
 /** Normalises a parsed capture into what `doc.ts` expects (recurrence as `{ unit }`). */
@@ -159,6 +160,7 @@ const toNewTask = (i: { title: string } & CaptureOpts): D.NewTask => ({
   dueDate: i.dueDate ?? null,
   priority: i.priority ?? 0,
   recurrence: i.recurrence ? { unit: i.recurrence } : null,
+  planId: i.planId ?? null,
 });
 
 const StoreContext = createContext<Store | null>(null);

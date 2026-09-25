@@ -192,7 +192,7 @@ export function Guide({ open, onClose }: Props) {
         <h3 className="guide__heading">Planos</h3>
         <p className="guide__body">
           Uma ideia grande demais para uma tarefa só — escrever um livro, uma viagem, uma mudança de
-          carreira. Título, descrição livre e um jeito de marcar como concluído, sem prazo nem
+          carreira. Título, descrição livre e um botão para concluir, sem prazo nem
           repetição.
         </p>
         <p className="guide__body">
@@ -200,6 +200,11 @@ export function Guide({ open, onClose }: Props) {
           de sempre, e uma nota continua solta — cada uma pode só também apontar para um plano, pelos
           detalhes dela, para reaparecer junto quando você abrir o plano. Nenhum progresso é
           calculado; o ponto é ver o objetivo e o que já serve a ele, não medir.
+        </p>
+        <p className="guide__body">
+          Dá para escrever uma tarefa direto no plano, em <strong>Adicionar tarefa</strong>: ela vai
+          para a Entrada já apontando para ele. Quando o plano se cumprir, use{' '}
+          <strong>Concluir plano</strong>, no pé do cartão.
         </p>
       </section>
 
@@ -224,7 +229,7 @@ export function Guide({ open, onClose }: Props) {
       <section className="guide__section">
         <h3 className="guide__heading">Música ambiente</h3>
         <p className="guide__body">
-          Seis músicas relaxantes para tocar ao fundo enquanto você organiza o dia — chuva, pads
+          Onze músicas relaxantes para tocar ao fundo enquanto você organiza o dia — chuva, pads
           cósmicos, meditações. Deixar ligada ajuda a organizar os pensamentos. Escolha no ícone de
           nota musical, no topo, ou nas Preferências. Com “Tocar em sequência”, ao fim de cada música
           passa para a próxima. O app lembra a música e se ela estava tocando, e retoma no primeiro

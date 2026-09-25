@@ -1358,6 +1358,28 @@ button {
   color: var(--ink-3);
 }
 
+/* Stamp on the left, the conclude/reopen action on the right. */
+.plan__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+
+.plan__conclude {
+  border: 1px solid var(--line);
+}
+
+.plan[data-done='true'] .plan__conclude {
+  border-color: transparent;
+}
+
+/* The inline create starts as a quiet row and becomes the input in place. */
+.plan__add .input--inline {
+  width: 100%;
+}
+
 /* ---------- done section ---------- */
 
 .done-section {
@@ -1568,6 +1590,11 @@ button {
 
 .ambient-menu {
   width: min(20rem, calc(100vw - 16px));
+  /* Eleven tracks outgrow a phone screen: cap it to what fits under the
+     topbar button and let the list scroll. */
+  max-height: calc(100dvh - 72px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .ambient-menu__toggle {

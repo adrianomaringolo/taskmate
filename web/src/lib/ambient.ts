@@ -14,6 +14,21 @@ import medit12c from '../assets/audio/medit12-3.mp3';
 import medit1a from '../assets/audio/medit1-1.mp3';
 import medit1b from '../assets/audio/medit1-2.mp3';
 import medit1c from '../assets/audio/medit1-3.mp3';
+import medit5a from '../assets/audio/medit5-1.mp3';
+import medit5b from '../assets/audio/medit5-2.mp3';
+import medit5c from '../assets/audio/medit5-3.mp3';
+import medit6a from '../assets/audio/medit6-1.mp3';
+import medit6b from '../assets/audio/medit6-2.mp3';
+import medit6c from '../assets/audio/medit6-3.mp3';
+import medit7a from '../assets/audio/medit7-1.mp3';
+import medit7b from '../assets/audio/medit7-2.mp3';
+import medit7c from '../assets/audio/medit7-3.mp3';
+import medit10a from '../assets/audio/medit10-1.mp3';
+import medit10b from '../assets/audio/medit10-2.mp3';
+import medit10c from '../assets/audio/medit10-3.mp3';
+import medit11a from '../assets/audio/medit11-1.mp3';
+import medit11b from '../assets/audio/medit11-2.mp3';
+import medit11c from '../assets/audio/medit11-3.mp3';
 
 /**
  * Background music, off by default. Every track is HoliznaCC0, album
@@ -55,6 +70,11 @@ export const TRACKS: readonly Track[] = [
   { id: 'breve', name: 'Um tempo breve', note: 'Grave e lenta', parts: [breve1, breve2, breve3] },
   { id: 'meditacao-12', name: 'Meditação 12', note: 'Suave, quase parada', parts: [medit12a, medit12b, medit12c] },
   { id: 'meditacao-1', name: 'Meditação 1', note: 'Mais aberta, com brilho', parts: [medit1a, medit1b, medit1c] },
+  { id: 'meditacao-5', name: 'Meditação 5', note: 'Vai e volta em ondas lentas', parts: [medit5a, medit5b, medit5c] },
+  { id: 'meditacao-6', name: 'Meditação 6', note: 'Tom menor, com pulso suave', parts: [medit6a, medit6b, medit6c] },
+  { id: 'meditacao-7', name: 'Meditação 7', note: 'Clara, em tom maior', parts: [medit7a, medit7b, medit7c] },
+  { id: 'meditacao-10', name: 'Meditação 10', note: 'Difusa, com um grave de fundo', parts: [medit10a, medit10b, medit10c] },
+  { id: 'meditacao-11', name: 'Meditação 11', note: 'A mais escura, pulso lento', parts: [medit11a, medit11b, medit11c] },
 ];
 
 export const DEFAULT_TRACK = TRACKS[0]!.id;

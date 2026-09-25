@@ -41,7 +41,7 @@ const STEPS: Step[] = [
   {
     icon: 'music',
     title: 'Uma trilha para pensar com calma',
-    body: 'O ícone de nota musical, no topo, toca músicas relaxantes ao fundo. Deixe ligado enquanto organiza o dia: ajuda a organizar os pensamentos. São seis faixas — dá para ouvir uma só ou todas em sequência —, e o app lembra qual você escolheu e se ela estava tocando.',
+    body: 'O ícone de nota musical, no topo, toca músicas relaxantes ao fundo. Deixe ligado enquanto organiza o dia: ajuda a organizar os pensamentos. São onze faixas — dá para ouvir uma só ou todas em sequência —, e o app lembra qual você escolheu e se ela estava tocando.',
   },
   {
     icon: 'keyboard',

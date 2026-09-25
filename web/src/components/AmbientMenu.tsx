@@ -9,7 +9,7 @@ interface Props {
 }
 
 /**
- * The topbar's music picker: on/off, play-in-sequence, and the six tracks. Picking a track also
+ * The topbar's music picker: on/off, play-in-sequence, and the eleven tracks. Picking a track also
  * turns the music on, and the menu stays open so tracks can be compared.
  */
 export function AmbientMenu({ onError }: Props) {
