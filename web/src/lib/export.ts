@@ -64,6 +64,24 @@ export function toMarkdown(data: AppState): string {
     out.push('');
   }
 
+  if (data.plans.length > 0) {
+    out.push('## Planos', '');
+    for (const plan of data.plans) {
+      const box = plan.done ? '[x]' : '[ ]';
+      out.push(`- ${box} **${plan.title || 'Sem título'}**`);
+      if (plan.description.trim()) {
+        for (const line of plan.description.split('\n')) out.push(`  ${line}`.trimEnd());
+      }
+      for (const task of data.tasks.filter((t) => t.planId === plan.id)) {
+        out.push(`  - tarefa: ${task.done ? '[x]' : '[ ]'} ${task.title}`);
+      }
+      for (const note of data.notes.filter((n) => n.planId === plan.id)) {
+        out.push(`  - nota: ${note.title || 'Sem título'}`);
+      }
+    }
+    out.push('');
+  }
+
   return `${out.join('\n').trim()}\n`;
 }
 

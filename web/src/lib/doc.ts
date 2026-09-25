@@ -8,6 +8,7 @@ import type {
   List,
   Note,
   Order,
+  Plan,
   Priority,
   Recurrence,
   Step,
@@ -62,6 +63,15 @@ interface RawTask extends Omit<Task, 'tags' | 'steps'> {
  */
 const NOTE_LIST_ID = '__note__';
 const isNoteRow = (t: { listId: string }): boolean => t.listId === NOTE_LIST_ID;
+
+/**
+ * Plans are rows in the *tasks* collection too, same reasoning and same
+ * mechanism as `NOTE_LIST_ID` above — see the big comment near the notes
+ * section. `title` and `notes` are reused as-is; `notes` doubles as the
+ * plan's description.
+ */
+const PLAN_LIST_ID = '__plan__';
+const isPlanRow = (t: { listId: string }): boolean => t.listId === PLAN_LIST_ID;
 
 /**
  * A note's body is HTML (see `Guide.tsx`'s Notas section); this is the plain,
@@ -160,9 +170,10 @@ export function project(doc: Doc): AppState {
   const groups = Object.values(doc.groups).filter(alive).map(plainGroup).sort(byOrder);
   const lists = Object.values(doc.lists).filter(alive).map(plainList).sort(byOrder);
   const rows = Object.values(doc.tasks).filter(alive);
-  const tasks = rows.filter((t) => !isNoteRow(t)).map(plainTask).sort(byOrder);
+  const tasks = rows.filter((t) => !isNoteRow(t) && !isPlanRow(t)).map(plainTask).sort(byOrder);
   const notes = rows.filter(isNoteRow).map(plainNote).sort(byOrder);
-  return { groups, lists, tasks, notes };
+  const plans = rows.filter(isPlanRow).map(plainPlan).sort(byOrder);
+  return { groups, lists, tasks, notes, plans };
 }
 
 // Automerge hands back proxies; the UI gets plain frozen-free objects so React
@@ -212,6 +223,8 @@ const plainTask = (t: RawTask): Task => ({
   // `?? {}` / `?? {}`: same, for documents written before tags/steps existed.
   tags: Object.keys(t.tags ?? {}).sort(),
   steps: Object.values(t.steps ?? {}).filter(alive).map(plainStep).sort(byOrder),
+  // `?? null`: documents written before Plans existed have no such key.
+  planId: t.planId ?? null,
   order: t.order,
   createdAt: t.createdAt,
   updatedAt: t.updatedAt,
@@ -223,6 +236,19 @@ const plainNote = (t: RawTask): Note => ({
   title: t.title,
   body: t.notes,
   tags: Object.keys(t.tags ?? {}).sort(),
+  planId: t.planId ?? null,
+  order: t.order,
+  createdAt: t.createdAt,
+  updatedAt: t.updatedAt,
+  deletedAt: t.deletedAt,
+});
+
+const plainPlan = (t: RawTask): Plan => ({
+  id: t.id,
+  title: t.title,
+  description: t.notes,
+  done: t.done,
+  doneAt: t.doneAt,
   order: t.order,
   createdAt: t.createdAt,
   updatedAt: t.updatedAt,
@@ -483,6 +509,7 @@ export function addTask(doc: Doc, input: NewTask & { listId: string }): [Doc, st
       recurrence: input.recurrence ?? null,
       tags: {},
       steps: {},
+      planId: null,
       order,
       createdAt: ts,
       updatedAt: ts,
@@ -519,6 +546,7 @@ export function addTasks(doc: Doc, listId: string, items: NewTask[]): [Doc, stri
         recurrence: item.recurrence ?? null,
         tags: {},
         steps: {},
+        planId: null,
         order: orders[i]!,
         createdAt: ts,
         updatedAt: ts,
@@ -537,6 +565,8 @@ export interface TaskPatch {
   startDate?: string | null;
   priority?: Priority;
   recurrence?: Recurrence | null;
+  /** The Plano this task is attached to, or `null` to detach — see `Task.planId`. */
+  planId?: string | null;
 }
 
 /**
@@ -562,6 +592,7 @@ export function patchTask(doc: Doc, id: string, patch: TaskPatch): Doc {
     if (patch.startDate !== undefined) t.startDate = patch.startDate;
     if (patch.priority !== undefined) t.priority = patch.priority;
     if (patch.recurrence !== undefined) t.recurrence = patch.recurrence;
+    if (patch.planId !== undefined) t.planId = patch.planId;
     if (patch.done !== undefined && patch.done !== t.done) {
       if (patch.done && t.recurrence && t.dueDate) {
         t.dueDate = advanceDue(t.dueDate, t.recurrence.unit);
@@ -730,12 +761,15 @@ export function addNote(doc: Doc, input: NewNote): [Doc, string] {
 export interface NotePatch {
   title?: string;
   body?: string;
+  /** The Plano this note is attached to, or `null` to detach — see `Note.planId`. */
+  planId?: string | null;
 }
 
 export function patchNote(doc: Doc, id: string, patch: NotePatch): Doc {
   return patchTask(doc, id, {
     ...(patch.title !== undefined ? { title: patch.title } : {}),
     ...(patch.body !== undefined ? { notes: patch.body } : {}),
+    ...(patch.planId !== undefined ? { planId: patch.planId } : {}),
   });
 }
 
@@ -743,6 +777,40 @@ export const removeNote = (doc: Doc, id: string): Doc => removeTask(doc, id);
 export const restoreNote = (doc: Doc, id: string): Doc => restoreTask(doc, id);
 export const addNoteTag = (doc: Doc, noteId: string, tag: string): Doc => addTag(doc, noteId, tag);
 export const removeNoteTag = (doc: Doc, noteId: string, tag: string): Doc => removeTag(doc, noteId, tag);
+
+// --- plans ----------------------------------------------------------------
+//
+// A Plano is a task row filed under the reserved `PLAN_LIST_ID`, exactly the
+// same mechanism as a note under `NOTE_LIST_ID` above (see that comment for
+// why a new top-level Automerge collection is not safe here). `title` and
+// `notes` are reused as-is; `notes` doubles as the plan's description, and
+// `done`/`doneAt` double as "achieved".
+
+export interface NewPlan {
+  title?: string;
+  description?: string;
+}
+
+export function addPlan(doc: Doc, input: NewPlan): [Doc, string] {
+  return addTask(doc, { listId: PLAN_LIST_ID, title: input.title ?? '', notes: input.description ?? '' });
+}
+
+export interface PlanPatch {
+  title?: string;
+  description?: string;
+  done?: boolean;
+}
+
+export function patchPlan(doc: Doc, id: string, patch: PlanPatch): Doc {
+  return patchTask(doc, id, {
+    ...(patch.title !== undefined ? { title: patch.title } : {}),
+    ...(patch.description !== undefined ? { notes: patch.description } : {}),
+    ...(patch.done !== undefined ? { done: patch.done } : {}),
+  });
+}
+
+export const removePlan = (doc: Doc, id: string): Doc => removeTask(doc, id);
+export const restorePlan = (doc: Doc, id: string): Doc => restoreTask(doc, id);
 
 // --- checklist steps -------------------------------------------------------
 
@@ -804,11 +872,12 @@ export function restoreStep(doc: Doc, taskId: string, stepId: string): Doc {
 // --- trash -------------------------------------------------------------
 
 /**
- * A tombstoned task or note, for the Lixeira view. `subtitle` names the dead
- * task's list, or reads "Nota" for a note — notes have no list to name.
+ * A tombstoned task, note, or plan, for the Lixeira view. `subtitle` names
+ * the dead task's list, or reads "Nota" / "Plano" for those two — neither
+ * has a list to name.
  */
 export interface TrashItem {
-  kind: 'task' | 'note';
+  kind: 'task' | 'note' | 'plan';
   id: string;
   title: string;
   subtitle: string;
@@ -817,31 +886,41 @@ export interface TrashItem {
 }
 
 /**
- * Every tombstoned task and note, newest deletion first. Tombstones are never
- * purged (see the README), so this is also the full history of what was
- * removed — the point of the view is that "nunca perder uma tarefa" is
- * something you can see, not just a promise in the sync layer.
+ * Every tombstoned task, note, and plan, newest deletion first. Tombstones
+ * are never purged (see the README), so this is also the full history of
+ * what was removed — the point of the view is that "nunca perder uma
+ * tarefa" is something you can see, not just a promise in the sync layer.
  */
 export function projectTrash(doc: Doc): TrashItem[] {
   const items: TrashItem[] = Object.values(doc.tasks)
     .filter((t) => t.deletedAt !== null)
-    .map((t) =>
-      isNoteRow(t)
-        ? {
-            kind: 'note' as const,
-            id: t.id,
-            title: t.title || stripHtml(t.notes),
-            subtitle: 'Nota',
-            deletedAt: t.deletedAt as string,
-          }
-        : {
-            kind: 'task' as const,
-            id: t.id,
-            title: t.title,
-            subtitle: doc.lists[t.listId]?.name ?? 'Lista removida',
-            deletedAt: t.deletedAt as string,
-          }
-    );
+    .map((t) => {
+      if (isNoteRow(t)) {
+        return {
+          kind: 'note' as const,
+          id: t.id,
+          title: t.title || stripHtml(t.notes),
+          subtitle: 'Nota',
+          deletedAt: t.deletedAt as string,
+        };
+      }
+      if (isPlanRow(t)) {
+        return {
+          kind: 'plan' as const,
+          id: t.id,
+          title: t.title || 'Sem título',
+          subtitle: 'Plano',
+          deletedAt: t.deletedAt as string,
+        };
+      }
+      return {
+        kind: 'task' as const,
+        id: t.id,
+        title: t.title,
+        subtitle: doc.lists[t.listId]?.name ?? 'Lista removida',
+        deletedAt: t.deletedAt as string,
+      };
+    });
   return items.sort((a, b) => (a.deletedAt < b.deletedAt ? 1 : -1));
 }
 
@@ -879,6 +958,14 @@ export function restoreTaskDeep(doc: Doc, id: string): Doc {
  * store.tsx honest about which kind it is restoring.
  */
 export const restoreNoteDeep = (doc: Doc, id: string): Doc => restoreTask(doc, id);
+
+/**
+ * Restores a plan from the trash. Plain `restoreTask` would also be correct
+ * here — `PLAN_LIST_ID` never matches a real list, so its list-revival step
+ * is always a no-op for a plan — but a dedicated name keeps the call site in
+ * store.tsx honest about which kind it is restoring.
+ */
+export const restorePlanDeep = (doc: Doc, id: string): Doc => restoreTask(doc, id);
 
 // --- serialisation ------------------------------------------------------
 

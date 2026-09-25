@@ -55,6 +55,7 @@ export function Sidebar({
 
   const inbox = data.lists.find((l) => l.isInbox);
   const inboxPending = inbox ? (tasksByList.get(inbox.id) ?? []).filter((t) => !t.done).length : 0;
+  const activePlans = data.plans.filter((p) => !p.done).length;
 
   const groups = data.groups;
   const listsOf = (groupId: string) => data.lists.filter((l) => l.groupId === groupId);
@@ -159,6 +160,19 @@ export function Sidebar({
             </span>
             <span className="row__label">Notas</span>
             {data.notes.length > 0 && <span className="row__count">{data.notes.length}</span>}
+          </button>
+
+          <button
+            type="button"
+            className="row"
+            aria-current={view.kind === 'plans'}
+            onClick={() => onSelect({ kind: 'plans' })}
+          >
+            <span className="row__icon">
+              <Icon name="target" />
+            </span>
+            <span className="row__label">Planos</span>
+            {activePlans > 0 && <span className="row__count">{activePlans}</span>}
           </button>
 
           <button

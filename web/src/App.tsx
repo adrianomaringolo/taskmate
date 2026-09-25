@@ -42,7 +42,8 @@ function readView(): View {
       parsed.kind === 'review' ||
       parsed.kind === 'insights' ||
       parsed.kind === 'trash' ||
-      parsed.kind === 'notes'
+      parsed.kind === 'notes' ||
+      parsed.kind === 'plans'
     )
       return { kind: parsed.kind };
     if (parsed.kind === 'list' && typeof parsed.listId === 'string')
@@ -356,7 +357,7 @@ function Shell() {
               type="search"
               value={query}
               placeholder="Buscar"
-              aria-label="Buscar tarefas e notas"
+              aria-label="Buscar tarefas, notas e planos"
               onChange={(e) => {
                 const next = e.target.value;
                 setQuery(next);
