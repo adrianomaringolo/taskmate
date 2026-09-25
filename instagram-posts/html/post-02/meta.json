@@ -1,0 +1,16 @@
+{
+  "title": "Promocional: anote agora, decida depois",
+  "date": "2026-09-25",
+  "type": "single",
+  "format": "1080x1350",
+  "slides": [
+    {
+      "file": "slide-01.html",
+      "title": "Promocional",
+      "description": "Logo, \"Anote agora. Decida depois.\", \"Sem conta, sem servidor, do seu jeito e com tranquilidade.\", CTA em texto (\"Abra no navegador, instale no celular\" + get-taskmate.web.app em destaque, com fio âmbar à esquerda; nada de botão, que no feed não é clicável). Fundo: a cena inteira do vídeo do hero (vaso, livros, luz da janela), dissolvendo para cima na superfície do app (bg.jpg; vídeo: Cup of Couple, Pexels)."
+    }
+  ],
+  "caption": "✍️ Anote agora. Decida depois.\n\nA ideia do Taskmate é simples: tirar a tarefa da cabeça no momento em que ela aparece, sem escolher lista, sem pensar em prazo. Tudo cai na Entrada.\n\nDepois, com calma, você olha tudo de uma vez e escolhe o que é para hoje.\n\n⚡ A tecla N abre a captura em qualquer tela\n📅 \"amanhã\" e \"!alta\" no texto já viram prazo e prioridade\n🔒 Sem cadastro e sem servidor: funciona até sem internet\n\nAbre no navegador e dá para instalar como app. 👉 get-taskmate.web.app",
+  "hashtags": ["taskmate", "organizacao", "listadetarefas", "organizacaopessoal", "gestaodotempo", "produtividadecalma", "todolist", "appdetarefas"],
+  "credits": ["bg.jpg: quadro de web/public/produto/hero.mp4 (Cup of Couple, Pexels; ver ATTRIBUTION.md)"]
+}

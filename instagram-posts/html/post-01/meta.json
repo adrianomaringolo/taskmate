@@ -1,0 +1,59 @@
+{
+  "title": "Lançamento: Taskmate, suas tarefas num lugar calmo",
+  "date": "2026-09-24",
+  "type": "carousel",
+  "format": "1080x1350",
+  "slides": [
+    {
+      "file": "slide-01.html",
+      "title": "Capa",
+      "description": "Logo, \"Suas tarefas, num lugar calmo.\" e o Hoje com três tarefas de exemplo."
+    },
+    {
+      "file": "slide-02.html",
+      "title": "O problema",
+      "description": "\"Sua cabeça não é lugar de guardar tarefa.\" com oito pendências soltas espalhadas."
+    },
+    {
+      "file": "slide-03.html",
+      "title": "Capturar",
+      "description": "\"Anote em cinco segundos.\" Campo de captura com \"amanhã\" e \"!alta\" reconhecidos e a tarefa resultante."
+    },
+    {
+      "file": "slide-04.html",
+      "title": "Entrada",
+      "description": "\"Tudo cai na Entrada.\" Lista da Entrada com quatro tarefas."
+    },
+    {
+      "file": "slide-05.html",
+      "title": "Hoje",
+      "description": "\"Decida o dia com calma, depois.\" Hoje de vários grupos, uma concluída e uma atrasada com os atalhos de adiar."
+    },
+    {
+      "file": "slide-06.html",
+      "title": "Seus dados",
+      "description": "\"Sem conta. Sem servidor.\" Quatro fatos: sem cadastro, offline, sem servidor, sync opcional pelo Drive."
+    },
+    {
+      "file": "slide-07.html",
+      "title": "Fecho",
+      "description": "\"Abra e comece.\" Botão Abrir o Taskmate e get-taskmate.web.app, sobre um quadro do vídeo do hero da página de produto (bg-fecho.jpg; vídeo: Cup of Couple, Pexels)."
+    }
+  ],
+  "caption": "🧠 Sua cabeça não é lugar de guardar tarefa.\n\nConta pra pagar, e-mail pra responder, presente de aniversário, aquela ideia do projeto. Tudo disputando a mesma atenção.\n\nPor isso nasceu o Taskmate: um lugar calmo para tirar tudo da cabeça e decidir o dia depois, com calma.\n\n✍️ Anote em segundos: a tecla N abre a captura, e \"pagar a luz amanhã !alta\" já vira tarefa com prazo e prioridade.\n📥 Tudo cai na Entrada, sem escolher lugar na hora.\n☀️ O Hoje junta o que vence, de todos os grupos. Atrasou? Adie num toque.\n🔒 Sem cadastro e sem servidor: funciona até sem internet, e as tarefas ficam no seu aparelho.\n☁️ Quer usar em mais de um aparelho? Sincronize pelo seu próprio Google Drive, num único arquivo.\n\nÉ gratuito e abre no navegador. Dá para instalar como app no celular ou no computador.\n\n👉 get-taskmate.web.app\n\n💬 Como você guarda suas tarefas hoje? Conta aqui embaixo.",
+  "hashtags": [
+    "taskmate",
+    "organizacao",
+    "listadetarefas",
+    "gestaodotempo",
+    "organizacaopessoal",
+    "produtividadecalma",
+    "todolist",
+    "planejamento",
+    "appdetarefas",
+    "semcadastro"
+  ],
+  "credits": [
+    "bg-fecho.jpg: quadro de web/public/produto/hero.mp4 (Cup of Couple, Pexels; ver ATTRIBUTION.md)"
+  ]
+}

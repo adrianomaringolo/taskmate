@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Fecho</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1080px; height: 1350px; overflow: hidden; background: #ffffff; font-family: 'Inter', system-ui, sans-serif; color: #161a1f; -webkit-font-smoothing: antialiased; }
+.slide { position: relative; width: 1080px; height: 1350px; padding: 96px 88px; overflow: hidden; background: #ffffff; }
+.corner { position: absolute; top: 88px; left: 88px; display: flex; align-items: center; gap: 14px; font-size: 26px; font-weight: 600; color: #6b7178; }
+.eyebrow { font-size: 28px; font-weight: 600; color: #a15f27; margin-bottom: 22px; }
+h1 { font-size: 76px; font-weight: 650; line-height: 1.06; letter-spacing: -0.032em; text-wrap: balance; max-width: 15ch; }
+.lede { margin-top: 30px; max-width: 30ch; font-size: 34px; line-height: 1.45; color: #4d535a; text-wrap: pretty; }
+.copy { position: absolute; top: 200px; left: 88px; right: 88px; }
+.floor { position: absolute; left: 0; right: 0; bottom: 0; background: #f5f7fa; border-top: 1px solid #dde0e4; }
+.stage { position: absolute; left: 88px; right: 88px; }
+.progress { position: absolute; left: 0; right: 0; bottom: 60px; display: flex; justify-content: center; gap: 10px; z-index: 5; }
+.progress span { width: 16px; height: 6px; border-radius: 3px; background: #dde0e4; }
+.progress span.active { width: 40px; background: #cd8134; }
+/* app vocabulary, at ~2.2x */
+.card { background: #ffffff; border: 1px solid #dde0e4; border-radius: 22px; padding: 28px 32px; box-shadow: 0 12px 32px rgba(22,26,31,.08), 0 2px 6px rgba(22,26,31,.05); }
+.view-head { display: flex; align-items: center; gap: 14px; font-size: 28px; font-weight: 600; color: #4d535a; padding-bottom: 18px; border-bottom: 1px solid #dde0e4; }
+.view-head .ic { color: #6b7178; }
+.view-head .count { margin-left: auto; font-variant-numeric: tabular-nums; color: #6b7178; font-weight: 500; }
+.view-head--late { color: #c51d28; } .view-head--late .ic { color: #c51d28; }
+.tasks { list-style: none; }
+.task { display: flex; gap: 22px; align-items: flex-start; padding: 22px 4px; border-bottom: 1px solid #dde0e4; }
+.task:last-child { border-bottom: 0; }
+.check { flex: none; display: grid; place-items: center; width: 36px; height: 36px; margin-top: 2px; border: 2px solid #c9ccd1; border-radius: 9px; background: #fff; color: #25170b; }
+.check.on { background: #cd8134; border-color: #cd8134; }
+.check .ic { width: 24px; height: 24px; stroke-width: 3; }
+.task__title { font-size: 31px; line-height: 1.3; }
+.task.done .task__title { color: #6b7178; text-decoration: line-through; text-decoration-color: #9aa0a6; }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 8px; font-size: 25px; color: #6b7178; font-variant-numeric: tabular-nums; }
+.meta .today { color: #a15f27; font-weight: 550; }
+.meta .late { display: inline-flex; align-items: center; gap: 8px; color: #c51d28; font-weight: 550; }
+.meta .where { display: inline-flex; align-items: center; gap: 10px; }
+.dot { width: 14px; height: 14px; border-radius: 50%; }
+.prio { display: inline-flex; align-items: flex-end; gap: 8px; font-weight: 550; }
+.prio__bars { display: inline-flex; align-items: flex-end; gap: 3px; height: 20px; }
+.prio__bars i { width: 5px; border-radius: 1.5px; background: currentColor; }
+.prio--3 { color: #c51d28; } .prio--2 { color: #a15f27; }
+.snooze { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; font-size: 24px; color: #6b7178; }
+.snooze b { font-weight: 500; margin-right: 4px; }
+.snooze span { padding: 4px 14px; border: 1.5px solid #c9ccd1; border-radius: 9px; color: #161a1f; font-weight: 500; }
+.snooze span.picked { border-color: #cd8134; background: rgba(205,129,52,.12); color: #7d4816; }
+
+/* Background: a still of the product page's hero clip (Cup of Couple,
+   Pexels). The copy sits on the wall, over the pool of light; the sideboard
+   and books hold the bottom. A white wash at the top keeps the ink crisp. */
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.wash { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(255,255,255,.72) 0%, rgba(255,255,255,.45) 40%, rgba(255,255,255,0) 62%); }
+.close { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 130px 88px 0; text-align: center; }
+.brand-lg { display: flex; align-items: center; gap: 22px; margin-bottom: 56px; font-size: 60px; font-weight: 650; letter-spacing: -0.02em; }
+.close h1 { font-size: 104px; max-width: none; }
+.close .lede { margin-top: 28px; max-width: 32ch; color: #2f343a; }
+.cta { display: inline-flex; align-items: center; margin-top: 52px; box-shadow: 0 10px 28px rgba(22,26,31,.18); padding: 0 56px; min-height: 112px; border-radius: 22px; background: #cd8134; color: #25170b; font-size: 40px; font-weight: 650; }
+.url { margin-top: 26px; font-size: 34px; font-weight: 650; color: #8a4f1d; letter-spacing: -0.01em; }
+</style>
+</head>
+<body>
+<div class="slide">
+
+<img class="bg" src="bg-fecho.jpg" alt="">
+<div class="wash"></div>
+<div class="close">
+  <div class="brand-lg"><svg class="mark" width="96" height="96" viewBox="0 0 16 16" fill="none" stroke="#cd8134" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.4 10.4 5.5 12.7 10.8 5.7" /><path d="M12.9 2.9 13.9 1.6" /></svg><span>Taskmate</span></div>
+  <h1>Abra e comece.</h1>
+  <p class="lede">No navegador, sem conta. Instale como app no celular ou no computador.</p>
+  <span class="cta">Abrir o Taskmate</span>
+  <p class="url">get-taskmate.web.app</p>
+</div>
+
+<div class="progress"><span></span><span></span><span></span><span></span><span></span><span></span><span class="active"></span></div>
+</div>
+</body>
+</html>

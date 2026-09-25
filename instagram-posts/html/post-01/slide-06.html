@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Seus dados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1080px; height: 1350px; overflow: hidden; background: #ffffff; font-family: 'Inter', system-ui, sans-serif; color: #161a1f; -webkit-font-smoothing: antialiased; }
+.slide { position: relative; width: 1080px; height: 1350px; padding: 96px 88px; overflow: hidden; background: #ffffff; }
+.corner { position: absolute; top: 88px; left: 88px; display: flex; align-items: center; gap: 14px; font-size: 26px; font-weight: 600; color: #6b7178; }
+.eyebrow { font-size: 28px; font-weight: 600; color: #a15f27; margin-bottom: 22px; }
+h1 { font-size: 76px; font-weight: 650; line-height: 1.06; letter-spacing: -0.032em; text-wrap: balance; max-width: 15ch; }
+.lede { margin-top: 30px; max-width: 30ch; font-size: 34px; line-height: 1.45; color: #4d535a; text-wrap: pretty; }
+.copy { position: absolute; top: 200px; left: 88px; right: 88px; }
+.floor { position: absolute; left: 0; right: 0; bottom: 0; background: #f5f7fa; border-top: 1px solid #dde0e4; }
+.stage { position: absolute; left: 88px; right: 88px; }
+.progress { position: absolute; left: 0; right: 0; bottom: 60px; display: flex; justify-content: center; gap: 10px; z-index: 5; }
+.progress span { width: 16px; height: 6px; border-radius: 3px; background: #dde0e4; }
+.progress span.active { width: 40px; background: #cd8134; }
+/* app vocabulary, at ~2.2x */
+.card { background: #ffffff; border: 1px solid #dde0e4; border-radius: 22px; padding: 28px 32px; box-shadow: 0 12px 32px rgba(22,26,31,.08), 0 2px 6px rgba(22,26,31,.05); }
+.view-head { display: flex; align-items: center; gap: 14px; font-size: 28px; font-weight: 600; color: #4d535a; padding-bottom: 18px; border-bottom: 1px solid #dde0e4; }
+.view-head .ic { color: #6b7178; }
+.view-head .count { margin-left: auto; font-variant-numeric: tabular-nums; color: #6b7178; font-weight: 500; }
+.view-head--late { color: #c51d28; } .view-head--late .ic { color: #c51d28; }
+.tasks { list-style: none; }
+.task { display: flex; gap: 22px; align-items: flex-start; padding: 22px 4px; border-bottom: 1px solid #dde0e4; }
+.task:last-child { border-bottom: 0; }
+.check { flex: none; display: grid; place-items: center; width: 36px; height: 36px; margin-top: 2px; border: 2px solid #c9ccd1; border-radius: 9px; background: #fff; color: #25170b; }
+.check.on { background: #cd8134; border-color: #cd8134; }
+.check .ic { width: 24px; height: 24px; stroke-width: 3; }
+.task__title { font-size: 31px; line-height: 1.3; }
+.task.done .task__title { color: #6b7178; text-decoration: line-through; text-decoration-color: #9aa0a6; }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 8px; font-size: 25px; color: #6b7178; font-variant-numeric: tabular-nums; }
+.meta .today { color: #a15f27; font-weight: 550; }
+.meta .late { display: inline-flex; align-items: center; gap: 8px; color: #c51d28; font-weight: 550; }
+.meta .where { display: inline-flex; align-items: center; gap: 10px; }
+.dot { width: 14px; height: 14px; border-radius: 50%; }
+.prio { display: inline-flex; align-items: flex-end; gap: 8px; font-weight: 550; }
+.prio__bars { display: inline-flex; align-items: flex-end; gap: 3px; height: 20px; }
+.prio__bars i { width: 5px; border-radius: 1.5px; background: currentColor; }
+.prio--3 { color: #c51d28; } .prio--2 { color: #a15f27; }
+.snooze { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; font-size: 24px; color: #6b7178; }
+.snooze b { font-weight: 500; margin-right: 4px; }
+.snooze span { padding: 4px 14px; border: 1.5px solid #c9ccd1; border-radius: 9px; color: #161a1f; font-weight: 500; }
+.snooze span.picked { border-color: #cd8134; background: rgba(205,129,52,.12); color: #7d4816; }
+
+.facts { list-style: none; padding: 16px 36px; }
+.facts li { display: flex; gap: 28px; align-items: center; padding: 28px 0; border-bottom: 1px solid #dde0e4; }
+.facts li:last-child { border-bottom: 0; }
+.fact-ic { flex: none; display: grid; place-items: center; width: 72px; height: 72px; border-radius: 18px; background: #f5f7fa; color: #4d535a; }
+.facts b { display: block; font-size: 32px; font-weight: 600; }
+.facts li > div > span { display: block; margin-top: 4px; font-size: 27px; color: #6b7178; }
+</style>
+</head>
+<body>
+<div class="slide">
+
+<div class="corner"><svg class="mark" width="30" height="30" viewBox="0 0 16 16" fill="none" stroke="#cd8134" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.4 10.4 5.5 12.7 10.8 5.7" /><path d="M12.9 2.9 13.9 1.6" /></svg><span>Taskmate</span></div>
+<div class="copy">
+  <p class="eyebrow">Seus dados</p>
+  <h1>Sem conta. Sem servidor.</h1>
+  <p class="lede">Suas tarefas são suas. O Taskmate só guarda onde você manda.</p>
+</div>
+<div class="floor" style="top:760px"></div>
+<div class="stage" style="top:700px"><ul class="card facts"><li><span class="fact-ic"><svg class="ic" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16.5 16.5 5 5" /><path d="M2 21a8 8 0 0 1 11.531-7.18" /><path d="m21.5 16.5-5 5" /><circle cx="10" cy="8" r="5" /></svg></span><div><b>Sem cadastro.</b><span>Abre no navegador e funciona.</span></div></li><li><span class="fact-ic"><svg class="ic" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h.01" /><path d="M8.5 16.429a5 5 0 0 1 7 0" /><path d="M5 12.859a10 10 0 0 1 5.17-2.69" /><path d="M19 12.859a10 10 0 0 0-2.007-1.523" /><path d="M2 8.82a15 15 0 0 1 4.177-2.643" /><path d="M22 8.82a15 15 0 0 0-11.288-3.764" /><path d="m2 2 20 20" /></svg></span><div><b>Funciona sem internet.</b><span>As tarefas ficam no seu aparelho.</span></div></li><li><span class="fact-ic"><svg class="ic" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 2h13a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-5" /><path d="M10 10 2.5 2.5C2 2 2 2.5 2 5v3a2 2 0 0 0 2 2h6z" /><path d="M22 17v-1a2 2 0 0 0-2-2h-1" /><path d="M4 14a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16.5l1-.5.5.5-8-8H4z" /><path d="M6 18h.01" /><path d="m2 2 20 20" /></svg></span><div><b>Sem servidor nosso.</b><span>Nada passa por um intermediário.</span></div></li><li><span class="fact-ic"><svg class="ic" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" /></svg></span><div><b>Sincroniza pelo seu Drive, se quiser.</b><span>Um único arquivo, na sua própria conta.</span></div></li></ul></div>
+
+<div class="progress"><span></span><span></span><span></span><span></span><span></span><span class="active"></span><span></span></div>
+</div>
+</body>
+</html>

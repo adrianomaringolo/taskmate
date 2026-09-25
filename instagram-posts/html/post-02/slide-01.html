@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Promocional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1080px; height: 1350px; overflow: hidden; background: #f5f7fa; font-family: 'Inter', system-ui, sans-serif; color: #161a1f; -webkit-font-smoothing: antialiased; }
+.slide { position: relative; width: 1080px; height: 1350px; padding: 96px 88px; overflow: hidden; background: #f5f7fa; }
+
+/* The photo: a still of the product page's hero clip (Cup of Couple, Pexels),
+   the whole scene this time (vase, books, the pool of window light). It holds
+   the bottom and dissolves upward into --surface, the way the hero does on a
+   phone, so the copy sits on the app's own ground, never on the photo. */
+.bg { position: absolute; left: 0; bottom: 0; width: 1080px; height: 700px; object-fit: cover;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%); mask-image: linear-gradient(to bottom, transparent 0%, #000 30%); }
+.copy { position: relative; z-index: 1; }
+
+.brand { display: flex; align-items: center; gap: 16px; font-size: 40px; font-weight: 650; letter-spacing: -0.02em; }
+.eyebrow { margin-top: 64px; font-size: 28px; font-weight: 600; color: #a15f27; }
+h1 { margin-top: 18px; font-size: 104px; font-weight: 650; line-height: 1.02; letter-spacing: -0.035em; }
+.lede { margin-top: 28px; font-size: 33px; line-height: 1.45; color: #4d535a; }
+/* No feed nada é clicável, então o CTA é texto, não botão: o endereço em
+   destaque, com um fio âmbar à esquerda para marcar o fecho. */
+.action { margin-top: 44px; padding-left: 28px; border-left: 6px solid #cd8134; }
+.go { font-size: 30px; font-weight: 500; color: #4d535a; }
+.url { margin-top: 6px; font-size: 48px; font-weight: 650; letter-spacing: -0.02em; color: #a15f27; }
+</style>
+</head>
+<body>
+<div class="slide">
+  <img class="bg" src="bg.jpg" alt="">
+  <div class="copy">
+  <div class="brand">
+    <svg width="52" height="52" viewBox="0 0 16 16" fill="none" stroke="#cd8134" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.4 10.4 5.5 12.7 10.8 5.7" /><path d="M12.9 2.9 13.9 1.6" /></svg>
+    <span>Taskmate</span>
+  </div>
+  <p class="eyebrow">Seu companheiro de tarefas</p>
+  <h1>Anote agora.<br>Decida depois.</h1>
+  <p class="lede">Sem conta, sem servidor,<br>do seu jeito e com tranquilidade.</p>
+  <div class="action">
+    <p class="go">Abra no navegador, instale no celular</p>
+    <p class="url">get-taskmate.web.app</p>
+  </div>
+  </div>
+</div>
+</body>
+</html>
