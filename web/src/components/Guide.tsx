@@ -132,10 +132,13 @@ export function Guide({ open, onClose }: Props) {
             <strong>Calendário</strong> — mês, semana ou dia.
           </li>
           <li>
-            <strong>Busca</strong> — tarefas e notas, por título, corpo e etiquetas.
+            <strong>Busca</strong> — tarefas, notas e planos, por título, corpo e etiquetas.
           </li>
           <li>
             <strong>Notas</strong> — captura livre com etiquetas, sem lista ou grupo obrigatório.
+          </li>
+          <li>
+            <strong>Planos</strong> — ideias de longo prazo, com tarefas e notas apontando para elas.
           </li>
         </ul>
       </section>
@@ -164,6 +167,10 @@ export function Guide({ open, onClose }: Props) {
           <li>
             <strong>Notas</strong> em texto livre.
           </li>
+          <li>
+            <strong>Plano</strong>: qual plano de longo prazo ela serve, se algum — opcional, não
+            move a tarefa da lista onde ela mora.
+          </li>
         </ul>
       </section>
 
@@ -178,6 +185,21 @@ export function Guide({ open, onClose }: Props) {
         <p className="guide__body">
           O corpo aceita negrito, itálico, sublinhado, títulos e marcadores — só isso, de propósito.
           Nada de tabelas, imagens ou links: uma nota continua rápida de escrever e de ler.
+        </p>
+      </section>
+
+      <section className="guide__section">
+        <h3 className="guide__heading">Planos</h3>
+        <p className="guide__body">
+          Uma ideia grande demais para uma tarefa só — escrever um livro, uma viagem, uma mudança de
+          carreira. Título, descrição livre e um jeito de marcar como concluído, sem prazo nem
+          repetição.
+        </p>
+        <p className="guide__body">
+          Um plano não é mais um nível na hierarquia grupo › lista: uma tarefa continua na sua lista
+          de sempre, e uma nota continua solta — cada uma pode só também apontar para um plano, pelos
+          detalhes dela, para reaparecer junto quando você abrir o plano. Nenhum progresso é
+          calculado; o ponto é ver o objetivo e o que já serve a ele, não medir.
         </p>
       </section>
 

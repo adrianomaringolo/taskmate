@@ -141,6 +141,13 @@ export interface Task {
   tags: string[];
   /** Live, sorted checklist items — see `Step`. */
   steps: Step[];
+  /**
+   * The long-term Plano this task serves, if any — see `Plan`. Optional and
+   * scalar, the same shape `listId` already uses for "which one, if any";
+   * concurrent re-assignment from two devices resolves the same way a
+   * concurrent list move already does.
+   */
+  planId: string | null;
   order: Order;
   createdAt: string;
   updatedAt: string;
@@ -158,6 +165,33 @@ export interface Note {
   title: string;
   body: string;
   tags: string[];
+  /** The long-term Plano this note serves, if any — see `Task.planId`. */
+  planId: string | null;
+  order: Order;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: Tombstone;
+}
+
+/**
+ * A long-term idea a task or note can be filed under — "Escrever um livro",
+ * "Viagem para a Europa" — distinct from the grupo›lista hierarchy, which
+ * organises the *daily* work, not what it is in service of. A Plano has no
+ * address of its own to file things *into* the way a list does: a task keeps
+ * living in its real list, and only optionally also points at a Plano (see
+ * `Task.planId`) — attaching never moves anything.
+ *
+ * `done` reuses the exact meaning it has on a task: the Plano was achieved.
+ * There is no progress percentage or rollup from attached tasks — see
+ * PRODUCT.md's "dashboards de produtividade" anti-reference; the point is to
+ * see the goal and what serves it, not to measure it.
+ */
+export interface Plan {
+  id: string;
+  title: string;
+  description: string;
+  done: boolean;
+  doneAt: string | null;
   order: Order;
   createdAt: string;
   updatedAt: string;
@@ -170,6 +204,7 @@ export interface AppState {
   lists: List[];
   tasks: Task[];
   notes: Note[];
+  plans: Plan[];
 }
 
 export type CalendarMode = 'month' | 'week' | 'day';
@@ -185,4 +220,5 @@ export type View =
   | { kind: 'trash' }
   | { kind: 'calendar'; mode: CalendarMode; date: string }
   | { kind: 'search'; query: string }
-  | { kind: 'notes' };
+  | { kind: 'notes' }
+  | { kind: 'plans' };

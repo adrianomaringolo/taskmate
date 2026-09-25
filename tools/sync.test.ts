@@ -627,6 +627,126 @@ await test('a lixeira classifica tarefas e notas excluídas corretamente', async
   );
 });
 
+await test('planos criados offline em dois dispositivos convergem', async () => {
+  const store = new FakeStore();
+  const a = new Device('A', store);
+  const b = new Device('B', store);
+
+  a.edit((d) => doc.addPlan(d, { title: 'da A' })[0]);
+  b.edit((d) => doc.addPlan(d, { title: 'da B' })[0]);
+
+  await a.sync();
+  await b.sync();
+  await a.sync();
+
+  const titlesA = a.state().plans.map((p) => p.title).sort();
+  const titlesB = b.state().plans.map((p) => p.title).sort();
+  assertSame(titlesA, ['da A', 'da B'], 'A não tem os dois planos');
+  assertSame(titlesB, ['da A', 'da B'], 'B não tem os dois planos');
+  assertSame(a.state(), b.state(), 'as projeções divergem');
+});
+
+await test('excluir um plano num dispositivo e editar no outro não o ressuscita', async () => {
+  const store = new FakeStore();
+  const a = new Device('A', store);
+  const [withPlan, planId] = doc.addPlan(a.doc, { title: 'condenado' });
+  a.doc = withPlan;
+  await a.sync();
+  const b = new Device('B', store);
+  await b.sync();
+
+  a.edit((d) => doc.removePlan(d, planId));
+  b.edit((d) => doc.patchPlan(d, planId, { description: 'editado offline' }));
+
+  await a.sync();
+  await b.sync();
+  await a.sync();
+
+  const titlesA = a.state().plans.map((p) => p.title);
+  const titlesB = b.state().plans.map((p) => p.title);
+  assert(!titlesA.includes('condenado'), 'o plano voltou em A');
+  assert(!titlesB.includes('condenado'), 'o plano voltou em B');
+  assertSame(a.state(), b.state(), 'as projeções divergem');
+});
+
+await test('planos não vazam para a projeção de tarefas ou de notas, nem elas para a de planos', async () => {
+  // Same mechanism as notes (see the comment on that test above): a plan is
+  // a row in the shared `tasks` collection filed under a reserved listId
+  // (doc.ts's PLAN_LIST_ID), not a collection of its own.
+  const a = new Device('A', new FakeStore());
+  const [withTask, taskId] = doc.addTask(a.doc, { listId: listOf(a), title: 'tarefa normal' });
+  const [withNote, noteId] = doc.addNote(withTask, { title: 'nota normal' });
+  const [withPlan, planId] = doc.addPlan(withNote, { title: 'plano normal' });
+  a.doc = withPlan;
+
+  assertSame(a.state().tasks.map((t) => t.id), [taskId], 'algo vazou para a lista de tarefas');
+  assertSame(a.state().notes.map((n) => n.id), [noteId], 'algo vazou para a lista de notas');
+  assertSame(a.state().plans.map((p) => p.id), [planId], 'algo vazou para a lista de planos');
+});
+
+await test('anexar uma tarefa e uma nota a um plano converge, e excluir o plano não as apaga', async () => {
+  const store = new FakeStore();
+  const a = new Device('A', store);
+  const [withTask, taskId] = doc.addTask(a.doc, { listId: listOf(a), title: 'serve ao plano' });
+  const [withNote, noteId] = doc.addNote(withTask, { title: 'também serve ao plano' });
+  const [withPlan, planId] = doc.addPlan(withNote, { title: 'Escrever um livro' });
+  a.doc = withPlan;
+  await a.sync();
+  const b = new Device('B', store);
+  await b.sync();
+
+  a.edit((d) => doc.patchTask(d, taskId, { planId }));
+  b.edit((d) => doc.patchNote(d, noteId, { planId }));
+
+  await a.sync();
+  await b.sync();
+  await a.sync();
+
+  assertSame(a.state().tasks.find((t) => t.id === taskId)!.planId, planId, 'A não anexou a tarefa');
+  assertSame(a.state().notes.find((n) => n.id === noteId)!.planId, planId, 'A não anexou a nota');
+  assertSame(a.state(), b.state(), 'as projeções divergem');
+
+  // Removing the plan is a tombstone on the plan row alone — attaching never
+  // makes the plan an owner the way a list owns its tasks, so nothing about
+  // the task or note it once pointed to should change.
+  a.edit((d) => doc.removePlan(d, planId));
+  await a.sync();
+  await b.sync();
+
+  const taskB = b.state().tasks.find((t) => t.id === taskId);
+  const noteB = b.state().notes.find((n) => n.id === noteId);
+  assert(!!taskB, 'a tarefa sumiu quando o plano dela foi excluído');
+  assert(!!noteB, 'a nota sumiu quando o plano dela foi excluído');
+  assertSame(taskB!.planId, planId, 'a tarefa perdeu a referência ao plano excluído');
+  assertSame(noteB!.planId, planId, 'a nota perdeu a referência ao plano excluído');
+  assert(!b.state().plans.some((p) => p.id === planId), 'o plano excluído continua na projeção viva');
+});
+
+await test('a lixeira classifica tarefas, notas e planos excluídos corretamente', async () => {
+  const a = new Device('A', new FakeStore());
+  const [withTask, taskId] = doc.addTask(a.doc, { listId: listOf(a), title: 'tarefa condenada' });
+  const [withNote, noteId] = doc.addNote(withTask, { title: 'nota condenada' });
+  const [withPlan, planId] = doc.addPlan(withNote, { title: 'plano condenado' });
+  a.doc = doc.removeTask(withPlan, taskId);
+  a.doc = doc.removeNote(a.doc, noteId);
+  a.doc = doc.removePlan(a.doc, planId);
+
+  const trash = doc.projectTrash(a.doc);
+  const task = trash.find((i) => i.id === taskId)!;
+  const note = trash.find((i) => i.id === noteId)!;
+  const plan = trash.find((i) => i.id === planId)!;
+  assertSame(task.kind, 'task', 'a tarefa excluída não foi classificada como task');
+  assertSame(note.kind, 'note', 'a nota excluída não foi classificada como note');
+  assertSame(plan.kind, 'plan', 'o plano excluído não foi classificado como plan');
+  assertSame(plan.subtitle, 'Plano', 'o plano excluído não tem o subtítulo esperado');
+
+  a.doc = doc.restorePlanDeep(a.doc, planId);
+  assert(
+    a.state().plans.some((p) => p.id === planId),
+    'o plano não voltou depois de restaurado'
+  );
+});
+
 console.log(
   failures === 0
     ? `\nTodos os cenários de convergência passaram.`

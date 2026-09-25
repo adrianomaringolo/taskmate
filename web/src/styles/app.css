@@ -1269,6 +1269,95 @@ button {
   color: var(--ink-3);
 }
 
+/* Compact, inline with the tag list and stamp — not the full-width field it
+   is everywhere else. */
+.note__plan {
+  width: auto;
+  min-height: auto;
+  padding: var(--s-1) var(--s-5) var(--s-1) var(--s-2);
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+}
+
+/* ---------- plans ---------- */
+
+.plans {
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-4) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.plan[data-done='true'] .plan__title {
+  color: var(--ink-2);
+  text-decoration: line-through;
+}
+
+.plan__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+}
+
+.plan__title {
+  flex: 1;
+  font-weight: 600;
+}
+
+.plan__delete {
+  flex: none;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+.plan:hover .plan__delete,
+.plan__delete:focus-visible {
+  opacity: 1;
+}
+
+.plan__description {
+  min-height: 44px;
+  font-size: var(--t-sm);
+}
+
+.plan__attached {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  background: var(--surface);
+  border-radius: var(--r-md);
+}
+
+.plan__section-title {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0 0 var(--s-1);
+}
+
+/* Attached rows sit on the plan card's own surface, not the page's — the
+   list styling's own borders/hover states still apply, just without the
+   full-width divider a top-level task/note list uses. */
+.plan__section .tasks,
+.plan__section .notes {
+  border-top: none;
+}
+
+.plan__stamp {
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+}
+
 /* ---------- done section ---------- */
 
 .done-section {

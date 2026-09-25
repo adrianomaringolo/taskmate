@@ -10,6 +10,7 @@ import { InlineText } from './InlineText';
 import { InsightsView } from './InsightsView';
 import { Menu } from './Menu';
 import { NoteCard, NotesView } from './NotesView';
+import { PlanCard, PlansView } from './PlansView';
 import { QuickAdd } from './QuickAdd';
 import { TaskRow } from './TaskRow';
 
@@ -95,6 +96,7 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
   if (view.kind === 'insights') return <InsightsView onSelect={onSelect} labelFor={labelFor} />;
   if (view.kind === 'trash') return <TrashView />;
   if (view.kind === 'notes') return <NotesView />;
+  if (view.kind === 'plans') return <PlansView />;
 
   const inbox = data.lists.find((l) => l.isInbox);
   const t = today();
@@ -117,24 +119,29 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
             note.tags.some((tag) => normalize(tag) === q)
         )
       : [];
-    const total = taskMatches.length + noteMatches.length;
+    const planMatches = q
+      ? data.plans.filter(
+          (plan) => normalize(plan.title).includes(q) || normalize(plan.description).includes(q)
+        )
+      : [];
+    const total = taskMatches.length + noteMatches.length + planMatches.length;
 
     return (
       <div className="main__inner">
         <header className="view-head">
           <p className="view-head__crumb">Busca</p>
-          <h1 className="view-head__title">{view.query ? `“${view.query}”` : 'Buscar tarefas e notas'}</h1>
+          <h1 className="view-head__title">{view.query ? `“${view.query}”` : 'Buscar tarefas, notas e planos'}</h1>
           <p className="view-head__sub">
             {!view.query
-              ? 'Digite acima para procurar em tarefas e notas.'
+              ? 'Digite acima para procurar em tarefas, notas e planos.'
               : `${total} ${total === 1 ? 'resultado' : 'resultados'}`}
           </p>
         </header>
 
         {view.query && total === 0 ? (
           <EmptyState illustration="not-found" title="Nada encontrado">
-            A busca cobre títulos, notas e etiquetas, sem diferenciar acentos ou maiúsculas. Talvez
-            esteja com outro nome.
+            A busca cobre títulos, notas, planos e etiquetas, sem diferenciar acentos ou maiúsculas.
+            Talvez esteja com outro nome.
           </EmptyState>
         ) : (
           <>
@@ -143,6 +150,13 @@ function ReadyState({ view, onSelect, quickAddRef, weekStartKey, boardFull, onTo
               <ul className="notes">
                 {noteMatches.map((note) => (
                   <NoteCard key={note.id} note={note} />
+                ))}
+              </ul>
+            )}
+            {planMatches.length > 0 && (
+              <ul className="plans">
+                {planMatches.map((plan) => (
+                  <PlanCard key={plan.id} plan={plan} />
                 ))}
               </ul>
             )}

@@ -140,6 +140,10 @@ interface Store {
   removeNote: (id: string) => Promise<void>;
   addNoteTag: (noteId: string, tag: string) => Promise<void>;
   removeNoteTag: (noteId: string, tag: string) => Promise<void>;
+
+  addPlan: (input?: D.NewPlan) => Promise<string | null>;
+  patchPlan: (id: string, patch: D.PlanPatch) => Promise<void>;
+  removePlan: (id: string) => Promise<void>;
 }
 
 /** Fields the quick-add parser can pull out of a capture string. */
@@ -159,7 +163,7 @@ const toNewTask = (i: { title: string } & CaptureOpts): D.NewTask => ({
 
 const StoreContext = createContext<Store | null>(null);
 
-const EMPTY: AppState = { groups: [], lists: [], tasks: [], notes: [] };
+const EMPTY: AppState = { groups: [], lists: [], tasks: [], notes: [], plans: [] };
 
 function readCollapsed(): Set<string> {
   try {
@@ -695,7 +699,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const restoreFromTrash = useCallback<Store['restoreFromTrash']>(
     async (item) => {
-      mutate((d) => (item.kind === 'note' ? D.restoreNoteDeep(d, item.id) : D.restoreTaskDeep(d, item.id)));
+      mutate((d) =>
+        item.kind === 'note'
+          ? D.restoreNoteDeep(d, item.id)
+          : item.kind === 'plan'
+            ? D.restorePlanDeep(d, item.id)
+            : D.restoreTaskDeep(d, item.id)
+      );
       notify(`"${truncate(item.title || 'Sem título')}" foi restaurada.`);
     },
     [mutate, notify]
@@ -744,6 +754,41 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const removeNoteTag = useCallback<Store['removeNoteTag']>(
     async (noteId, tag) => mutate((d) => D.removeNoteTag(d, noteId, tag)),
     [mutate]
+  );
+
+  // --- plans --------------------------------------------------------------
+
+  const addPlan = useCallback<Store['addPlan']>(
+    async (input) => {
+      const current = docRef.current;
+      if (!current) return null;
+      const [next, id] = D.addPlan(current, input ?? {});
+      setDoc(next);
+      syncSoon();
+      return id;
+    },
+    [setDoc, syncSoon]
+  );
+
+  const patchPlan = useCallback<Store['patchPlan']>(
+    async (id, patch) => mutate((d) => D.patchPlan(d, id, patch)),
+    [mutate]
+  );
+
+  const removePlan = useCallback<Store['removePlan']>(
+    async (id) => {
+      const plan = docRef.current?.tasks[id];
+      const title = plan?.title || 'Plano';
+      mutate((d) => D.removePlan(d, id));
+
+      const undo = () => {
+        mutate((d) => D.restorePlan(d, id));
+        undoRef.current = null;
+      };
+      undoRef.current = undo;
+      pushToast(`"${truncate(title)}" foi excluído.`, 'info', { label: 'Desfazer', run: undo });
+    },
+    [mutate, pushToast]
   );
 
   // --- sync controls --------------------------------------------------
@@ -841,6 +886,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     removeNote,
     addNoteTag,
     removeNoteTag,
+    addPlan,
+    patchPlan,
+    removePlan,
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

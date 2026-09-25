@@ -837,10 +837,12 @@ const SAMPLE: AppState = {
     recurrence: t.recurrence ? { unit: t.recurrence } : null,
     tags: [],
     steps: [],
+    planId: null,
   })),
   notes: [
-    { ...base, id: 'n0', title: 'Artigo sobre CRDTs para ler', body: '<p>O link que o Paulo mandou.</p>', tags: ['leitura', 'sync'] },
+    { ...base, id: 'n0', title: 'Artigo sobre CRDTs para ler', body: '<p>O link que o Paulo mandou.</p>', tags: ['leitura', 'sync'], planId: null },
   ],
+  plans: [],
 };
 const MD = toMarkdown(SAMPLE);
 // The preview drops blank lines to fit; the download keeps the file as written.

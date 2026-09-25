@@ -122,7 +122,7 @@ function NoteQuickAdd({ onCreate }: { onCreate: (title: string) => void }) {
 }
 
 export function NoteCard({ note }: { note: Note }) {
-  const { patchNote, removeNote, addNoteTag, removeNoteTag, allTags } = useStore();
+  const { data, patchNote, removeNote, addNoteTag, removeNoteTag, allTags } = useStore();
   const ids = useId();
   const [body, setBody] = useState(note.body);
   // The editor (toolbar included) only mounts once the body is clicked —
@@ -250,6 +250,21 @@ export function NoteCard({ note }: { note: Note }) {
             onCreate={(tag) => void addNoteTag(note.id, tag)}
           />
         </div>
+        {data.plans.length > 0 && (
+          <select
+            className="select note__plan"
+            aria-label="Plano"
+            value={note.planId ?? ''}
+            onChange={(e) => void patchNote(note.id, { planId: e.target.value || null })}
+          >
+            <option value="">Sem plano</option>
+            {data.plans.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.title || 'Sem título'}
+              </option>
+            ))}
+          </select>
+        )}
         <span className="note__stamp">Atualizada em {describeStamp(note.updatedAt)}</span>
       </div>
     </li>

@@ -272,6 +272,27 @@ export function TaskDetail({ task, onClose, onNudge }: Props) {
           </select>
         </div>
 
+        {data.plans.length > 0 && (
+          <div className="field">
+            <label className="field__label" htmlFor={`${ids}-plan`}>
+              Plano
+            </label>
+            <select
+              id={`${ids}-plan`}
+              className="select"
+              value={task.planId ?? ''}
+              onChange={(e) => void patchTask(task.id, { planId: e.target.value || null })}
+            >
+              <option value="">Nenhum</option>
+              {data.plans.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title || 'Sem título'}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div className="field field--tags">
           <label className="field__label" id={`${ids}-tags`}>
             Etiquetas
